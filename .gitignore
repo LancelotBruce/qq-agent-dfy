@@ -1,0 +1,51 @@
+# 依赖与运行时
+node_modules/
+*.exe
+*.dll
+*.pak
+*.dat
+*.bin
+*.7z
+*.zip
+*.msi
+
+# 运行期数据（绝不入库）
+/data/
+/data-v05/
+/logs/
+*.log
+/debug.log
+/config/local.json
+/config/consent.json
+/config/onebot_*.json
+*.qq-agent-install.json
+.qq-agent-runtime.lock
+*.bak
+*.bak-*
+备份/
+备份归档/
+记忆/
+记录/
+报表/
+分发包/
+垃圾清理/
+
+# 凭据与本地设置
+.env
+.env.*
+secrets.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.keystore
+# 上游更新签名的公钥（非私钥，需随源码保留）
+!resources/app/assets/update-public-key.pem
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

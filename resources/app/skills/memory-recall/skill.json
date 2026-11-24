@@ -1,0 +1,58 @@
+{
+  "id": "memory-recall",
+  "name": "回忆旧聊天",
+  "version": "1.1.3",
+  "apiVersion": 1,
+  "category": "knowledge",
+  "description": "把很久以前聊过的事翻出来：按关键词 + 日期/时段检索「长时记忆块」（conversation-memory 每小时巩固出的摘要）。支持「10月15日下午」「前天」这类日期直查（按天/时段过滤，不当关键词），泛词自动忽略并按 IDF 加权；读 data/member-aliases.json 做外号展开，并支持按说话人找人；只在模型主动调用时读盘，平常零成本。",
+  "author": "QQ Agent",
+  "entry": "index.js",
+  "permissions": [],
+  "capabilities": [],
+  "requires": [],
+  "enabledByDefault": true,
+  "settings": {
+    "defaultDays": 30,
+    "defaultLimit": 5,
+    "showSnippets": 3,
+    "maxChunkFiles": 4000,
+    "maxFileKb": 512
+  },
+  "configSchema": {
+    "defaultDays": {
+      "type": "number",
+      "label": "默认回看天数",
+      "description": "模型没指定 days 时只找最近这么多天。0 = 不限。默认 30。"
+    },
+    "defaultLimit": {
+      "type": "number",
+      "label": "默认返回块数",
+      "description": "一次最多给模型几个记忆块，默认 5（最大 20）。"
+    },
+    "showSnippets": {
+      "type": "number",
+      "label": "每块显示几条原文",
+      "description": "默认 3 条，每条截断到 140 字；调大更贵。"
+    },
+    "maxChunkFiles": {
+      "type": "number",
+      "label": "最多扫描块数",
+      "description": "从最新的往旧扫，默认 4000。块特别多时可以调大。"
+    },
+    "maxFileKb": {
+      "type": "number",
+      "label": "单块文件上限（KB）",
+      "description": "超过就跳过，防止异常大文件拖慢工具，默认 512。"
+    }
+  },
+  "prompt": {
+    "sections": [
+      {
+        "id": "memory-recall-guide",
+        "title": "回忆旧聊天",
+        "content": "【回忆旧聊天】有人提起更早的事、或你记不全的人名/约定/梗，先调 memory-recall__memory_recall（写具体名词比整句准，也可直接写日期/时段；查人写外号）。搜不到就说记不清，别编。",
+        "priority": 45
+      }
+    ]
+  }
+}

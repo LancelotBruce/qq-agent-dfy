@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>印象档案</title>
+<link rel="stylesheet" href="panel.css" />
+</head>
+<body data-panel="memory-plus">
+<main>
+  <header class="head">
+    <div>
+      <div class="eyebrow">MEMORY-PLUS / IMPRESSION</div>
+      <h2>印象档案</h2>
+      <div id="meta" class="muted">加载中</div>
+    </div>
+    <div class="head-actions">
+      <button id="refresh" class="btn" type="button">刷新</button>
+      <button id="export" class="btn ghost" type="button">导出快照</button>
+      <button id="sweep" class="btn ghost" type="button">清理存档</button>
+    </div>
+  </header>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="body">
+    <aside class="list" id="chats"></aside>
+    <article class="detail" id="detail">
+      <div class="empty">选择左侧会话查看成员印象</div>
+    </article>
+  </section>
+
+  <footer class="foot">
+    <span id="note" class="muted"></span>
+  </footer>
+</main>
+<script type="module" src="panel.js"></script>
+</body>
+</html>

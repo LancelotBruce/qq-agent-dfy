@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>今日台账</title>
+  <link rel="stylesheet" href="/panels/common.css">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body data-layout="compact">
+  <main>
+    <header class="head">
+      <div class="head-main">
+        <h2 id="label">今日台账</h2>
+        <p id="sub" class="muted">正在读取…</p>
+      </div>
+      <div class="head-actions">
+        <div class="tabs" id="tabs">
+          <button type="button" data-filter="all" class="tab is-on">全部</button>
+          <button type="button" data-filter="open" class="tab">进行中</button>
+          <button type="button" data-filter="closed" class="tab">已收尾</button>
+        </div>
+        <button id="refresh" type="button" class="btn">扫一次</button>
+      </div>
+    </header>
+
+    <section id="list" class="list" data-motion="mount"></section>
+    <p id="empty" class="empty" hidden>今天还没有记下任何事。</p>
+  </main>
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+{
+  "id": "xhh-post",
+  "name": "小黑盒帖子转发",
+  "version": "1.0.11",
+  "apiVersion": 1,
+  "category": "media",
+  "description": "【功能】群里有人贴小黑盒帖子链接时，自动打开链接读内容，压缩成一段总结发进群——不再贴原文。有正文的帖子按正文总结；没有正文的纯图/视频帖让视觉模型看图片写画面描述。两种都会抓评论，按评论区实际讨论的方向分类整理（带声量）。默认不转发任何图片。\n【怎么用】打开插件即生效。allowSenders 填允许触发的 QQ 号（逗号分隔，留空=不限）；summaryChars 是总结的字数上限；visionChars 是图帖画面描述的字数上限；maxTextChars 是长文门槛（原文超过它按长文压缩）；sendImages 打开才会往群里发图（默认关），发了也是前 maxImages 张；commentCount 控制抓多少条评论用来提炼话题；cookie 可选，填了更不容易撞小黑盒的风控。\n【更新记录】1.0.11（2026-11-21）根治“真机读不到模型配置”：真机上插件被复制到 data 目录下的 extension-cache/哈希/ 里运行，按固定层级推安装根会指到缓存目录，扫不到 data 目录。改成向上逐层探测——哪一层的 data/config.json 能读到且含 api 段，哪一层就是安装根；mediaDir / logDir / dataDir 全部改用它，并且不再依赖沙箱里不可靠的 existsSync。1.0.10（2026-11-21）评论区改为按方向分类：不再固定 2~3 条，模型先看评论实际在聊什么再归类，每条写成「标签 · 内容」（标签取 争议/质疑/玩梗/经验/提问/对比/吐槽），内容带声量（多数/不少人/少数）；讨论集中就只给 1 条，方向多最多给 4 条。1.0.9（2026-11-21）修复真机不调用模型：插件沙箱里 fs.existsSync 对 config.json 返回 false（用 Node 直接跑脚本却正常），导致读模型配置一直失败、每条都退回规则摘要。改为直接 readFileSync + try/catch，并把扫描结果写进日志便于定位。1.0.8（2026-11-21）改成只发总结、不发原文：去掉短文直发分支，所有帖子统一走模型压成 summaryChars 以内的一段话（保留数字/做法/结论这类具体信息）；评论话题不再受开关限制，每条都带；默认不再转发封面或正文图片；总结与看图调用都带 thinking:disabled，避免思考过程吃光 token 导致 content 为空；超长总结按句号硬截断。1.0.7（2026-11-21）能“看”内容了：解析正文块时把图片真实地址（url / live_url）留下（1.0.6 里被丢掉了，导致纯图帖判定成空帖）；新增看图整理——视觉模型读最多 4 张图，输出画面描述 + 评论区话题；配图下载自动补 format/jpg（七牛默认给 webp，QQ 不吃）。1.0.6（2026-11-21）纯图/视频帖曾改为静默跳过（正文 0 字、desc 又是“下载小黑盒查看更多精彩内容”时只发标题+链接没有意义）。1.0.5（2026-11-20）配合内核修复卡片消息：小黑盒链接在 QQ 分享卡片里，内核原来只从卡片抽 B站/抖音链接，小黑盒被过滤，插件根本收不到。内核侧已放行（另备份），本插件同时放宽域名匹配到任意 xiaoheihe.cn 子域（m./分享域都认）。1.0.4（2026-11-20）总结解析加固：模型没按 JSON 返回时从纯文本里捞总结，失败自动重试一次，token 上限提到 1200。1.0.3（2026-11-20）加网页兜底：接口被小黑盒限流时自动改抓网页版的标题 / 摘要 / 首图，仍能转发一条精简版并标注“只拿到摘要”，不再整条放弃。1.0.2（2026-11-20）风控加固：请求间隔放宽到 2.5 秒，撞验证码后的冷却从 3 分钟提到 30 分钟，且冷却时间写进 data 目录的 xhh-post-state.json，重启也不再立刻去撞墙；冷却期间直接跳过并回一句提示，不干等、不刷屏。1.0.1（2026-11-20）按内容长短分档：短文直发原文+图，长文压缩总结+话题且默认不发图，新增 shortTextChars / coverOnLong / topicsOnShort 三个开关。1.0.0（2026-11-20）首发：hkey 签名抓取 tree/v2 正文与评论树，模型生成总结 + 评论区话题，封面图落盘后发送，内置限速与验证码冷却。",
+  "author": "本地自建",
+  "enabledByDefault": true,
+  "permissions": [
+    "qq.send",
+    "net.outbound"
+  ],
+  "capabilities": [
+    "media.download"
+  ],
+  "requires": [],
+  "settings": {
+    "allowSenders": "1000000000",
+    "commentCount": 8,
+    "summaryChars": 220,
+    "maxTextChars": 800,
+    "sendImages": false,
+    "useModel": true,
+    "cookie": "",
+    "timeoutMs": 20000,
+    "modelMaxTokens": 900,
+    "maxImages": 3,
+    "visionChars": 220,
+    "mediaDir": ""
+  },
+  "configSchema": {
+    "allowSenders": {
+      "type": "string",
+      "label": "发送者白名单（QQ 号）",
+      "description": "只有这些 QQ 号贴的小黑盒链接才会被转发，多个用逗号分隔；留空 = 谁贴都转。白名单外直接跳过，不抓取也不回复。"
+    },
+    "shortTextChars": {
+      "type": "number",
+      "label": "短文门槛（字，已废弃）",
+      "description": "1.0.8 起不再直发原文，此项保留只为兼容旧配置，改了没有任何效果。"
+    },
+    "maxTextChars": {
+      "type": "number",
+      "label": "长文压缩门槛（字）",
+      "description": "默认 800。正文超过这个字数时按长文压缩，提示模型不要保留原文的分点结构；没超过也照样总结，只是允许保留更多细节。"
+    },
+    "summaryChars": {
+      "type": "number",
+      "label": "压缩后的字数上限",
+      "description": "默认 220。只在触发压缩时生效。"
+    },
+    "commentCount": {
+      "type": "number",
+      "label": "抓取评论条数",
+      "description": "默认 8。用来提炼“评论区在聊什么”，抓得越多话题越准，但请求会更慢。上限 20。"
+    },
+    "sendImages": {
+      "type": "boolean",
+      "label": "往群里发图",
+      "description": "默认关闭：只发总结文字，图片内容由文字描述代替。打开后有正文的帖子发封面、纯图帖发前 maxImages 张原图。"
+    },
+    "useModel": {
+      "type": "boolean",
+      "label": "用模型生成总结",
+      "description": "默认开启。关掉后只用本地规则摘要（截取正文首段），不消耗 token，但评论区话题会退化成直接贴两条评论。"
+    },
+    "cookie": {
+      "type": "string",
+      "label": "小黑盒 Cookie（可选）",
+      "description": "不填也能用，但同一个 IP 请求多了会被要求验证码。填上登录后的 Cookie 更稳。获取方法：浏览器登录 www.xiaoheihe.cn，F12 打开网络面板，随便点一个请求，把请求头里 Cookie 那一整行复制进来。"
+    },
+    "timeoutMs": {
+      "type": "number",
+      "label": "抓取超时（毫秒）",
+      "description": "默认 20000。"
+    },
+    "modelMaxTokens": {
+      "type": "number",
+      "label": "模型输出上限（token）",
+      "description": "默认 900。总结 + 话题是一次调用产出的，太小会截断 JSON。"
+    },
+    "maxImages": {
+      "type": "number",
+      "label": "图帖最多发几张图",
+      "description": "默认 3。只有在 sendImages 打开、且帖子是纯图/视频帖时才生效，决定往前发几张原图。"
+    },
+    "visionChars": {
+      "type": "number",
+      "label": "看图描述字数上限",
+      "description": "默认 220。图帖的画面描述写多长。"
+    },
+    "mediaDir": {
+      "type": "string",
+      "label": "封面落地目录",
+      "description": "留空 = 应用 data 目录下的 xhh-media。超过 2 小时自动清理。"
+    }
+  },
+  "prompt": {
+    "sections": [
+      {
+        "id": "xhh-post-note",
+        "title": "小黑盒帖子",
+        "priority": 45,
+        "content": "群里出现小黑盒帖子链接时，插件会自动打开链接，把「内容总结 + 评论区话题」发进群（无需你动手，默认不发图）。你没看过帖子里的画面和图片内容，不要假装看过，也不要重复插件已经发过的总结。"
+      }
+    ]
+  }
+}

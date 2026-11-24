@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人设细节档案 · 管理</title>
+<style>
+  :root{
+    --bg:#14161a; --panel:#1b1e24; --panel2:#22262e; --line:#2c313a;
+    --text:#e6e9ef; --dim:#8a93a3; --accent:#4c8dff; --danger:#e05555; --ok:#3fbf77;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:13px/1.6 "Microsoft YaHei",system-ui,sans-serif}
+  header{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+  header h1{font-size:15px;margin:0;font-weight:600}
+  header .stat{color:var(--dim);font-size:12px}
+  header .stat b{color:var(--text);font-weight:600}
+  header .sp{flex:1}
+  button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer}
+  button:hover{border-color:#3b4350}
+  button.primary{background:#2b5fae;border-color:#2b5fae}
+  button.primary:hover{background:#336dcb}
+  button.danger{color:var(--danger);border-color:#4a2a2a}
+  button.danger:hover{background:#2a1d1d}
+  main{display:grid;grid-template-columns:330px 1fr;gap:14px;padding:14px 20px 40px}
+  .left{display:flex;flex-direction:column;gap:8px;min-height:0}
+  .filters{display:flex;gap:6px}
+  .filters input,.filters select{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:6px 8px;font-size:12px;min-width:0}
+  .filters input{flex:1}
+  .list{flex:1;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel);min-height:320px}
+  .item{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+  .item:hover{background:#20242b}
+  .item.on{background:#26303f;border-left:3px solid var(--accent)}
+  .item .t{font-weight:600;font-size:12.5px}
+  .item .m{color:var(--dim);font-size:11.5px;margin-top:2px}
+  .item .x{color:#b9c1cf;font-size:11.5px;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .editor{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .row{display:flex;gap:10px}
+  .row > label{flex:1;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--dim)}
+  label span{color:var(--dim)}
+  input,textarea,select{background:#12151a;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:7px 9px;font-size:12.5px;font-family:inherit;width:100%}
+  textarea{resize:vertical}
+  .hint{color:var(--dim);font-size:11.5px}
+  .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .bar .sp{flex:1}
+  .badge{display:inline-block;padding:1px 7px;border-radius:999px;background:#2a303a;color:#aab3c2;font-size:11px;margin-right:4px}
+  .importbox{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:12px;display:none;flex-direction:column;gap:8px}
+  .toast{position:fixed;right:20px;bottom:20px;background:#24303f;border:1px solid #35507a;color:#d6e4ff;padding:10px 14px;border-radius:8px;opacity:0;transition:.2s;font-size:12.5px;max-width:420px}
+  .toast.show{opacity:1}
+  .toast.bad{background:#3a2020;border-color:#6a2f2f;color:#ffd7d7}
+  .empty{color:var(--dim);padding:18px;text-align:center;font-size:12px}
+  .guide{background:#1d2330;border:1px solid #2b3a52;border-radius:8px;padding:10px 12px;color:#b8c8e2;font-size:12px;line-height:1.7}
+  .guide b{color:#dbe7fb}
+  .bakbox{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:12px;display:flex;flex-direction:column;gap:9px}
+  .baktabs{display:flex;gap:6px}
+  .baktabs .tab{border-radius:6px}
+  .baktabs .tab.on{background:#26303f;border-color:#35507a;color:#d6e4ff}
+  .bakrow{display:flex;align-items:center;gap:10px;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:#12151a}
+  .bakrow .meta{flex:1;min-width:0;font-size:12px;color:#b9c1cf}
+  .bakrow .meta b{color:var(--text);font-weight:600}
+  .stagebox{border:1px solid #4a3f22;border-radius:8px;background:#241f14;padding:12px;display:none;flex-direction:column;gap:8px}
+  .stagerow{display:flex;gap:10px;padding:8px 9px;border:1px solid #3a3320;border-radius:6px;background:#191610;align-items:flex-start}
+  .stagerow .meta{flex:1;min-width:0}
+  .stagerow .t{font-weight:600;font-size:12.5px}
+  .stagerow .x{color:#b9c1cf;font-size:11.5px;margin-top:3px;white-space:pre-wrap}
+  .stagerow .ops{display:flex;flex-direction:column;gap:5px;flex:none}
+  .src{display:inline-block;padding:1px 6px;border-radius:999px;font-size:10.5px;margin-left:4px}
+  .src-role{background:#1e3348;color:#9dc3ea}
+  .src-chat{background:#1d3327;color:#8fdcaa}
+  .src-owner{background:#332b48;color:#c0b0ea}
+  .src-inf{background:#3d2020;color:#f0a0a0}
+  .src-none{background:#2a303a;color:#8a93a3}
+</style>
+</head>
+<body>
+<header>
+  <h1>人设细节档案</h1>
+  <div class="stat">条目 <b id="s-count">-</b> · 正文 <b id="s-chars">-</b> 字 · 分类 <b id="s-cats">-</b></div>
+  <div class="stat" id="s-file" style="opacity:.7"></div>
+  <div class="sp"></div>
+  <button id="btn-refresh">刷新</button>
+  <button id="btn-export">导出 store.json</button>
+  <button id="btn-import-toggle">批量导入</button>
+  <button id="btn-new" class="primary">＋ 新建条目</button>
+</header>
+
+<main>
+  <section class="left">
+    <div class="filters">
+      <input id="q" placeholder="搜索标题 / 正文 / 关键词">
+      <select id="cat"><option value="">全部分类</option></select>
+    </div>
+    <div class="list" id="list"><div class="empty">加载中…</div></div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:12px;min-width:0">
+    <div class="guide">
+      <b>三步初始化（装到新机器时）</b><br>
+      ① 在 QQ 里让机器人「整理一下你的人设细节」——它会读角色卡并拆成条目；<br>
+      ② 档案文件由插件自动在存档目录创建（<code>store.json</code>），无需手动建；<br>
+      ③ 整理结果由它调用批量导入写进来，写完这里立刻能看到。<br>
+      <b>日常调试</b>：本页可直接改分类 / 标题 / 正文 / 关键词，保存即写盘（写前自动留 <code>store.json.bak</code>）。
+    </div>
+
+    <div class="editor">
+      <div class="bar">
+        <span class="badge" id="e-id">新条目</span>
+        <span class="badge">空 id = 新增</span>
+        <div class="sp"></div>
+        <button id="btn-save" class="primary">保存</button>
+        <button id="btn-del" class="danger">删除</button>
+      </div>
+      <div class="row">
+        <label style="max-width:190px">分类<span>可自定义，建议复用现有分类</span>
+          <input id="e-cat" list="catlist" placeholder="人设背景">
+          <datalist id="catlist"></datalist>
+        </label>
+        <label>标题<span>2-8 字，一条只讲一件事</span>
+          <input id="e-title" placeholder="例：种族与生日">
+        </label>
+      </div>
+      <label>正文<span>用自己的口吻写，控在 300 字内</span>
+        <textarea id="e-text" rows="9" placeholder="例：蓝鲸拟人形态，生日是4月12日。"></textarea>
+      </label>
+      <label>关键词<span>逗号或空格分隔，最多 10 个</span>
+        <input id="e-kw" placeholder="例：生日, 4月12日, 种族">
+      </label>
+      <label style="max-width:180px">来源<span>可空</span>
+        <input id="e-src" list="srclist" placeholder="例：角色卡原文">
+        <datalist id="srclist">
+          <option value="角色卡原文"></option>
+          <option value="聊天记录"></option>
+          <option value="主人手写"></option>
+          <option value="推断"></option>
+        </datalist>
+      </label>
+      <div class="hint" id="e-meta"></div>
+    </div>
+
+    <div class="stagebox" id="stagebox">
+      <div class="bar">
+        <b>待确认</b>
+        <span class="hint">AI 整理出来的条目暂存在这里，确认后才进档案、机器人才读得到</span>
+        <div class="sp"></div>
+        <button id="btn-stage-accept-all" class="primary">全部入库</button>
+        <button id="btn-stage-reject-all" class="danger">全部丢弃</button>
+      </div>
+      <div id="stagelist"></div>
+    </div>
+
+    <div class="importbox" id="importbox">
+      <div class="bar">
+        <b>批量导入</b>
+        <span class="hint">数组格式：[{category,title,text,keywords}]，keywords 可传数组或逗号分隔字符串</span>
+        <div class="sp"></div>
+        <select id="im-mode" style="width:auto">
+          <option value="append">追加</option>
+          <option value="replace">覆盖全部</option>
+        </select>
+      </div>
+      <textarea id="im-json" rows="8" placeholder='[{"category":"人设背景","title":"种族与生日","text":"蓝鲸拟人形态，生日是4月12日。","keywords":"生日,4月12日"}]'></textarea>
+      <div class="bar"><div class="sp"></div><button id="btn-import-run" class="primary">执行导入</button></div>
+      <div class="hint" id="im-result"></div>
+    </div>
+
+    <div class="bakbox" id="bakbox">
+      <div class="bar">
+        <b>备份与回退</b>
+        <span class="hint">备份文件带时间戳，直接落在 <code>store.json</code> 旁边；改坏了点「退回」就回到那一版</span>
+        <div class="sp"></div>
+        <button id="btn-backup-persona">备份当前人设</button>
+        <button id="btn-backup-store">备份当前档案</button>
+      </div>
+      <div class="baktabs">
+        <button class="tab on" data-tab="persona">人设备份（角色卡 + 模板）<b id="b-persona-n">0</b></button>
+        <button class="tab" data-tab="store">档案备份<b id="b-store-n">0</b></button>
+      </div>
+      <div id="baklist"><div class="empty">加载中…</div></div>
+    </div>
+
+    <div class="bakbox" id="simbox">
+      <div class="bar">
+        <b>模拟提问</b>
+        <span class="hint">按真实检索走一遍：看问这句话会借到哪几条，有没有借错书（整句会自动拆成名词）</span>
+        <div class="sp"></div>
+        <input id="sim-q" placeholder="例：你生日几号" style="max-width:240px" />
+        <button id="btn-sim" class="primary">试一下</button>
+      </div>
+      <div id="simout"><div class="empty">还没试过</div></div>
+    </div>
+
+    <div class="bakbox" id="logbox">
+      <div class="bar">
+        <b>借阅记录</b>
+        <span class="hint">每次查档案都记在这里；反复查空的词，说明档案里可能真没有</span>
+        <div class="sp"></div>
+        <button id="btn-log-refresh">刷新</button>
+      </div>
+      <div id="log-head"></div>
+      <div id="log-list"><div class="empty">加载中…</div></div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let DATA = { entries: [], count: 0, chars: 0, categories: [], file: '' };
+let CURRENT = null;
+let TOKEN = new URLSearchParams(location.search).get('token') || '';
+
+function toast(msg, bad){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (bad ? ' bad' : '');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.className = 'toast', 2600);
+}
+
+async function api(path, opt){
+  const headers = Object.assign({ 'content-type': 'application/json' }, TOKEN ? { 'x-console-token': TOKEN } : {});
+  const res = await fetch(path, Object.assign({ headers }, opt || {}));
+  const txt = await res.text();
+  let body = null;
+  try { body = JSON.parse(txt); } catch { body = { raw: txt }; }
+  if (!res.ok) throw new Error(body && body.error ? body.error : ('HTTP ' + res.status));
+  return body;
+}
+
+async function load(){
+  try{
+    DATA = await api('/api/persona-detail/entries');
+    renderCats();
+    renderList();
+    document.getElementById('s-count').textContent = DATA.count;
+    document.getElementById('s-chars').textContent = DATA.chars;
+    document.getElementById('s-cats').textContent = DATA.categories.length;
+    document.getElementById('s-file').textContent = DATA.file || '';
+    loadQueries();
+  }catch(e){
+    toast('读取失败：' + e.message, true);
+  }
+}
+
+async function loadQueries(){
+  try{
+    const r = await api('/api/persona-detail/queries?limit=20');
+    renderQueries(r);
+  }catch(e){ toast('借阅记录读取失败：' + e.message, true); }
+}
+
+function renderQueries(r){
+  const head = document.getElementById('log-head');
+  const list = document.getElementById('log-list');
+  head.innerHTML = `<div class="hint">共 ${r.total} 次查询，其中 ${r.emptyTotal} 次查空</div>` +
+    ((r.topEmpty || []).length
+      ? `<div class="hint" style="margin:4px 0 2px">一直查空、可能该补的词：` +
+        r.topEmpty.map(x => `<span class="badge" style="margin-right:4px;color:#ffb0b0">${esc(x.query)} ×${x.times}</span>`).join('') + '</div>'
+      : '');
+  const rows = (r.items || []).map(it => {
+    const t = new Date(it.at);
+    const hh = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+    const right = it.count
+      ? `<span class="hint">${(it.ids || []).map(id => '#' + id).join(' ')}</span>`
+      : '<span class="badge" style="color:#ffb0b0">查空</span>';
+    return `<div class="bakrow"><span class="hint" style="width:44px">${hh}</span><span class="meta"><b>${esc(it.query)}</b> · ${it.count} 条</span>${right}</div>`;
+  }).join('');
+  list.innerHTML = rows || '<div class="empty">还没有查询记录</div>';
+}
+
+async function runSimulate(){
+  const q = String(document.getElementById('sim-q').value || '').trim();
+  if (!q) return toast('先写一句要问的话', true);
+  try{
+    const r = await api('/api/persona-detail/simulate?q=' + encodeURIComponent(q));
+    const out = document.getElementById('simout');
+    if (!r.count){
+      out.innerHTML = `<div class="stagerow"><div class="meta"><div class="t" style="color:#ffb0b0">查不到，模型会搪塞过去</div><div class="x">${esc(r.hint || '')}</div></div></div>`;
+      return;
+    }
+    out.innerHTML = (r.entries || []).map(e => `
+      <div class="stagerow">
+        <div class="meta">
+          <div class="t">#${e.id} ${esc(e.title)} <span class="badge">${esc(e.category || '')}</span>${srcBadge(e.source)}${e.truncated ? ' <span class="badge">已截断</span>' : ''}</div>
+          <div class="x">${esc(e.text)}</div>
+          ${e.note ? `<div class="x" style="color:#ffb0b0">${esc(e.note)}</div>` : ''}
+        </div>
+      </div>`).join('') + `<div class="hint" style="margin-top:6px">${esc(r.hint || '')}</div>`;
+  }catch(e){ toast('模拟失败：' + e.message, true); }
+}
+
+document.getElementById('btn-sim').onclick = runSimulate;
+document.getElementById('sim-q').onkeydown = (ev) => { if (ev.key === 'Enter') runSimulate(); };
+document.getElementById('btn-log-refresh').onclick = loadQueries;
+
+function renderCats(){
+  const sel = document.getElementById('cat');
+  const keep = sel.value;
+  sel.innerHTML = '<option value="">全部分类</option>' +
+    DATA.categories.map(c => `<option value="${c.name}">${c.name}（${c.count}）</option>`).join('');
+  sel.value = keep;
+  document.getElementById('catlist').innerHTML =
+    DATA.categories.map(c => `<option value="${c.name}">`).join('');
+}
+
+function renderList(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const cat = document.getElementById('cat').value;
+  let list = DATA.entries.slice();
+  if (cat) list = list.filter(e => e.category === cat);
+  if (q) list = list.filter(e => (e.title + ' ' + e.text + ' ' + (e.keywords || []).join(' ')).toLowerCase().includes(q));
+  const el = document.getElementById('list');
+  if (!list.length){ el.innerHTML = '<div class="empty">没有匹配的条目</div>'; return; }
+  el.innerHTML = list.map(e => `
+    <div class="item ${CURRENT && CURRENT.id === e.id ? 'on' : ''}" data-id="${e.id}">
+      <div class="t">#${e.id} ${esc(e.title)}</div>
+      <div class="m">${esc(e.category)} · ${(e.text || '').length} 字${e.source ? srcBadge(e.source) : ''}</div>
+      <div class="x">${esc(e.text)}</div>
+    </div>`).join('');
+  [...el.querySelectorAll('.item')].forEach(node => {
+    node.onclick = () => selectEntry(node.dataset.id);
+  });
+}
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+}
+
+function srcBadge(s){
+  const v = String(s || '').trim();
+  let k = 'none';
+  if (/角色卡|roletext/i.test(v)) k = 'role';
+  else if (/聊天|chat/i.test(v)) k = 'chat';
+  else if (/主人|owner/i.test(v)) k = 'owner';
+  else if (/推断|推测|inferred/i.test(v)) k = 'inf';
+  return `<span class="src src-${k}">${esc(v || '未标注')}</span>`;
+}
+
+function selectEntry(id){
+  const e = DATA.entries.find(x => String(x.id) === String(id));
+  if (!e) return;
+  CURRENT = e;
+  document.getElementById('e-id').textContent = '#' + e.id;
+  document.getElementById('e-cat').value = e.category || '';
+  document.getElementById('e-title').value = e.title || '';
+  document.getElementById('e-text').value = e.text || '';
+  document.getElementById('e-kw').value = (e.keywords || []).join(', ');
+  document.getElementById('e-src').value = e.source || '';
+  document.getElementById('e-meta').textContent = '最后修改：' + (e.at ? new Date(e.at).toLocaleString() : '未知');
+  renderList();
+}
+
+function clearForm(){
+  CURRENT = null;
+  document.getElementById('e-id').textContent = '新条目';
+  document.getElementById('e-cat').value = '';
+  document.getElementById('e-title').value = '';
+  document.getElementById('e-text').value = '';
+  document.getElementById('e-kw').value = '';
+  document.getElementById('e-src').value = '';
+  document.getElementById('e-meta').textContent = '';
+  renderList();
+}
+
+async function save(){
+  const title = document.getElementById('e-title').value.trim();
+  const text = document.getElementById('e-text').value.trim();
+  if (!title) return toast('标题不能为空', true);
+  if (!text) return toast('正文不能为空', true);
+  const payload = {
+    id: CURRENT ? CURRENT.id : undefined,
+    category: document.getElementById('e-cat').value.trim() || '人设背景',
+    title: title,
+    text: text,
+    keywords: document.getElementById('e-kw').value,
+    source: document.getElementById('e-src').value.trim(),
+  };
+  try{
+    const r = await api('/api/persona-detail/entries', { method:'POST', body: JSON.stringify(payload) });
+    toast('已保存 #' + r.id + '（正文 ' + text.length + ' 字）');
+    await load();
+    selectEntry(r.id);
+  }catch(e){ toast('保存失败：' + e.message, true); }
+}
+
+async function remove(){
+  if (!CURRENT) return toast('先选一条再删', true);
+  if (!confirm('删除 #' + CURRENT.id + ' ' + CURRENT.title + '？')) return;
+  try{
+    await api('/api/persona-detail/delete', { method:'POST', body: JSON.stringify({ id: CURRENT.id }) });
+    toast('已删除 #' + CURRENT.id);
+    clearForm();
+    await load();
+  }catch(e){ toast('删除失败：' + e.message, true); }
+}
+
+async function runImport(){
+  const raw = document.getElementById('im-json').value.trim();
+  const out = document.getElementById('im-result');
+  if (!raw){ out.textContent = '先粘贴 JSON 数组'; return; }
+  let entries;
+  try{ entries = JSON.parse(raw); }catch(e){ out.textContent = 'JSON 解析失败：' + e.message; return; }
+  if (!Array.isArray(entries)){ out.textContent = '必须是数组'; return; }
+  try{
+    const r = await api('/api/persona-detail/import', { method:'POST', body: JSON.stringify({ entries, mode: document.getElementById('im-mode').value }) });
+    out.textContent = '导入完成：写入 ' + r.added + ' 条' + (r.rejected && r.rejected.length ? '，跳过 ' + r.rejected.length + ' 条（' + r.rejected[0].why + '…）' : '');
+    toast('导入 ' + r.added + ' 条');
+    await load();
+  }catch(e){ out.textContent = '导入失败：' + e.message; }
+}
+
+document.getElementById('btn-refresh').onclick = load;
+document.getElementById('btn-new').onclick = clearForm;
+document.getElementById('btn-save').onclick = save;
+document.getElementById('btn-del').onclick = remove;
+document.getElementById('q').oninput = renderList;
+document.getElementById('cat').onchange = renderList;
+document.getElementById('btn-import-toggle').onclick = () => {
+  const b = document.getElementById('importbox');
+  b.style.display = b.style.display === 'flex' ? 'none' : 'flex';
+};
+document.getElementById('btn-import-run').onclick = runImport;
+document.getElementById('btn-export').onclick = () => {
+  const q = TOKEN ? ('?token=' + encodeURIComponent(TOKEN)) : '';
+  location.href = '/api/persona-detail/export' + q;
+};
+
+// ── 备份与回退 ──────────────────────────────────────────────
+let BAKE = { persona: [], store: [] };
+let bakTab = 'persona';
+
+async function loadBackups(){
+  try{
+    BAKE = await api('/api/persona-detail/backups');
+    document.getElementById('b-persona-n').textContent = BAKE.persona.length;
+    document.getElementById('b-store-n').textContent = BAKE.store.length;
+    renderBackups();
+  }catch(e){ toast('备份列表读取失败：' + e.message, true); }
+}
+
+function renderBackups(){
+  const list = bakTab === 'persona' ? BAKE.persona : BAKE.store;
+  const el = document.getElementById('baklist');
+  if (!list.length){ el.innerHTML = '<div class="empty">还没有备份——点上面的「备份当前…」或等整理人设时自动生成</div>'; return; }
+  el.innerHTML = list.map(b => {
+    const meta = bakTab === 'persona'
+      ? ('角色卡 ' + b.roleTextChars + ' 字 · 模板 ' + b.templates + ' 个')
+      : (b.count + ' 条 · ' + b.chars + ' 字');
+    return `<div class="bakrow">
+      <div class="meta"><b>${esc(b.atText || '')}</b> · ${meta}${b.reason ? ' <span class="badge">' + esc(b.reason) + '</span>' : ''}</div>
+      <button class="danger" data-restore="${esc(b.file)}">退回</button>
+    </div>`;
+  }).join('');
+  [...el.querySelectorAll('[data-restore]')].forEach(btn => {
+    btn.onclick = () => restore(btn.dataset.restore);
+  });
+}
+
+async function restore(file){
+  const isPersona = bakTab === 'persona';
+  const tip = isPersona
+    ? '退回人设：角色卡正文和模板列表会一起回到这一版，当前版本会先自动备份一份。继续？'
+    : '退回档案：整个 store.json 会覆盖成这一版，当前档案会先自动备份一份。继续？';
+  if (!confirm(tip)) return;
+  try{
+    const r = await api('/api/persona-detail/restore', { method:'POST', body: JSON.stringify({ type: isPersona ? 'persona' : 'store', file }) });
+    toast('已退回：' + (isPersona ? ('角色卡 ' + r.roleTextChars + ' 字' + (r.templates != null ? '、模板 ' + r.templates + ' 个' : '')) : (r.count + ' 条')));
+    await loadBackups();
+    if (!isPersona) await load();
+  }catch(e){ toast('回退失败：' + e.message, true); }
+}
+
+async function makeBackup(type){
+  try{
+    const r = await api('/api/persona-detail/backups', { method:'POST', body: JSON.stringify({ type, reason: '面板手动备份' }) });
+    toast(type === 'persona' ? ('已备份人设：角色卡 ' + r.roleTextChars + ' 字') : ('已备份档案：' + r.count + ' 条'));
+    await loadBackups();
+  }catch(e){ toast('备份失败：' + e.message, true); }
+}
+
+document.getElementById('btn-backup-persona').onclick = () => makeBackup('persona');
+document.getElementById('btn-backup-store').onclick = () => makeBackup('store');
+[...document.querySelectorAll('.baktabs .tab')].forEach(tab => {
+  tab.onclick = () => {
+    bakTab = tab.dataset.tab;
+    [...document.querySelectorAll('.baktabs .tab')].forEach(t => t.classList.toggle('on', t === tab));
+    renderBackups();
+  };
+});
+
+// ── 待确认队列 ──────────────────────────────────────────────
+let STAGE = { count: 0, items: [] };
+
+async function loadStaging(){
+  try{
+    STAGE = await api('/api/persona-detail/staging');
+    document.getElementById('stagebox').style.display = STAGE.count ? 'flex' : 'none';
+    renderStaging();
+  }catch(e){ toast('待确认列表读取失败：' + e.message, true); }
+}
+
+function renderStaging(){
+  const el = document.getElementById('stagelist');
+  if (!STAGE.count){ el.innerHTML = ''; return; }
+  el.innerHTML = STAGE.items.map(it => `
+    <div class="stagerow">
+      <div class="meta">
+        <div class="t">${esc(it.title)} <span class="badge">${esc(it.category || '')}</span>${srcBadge(it.source)}</div>
+        <div class="x">${esc(it.text)}</div>
+      </div>
+      <div class="ops">
+        <button class="primary" data-ok="${esc(it.sid)}">入库</button>
+        <button class="danger" data-no="${esc(it.sid)}">丢弃</button>
+      </div>
+    </div>`).join('');
+  [...el.querySelectorAll('[data-ok]')].forEach(b => { b.onclick = () => stageAct('accept', [b.dataset.ok]); });
+  [...el.querySelectorAll('[data-no]')].forEach(b => { b.onclick = () => stageAct('reject', [b.dataset.no]); });
+}
+
+async function stageAct(action, ids){
+  try{
+    const r = await api('/api/persona-detail/staging', { method:'POST', body: JSON.stringify({ action, ids }) });
+    if (action === 'accept'){
+      toast('已入库 ' + (r.accepted || 0) + ' 条' + (r.pending ? '，还剩 ' + r.pending + ' 条待确认' : ''));
+      await load();
+    } else {
+      toast('已丢弃 ' + (r.rejected || 0) + ' 条');
+    }
+    if (r.missing && r.missing.length) toast('有编号已不存在：' + r.missing.join('、') + '，刷新后重新点', true);
+    await loadStaging();
+  }catch(e){ toast((action === 'accept' ? '入库失败：' : '丢弃失败：') + e.message, true); }
+}
+
+document.getElementById('btn-stage-accept-all').onclick = () => {
+  if (!STAGE.count) return;
+  if (!confirm('把 ' + STAGE.count + ' 条全部写进档案？')) return;
+  stageAct('accept');
+};
+document.getElementById('btn-stage-reject-all').onclick = () => {
+  if (!STAGE.count) return;
+  if (!confirm('把 ' + STAGE.count + ' 条全部丢弃？')) return;
+  stageAct('reject');
+};
+
+load();
+loadBackups();
+loadStaging();
+</script>
+</body>
+</html>

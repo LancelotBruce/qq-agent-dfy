@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>印象档案</title>
+<link rel="stylesheet" href="panel.css" />
+<script>
+/* 握手兜底（同步脚本，最先执行）
+ *
+ * 宿主只在 iframe load 时**单发一次** panel.init。模块脚本 panel.js 如果晚一步执行，
+ * 就永远收不到它 —— 面板会一直停在"加载中"。这里在最早的时刻挂监听：收到 init
+ * 立刻回 panel.ready，并把 nonce 存下来给模块脚本接走。
+ * 300ms 后再补发一次 ready：宿主对重复的 ready 无害，能救"第一次因时序没被受理"。
+ */
+(function () {
+  var hs = window.__mpHandshake = { nonce: '', panel: 'memory-plus', sent: false, count: 0 };
+  window.__mpHandshakeWaiters = [];
+  function reply(force) {
+    if (!hs.nonce || (hs.sent && !force)) return false;
+    try {
+      parent.postMessage({ jsonrpc: '2.0', method: 'panel.ready', meta: { nonce: hs.nonce, panel: hs.panel } }, '*');
+      hs.sent = true;
+      hs.count += 1;
+      return true;
+    } catch (e) { return false; }
+  }
+  window.__mpReplyReady = reply;
+  function adopt(message) {
+    if (!message || message.jsonrpc !== '2.0' || message.method !== 'panel.init') return;
+    var params = message.params || {};
+    if (params.nonce) hs.nonce = String(params.nonce);
+    if (params.panel) hs.panel = String(params.panel);
+    reply(false);
+    var waiters = window.__mpHandshakeWaiters || [];
+    window.__mpHandshakeWaiters = [];
+    for (var i = 0; i < waiters.length; i++) { try { waiters[i] && waiters[i](); } catch (e) {} }
+  }
+  window.addEventListener('message', function (event) { adopt(event && event.data); });
+  setTimeout(function () { reply(true); }, 300);
+})();
+</script>
+</head>
+<body data-panel="memory-plus">
+<main>
+  <header class="head">
+    <div>
+      <div class="eyebrow">MEMORY-PLUS / IMPRESSION</div>
+      <h2>印象档案</h2>
+      <div id="meta" class="muted">加载中</div>
+    </div>
+    <div class="head-actions">
+      <button id="refresh" class="btn" type="button">刷新</button>
+      <button id="export" class="btn ghost" type="button">导出快照</button>
+      <button id="sweep" class="btn ghost" type="button">清理存档</button>
+    </div>
+  </header>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="banner" id="banner"></section>
+
+  <section class="body">
+    <aside class="list" id="chats"></aside>
+    <article class="detail" id="detail">
+      <div class="empty">选择左侧会话查看成员印象</div>
+    </article>
+  </section>
+
+  <footer class="foot">
+    <span id="note" class="muted"></span>
+  </footer>
+</main>
+<script type="module" src="panel.js"></script>
+</body>
+</html>

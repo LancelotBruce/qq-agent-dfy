@@ -1,0 +1,58 @@
+{
+  "id": "persona-detail",
+  "name": "人设细节库",
+  "version": "1.2.3",
+  "apiVersion": 1,
+  "category": "knowledge",
+  "description": "把特别细节的人设（外形长相、家人、习惯、经历、生日、小秘密、外号等）存成单独的档案，系统提示词里只留一句指引，不占正文。被问到具体细节时，模型先调 query_persona_detail 按需调取，查到再按自己的口吻说，查不到就说记不清、不许编。装到新环境可自举：bootstrap_persona_detail 读角色卡给出拆分规则（顺带自动备份一份人设）→ 模型整理 → manage_persona_detail action=import 批量写入；store.json 由插件在存档目录自动创建。**整理结果不直接入库**：先进待确认队列，每条带来源标签（角色卡原文 / 聊天记录 / 主人手写 / 推断），主人在面板逐条点「入库」或「丢弃」后才生效。人设与档案都会按时间戳备份到存档目录，面板 /api/persona-detail/ui 可一键退回，也能直接增删改查。",
+  "author": "本地自建",
+  "entry": "index.js",
+  "permissions": [],
+  "capabilities": [],
+  "requires": [],
+  "enabledByDefault": true,
+  "settings": {
+    "adminQq": "",
+    "maxResults": 4,
+    "maxEntryChars": 300,
+    "maxEntries": 100,
+    "storeDir": ""
+  },
+  "configSchema": {
+    "adminQq": {
+      "type": "string",
+      "label": "管理员 QQ 号",
+      "description": "只有这个 QQ 号能在聊天里增删改细节条目，多个用逗号分隔。留空则管理工具不可用（查询工具照常）。"
+    },
+    "maxResults": {
+      "type": "number",
+      "label": "每次最多返回几条",
+      "description": "默认 4（1~10）。返回太多会稀释上下文，也更费 token。"
+    },
+    "maxEntryChars": {
+      "type": "number",
+      "label": "单条字数上限",
+      "description": "默认 300（50~1000）。细节条目再细也该一条说清，太长说明该拆成多条。"
+    },
+    "maxEntries": {
+      "type": "number",
+      "label": "档案条目总数上限",
+      "description": "默认 100（10~1000）。写满后需先删旧条目才能再加。"
+    },
+    "storeDir": {
+      "type": "string",
+      "label": "存档目录",
+      "description": "存档（store.json、staging.json 及各自的 .bak）所在目录的绝对路径，填了就写到这里方便直接查看；留空则落回 QQ Agent 数据目录。store.json 是已确认的档案，staging.json 是 AI 整理出来、等主人确认的条目，query-log.json 是模型每次查档案的借阅记录（面板可看查了什么、哪些查空了）。管理面板：http://127.0.0.1:3210/api/persona-detail/ui"
+    }
+  },
+  "prompt": {
+    "sections": [
+      {
+        "id": "persona-detail-guide",
+        "title": "人设细节档案",
+        "priority": 10,
+        "content": "【人设细节档案】角色卡只留「我是谁、怎么说话」。外形长相、详细背景、家人、习惯、经历、生日、外号、群里的说法和梗，这些细节都不在对话里，存在单独的档案里——这是个被动的图书馆：不主动讲、不主动提，正常聊天里别往外倒设定。\n只有一种情况要查：被问到的、或聊天里出现的具体东西（人、物、时间、经历、称呼、说法、梗），角色卡里确实没有。这时先调 persona-detail__query_persona_detail：query 只写具体名词，多个词空格分开，不确定分类就不填 category。查到就用自己的口吻说一两句，别照念条目、别列清单、别把整条读出来；查一次不够可以换词再查；查不到就用我自己的口气搪塞过去（「这事儿我哪记得」「你听谁说的」），**不许编**，也别拿常识和推测补。**绝对不许说「我的档案里没有」「我的设定是」「资料库里查不到」「我刚查过档案」这类出戏的话**——我只是记不清而已。查回来的条目如果标着推测（note 里带「好像是」），说的时候也要软一点。角色卡里已经写明的（姓名、身份、性格行为规则、喜好、讨厌、输出规范、禁令）不用查，别为了确认这些去翻档案。"
+      }
+    ]
+  }
+}

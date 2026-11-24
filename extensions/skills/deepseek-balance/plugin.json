@@ -1,0 +1,91 @@
+{
+  "id": "deepseek-balance",
+  "name": "DeepSeek余额查询",
+  "version": "1.9.1",
+  "apiVersion": 1,
+  "category": "utility",
+  "author": "本地自建",
+  "description": "【功能】\n查 DeepSeek API 账户余额与当日用量，只有一个工具 deepseek_balance_query：主人问「余额 / 还剩多少钱 / 钱够不够 / 话费」→ 报余额（CNY 总额、充值、赠送三行）；主人问「用量 / 今天花了多少 / 用了多少 token」→ 报当天花费、token、调用次数、缓存命中。意图按触发消息原文自动分流，查完直接把结果发到当前会话。群里只认 @ 自己：这条消息 @ 的不是我（@ 的是群里另一个机器人）就彻底沉默。主人按「谁 @ 我谁才是提问的人」判定，同批混进别人的消息也不会顶替。余额见底时按冷却给模型一句卖萌讨饭许可，群里仍然只发余额本身。\n\n【怎么用】\n① 群里 @ 机器人 发「查余额」或「今日用量」；② 私聊直接发同样的话；③ 只有主人 QQ（默认 1000000000）能拿到数据，其他人一律拒答。API Key 留空时自动读核心 config.json 的 api.apiKey；余额带 10 分钟缓存（refreshMs）。乞讨相关：lowThreshold 填了就生效（默认 10 元），beggarCooldownMin 控制冷却，beggarTone 改撒娇语气。\n\n【更新记录】\nv1.9.1（2026-11-24）：求情不再塞固定句式。余额见底时只给「可以顺势讨一句」的许可（一句、不报数字），说什么由模型按人设自己发挥；beggarTone 只作风格倾向，留空即完全自由。\nv1.9.0（2026-11-21）：修「主人查余额被反问是不是主人」。触发一批消息里可能混进别人的发言（现场：id3385 主人「查余额@机器人」+ id3386 某用户「[图片]」），旧逻辑同批取最后一条发送者，被某用户顶替 → 现在只拿「@ 我」的那几条比 QQ 号；触发文本也优先取 @ 我的那条，避免别人的话把「余额/用量」意图串错。\nv1.8.0：0.5 接口适配（ctx.send 改 sendTextBatch 能力对象、触发消息从 store.recent + triggerEntryIds 取）、群里只认 @ 自己、余额见底给卖萌讨饭许可。\nv1.6.1：拒答文案细化，明确指出只有主人本人能查。\nv1.5.0：把 api-beggar 的乞讨行为并入，只在主动查余额那一刻判一次。\nv1.4.0：合并 api-beggar，本机唯一的余额入口。",
+  "enabledByDefault": true,
+  "permissions": [
+    "qq.send",
+    "data.sessions.read"
+  ],
+  "capabilities": [],
+  "settings": {
+    "apiKey": "",
+    "baseUrl": "https://api.deepseek.com",
+    "refreshMs": 600000,
+    "ownerQQ": "1000000000",
+    "lowThreshold": 0,
+    "beggarCooldownMin": 120,
+    "beggarTone": ""
+  },
+  "configSchema": {
+    "apiKey": {
+      "type": "string",
+      "label": "API Key",
+      "description": "留空 = 自动读核心 config.json 的 api.apiKey（推荐，换 Key 自动跟随）。填了则优先用这里。"
+    },
+    "baseUrl": {
+      "type": "string",
+      "label": "接口地址",
+      "description": "默认 https://api.deepseek.com。余额接口为 {baseUrl}/user/balance。"
+    },
+    "refreshMs": {
+      "type": "number",
+      "label": "缓存时长（毫秒）",
+      "description": "默认 600000（10 分钟）。两次余额查询间隔小于该值时直接返回上次结果，不重复打接口。"
+    },
+    "ownerQQ": {
+      "type": "string",
+      "label": "主人 QQ 号",
+      "description": "只有这个 QQ 号能查余额和当日用量。私聊直接比 chatKey；群里只比「@ 我的那条消息」的发送者——同一批里别人发的消息不会顶替。默认 1000000000。"
+    },
+    "lowThreshold": {
+      "type": "number",
+      "label": "乞讨阈值（元）",
+      "description": "默认 0 = 不乞讨。填了就生效：只在有人主动查余额那一刻判定，余额不高于这个数就让机器人用自己的人设自然求一句充值。没人查就永远不会触发。"
+    },
+    "beggarCooldownMin": {
+      "type": "number",
+      "label": "乞讨冷却（分钟）",
+      "description": "默认 120。两次乞讨之间的最小间隔，防止主人连问三次余额就讨三次。填 0 = 不冷却。状态存在 data-v05\\deepseek-balance-beggar.json。"
+    },
+    "beggarTone": {
+      "type": "string",
+      "label": "乞讨语气",
+      "description": "留空 = 完全自由发挥，模型按人设自己组织求情的话（默认如此，不套固定句式）。填了只作为风格倾向参考，不照抄。"
+    }
+  },
+  "tools": [
+    {
+      "id": "deepseek_balance_query",
+      "name": "DeepSeek余额/用量",
+      "description": "查 DeepSeek 余额（人民币，充值+赠送）或当日用量（花费、token、次数、缓存命中）。有人问「余额 / 话费 / 余额 / 还剩多少钱 / 用量 / 今天花了多少 / 用了多少 token」就直接调用，不要自己判断对方是不是主人——工具内部按 QQ 号判定并直接发送结果。群里这条消息 @ 的不是我时，工具会保持沉默，这是预期行为。成功不要重发、不要改数字。"
+    }
+  ],
+  "commandRoute": [
+    {
+      "commands": [
+        "查余额"
+      ],
+      "tool": "deepseek_balance_query",
+      "ownerOnly": true,
+      "hidden": true,
+      "bare": true
+    },
+    {
+      "commands": [
+        "当日用量",
+        "今日用量",
+        "今天用量"
+      ],
+      "tool": "deepseek_balance_query",
+      "ownerOnly": true,
+      "hidden": true,
+      "bare": true
+    }
+  ],
+  "prompt": null
+}

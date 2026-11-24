@@ -1,0 +1,82 @@
+{
+  "id": "deepseek-balance",
+  "name": "DeepSeek余额查询",
+  "version": "1.6.1",
+  "apiVersion": 1,
+  "category": "utility",
+  "author": "本地自建",
+  "description": "查询 DeepSeek API 账户余额与当日用量，只有一个工具 deepseek_balance_query：\n· 主人问余额 / 话费 / 余额 / 还剩多少钱 → 报余额；\n· 主人问当日用量 / 今天花了多少 / 用了多少 token → 报当天花费、token、调用次数、缓存命中。\n意图按触发消息原文自动分流，查完直接发到当前会话。非主人一律不返回数据。\nAPI Key 留空时自动读核心 config.json 的 api.apiKey；余额带 10 分钟缓存。\n本机唯一的余额入口。v1.4.0 合并了 api-beggar，v1.5.0 把它的乞讨行为也并进来：只在「有人主动查余额」那一刻判定一次，余额低于 lowThreshold 就让机器人用自己的人设卖惨求充值（默认语气已调成低声下气、委屈发软，可用 beggarTone 改；带 beggarCooldownMin 冷却，没有巡查、没有钩子、没有每轮开销）。",
+  "enabledByDefault": true,
+  "permissions": ["qq.send", "data.sessions.read"],
+  "capabilities": [],
+  "settings": {
+    "apiKey": "",
+    "baseUrl": "https://api.deepseek.com",
+    "refreshMs": 600000,
+    "ownerQQ": "1000000000",
+    "lowThreshold": 0,
+    "beggarCooldownMin": 120,
+    "beggarTone": ""
+  },
+  "configSchema": {
+    "apiKey": {
+      "type": "string",
+      "label": "API Key",
+      "description": "留空 = 自动读核心 config.json 的 api.apiKey（推荐，换 Key 自动跟随）。填了则优先用这里。"
+    },
+    "baseUrl": {
+      "type": "string",
+      "label": "接口地址",
+      "description": "默认 https://api.deepseek.com。余额接口为 {baseUrl}/user/balance。"
+    },
+    "refreshMs": {
+      "type": "number",
+      "label": "缓存时长（毫秒）",
+      "description": "默认 600000（10 分钟）。两次余额查询间隔小于该值时直接返回上次结果，不重复打接口。"
+    },
+    "ownerQQ": {
+      "type": "string",
+      "label": "主人 QQ 号",
+      "description": "只有这个 QQ 号能查余额和当日用量（私聊直接比，群里比最近一条消息的发送者）。默认 1000000000。"
+    },
+    "lowThreshold": {
+      "type": "number",
+      "label": "乞讨阈值（元）",
+      "description": "默认 0 = 不乞讨。填了就生效：只在有人主动查余额那一刻判定，余额不高于这个数就让机器人用自己的人设自然求一句充值（同时余额后面会带一行事实说明）。没人查就永远不会触发。"
+    },
+    "beggarCooldownMin": {
+      "type": "number",
+      "label": "乞讨冷却（分钟）",
+      "description": "默认 120。两次乞讨之间的最小间隔，防止主人连问三次余额就讨三次。填 0 = 不冷却。状态存在 data-v05\\deepseek-balance-beggar.json。"
+    },
+    "beggarTone": {
+      "type": "string",
+      "label": "乞讨语气",
+      "description": "给模型的话术要求，留空 = 默认那只可怜调子（低声下气卖惨、委屈发软，不要硬气不要说教）。想让它更贱更惨、或者反过来傲娇，都在这改，比如「贱兮兮地撒娇，像被打过一样」。改完保存即生效。"
+    }
+  },
+  "tools": [
+    {
+      "id": "deepseek_balance_query",
+      "name": "DeepSeek余额/用量",
+      "description": "查 DeepSeek 余额（人民币，充值+赠送）或当日用量（花费、token、次数、缓存命中）。有人问「余额 / 话费 / 余额 / 还剩多少钱 / 用量 / 今天花了多少 / 用了多少 token」就直接调用，不要自己判断对方是不是主人——工具内部按 QQ 号判定并直接发送结果。成功不要重发、不要改数字；被拒就按工具返回的原话回。"
+    }
+  ],
+  "commandRoute": [
+    {
+      "commands": ["查余额"],
+      "tool": "deepseek_balance_query",
+      "ownerOnly": true,
+      "hidden": true,
+      "bare": true
+    },
+    {
+      "commands": ["当日用量", "今日用量", "今天用量"],
+      "tool": "deepseek_balance_query",
+      "ownerOnly": true,
+      "hidden": true,
+      "bare": true
+    }
+  ],
+  "prompt": null
+}

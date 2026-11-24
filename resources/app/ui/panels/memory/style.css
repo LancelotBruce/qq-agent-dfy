@@ -1,0 +1,74 @@
+@import url('../list-layout.css');
+/* Memory index / member dossiers. */
+.grid { grid-template-columns: minmax(250px, .75fr) minmax(0, 1.8fr); align-items: start; gap: 18px; }
+#list { max-height: calc(100vh - 130px); overflow: auto; padding-right: 5px; scrollbar-gutter: stable; }
+#list .list-item { cursor: pointer; }
+#list .row { align-items: start; flex-wrap: wrap; gap: 10px; }
+#list .row > div:first-child { flex: 1 1 100%; }
+#list .muted { margin-top: 6px; overflow-wrap: anywhere; }
+#list .actions { width: 100%; }
+#list .actions button { padding: 5px 8px; font-size: 11px; }
+#detail { min-width: 0; }
+#detail > .row { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 12px; }
+#detail > .row h3 { margin: 0; overflow-wrap: anywhere; }
+.task-status { padding: 8px 0; font-variant-numeric: tabular-nums; }
+.member-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); align-items: start; gap: 14px; }
+.member-cards > .card { margin: 0; border-top: 2px solid var(--line-strong); }
+.member-cards details > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; }
+.member-cards details > summary::-webkit-details-marker { display: none; }
+.member-cards details > summary::after { content: ''; width: 16px; height: 16px; flex: 0 0 16px; background: var(--muted); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.5 9l5.5 5.5L17.5 9' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.5 9l5.5 5.5L17.5 9' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; transform: rotate(-90deg); transition: transform var(--motion-fast, 120ms) var(--ease-out, ease); }
+.member-cards details > summary[aria-expanded='true']::after { transform: rotate(0); }
+.member-cards details > summary > div { min-width: 0; flex: 1 1 auto; }
+.member-cards details > summary:focus-visible { outline: var(--focus-width) solid var(--focus); outline-offset: -2px; }
+.member-impression-count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.member-impression-item { display: flex; align-items: flex-start; gap: 8px; list-style: none; }
+.member-cards ul { padding-left: 6px; }
+.impression-check { margin: 5px 0 0; flex: 0 0 auto; }
+.impression-text { flex: 1 1 auto; }
+.member-batch { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--line); }
+.member-batch button { padding: 4px 8px; font-size: 11px; }
+.member-batch-count { margin-left: auto; font-size: 11px; }
+.member-cards h3 { margin-bottom: 6px; overflow-wrap: anywhere; }
+.member-cards small { color: var(--muted); font-family: var(--font-mono); }
+.member-cards ul { padding: 12px 0 12px 20px; min-height: 48px; border-top: 1px solid var(--line); margin: 14px 0; }
+.member-cards li { padding: 4px 0; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+.member-cards .actions { border-top: 1px solid var(--line); padding-top: 12px; }
+.member-cards .actions button { padding: 5px 8px; font-size: 11px; }
+.impression .what { white-space: pre-wrap; overflow-wrap: anywhere; }
+.group-members-dialog { width: min(760px, calc(100vw - 32px)); }
+.group-members-dialog > input[type='search'] { width: 100%; margin-bottom: 12px; }
+.group-members-list { display: grid; gap: 12px; max-height: 60vh; overflow: auto; }
+.group-members-list .row { flex-wrap: wrap; align-items: start; }
+.group-members-list .row > div:first-child { flex: 1 1 240px; }
+.member-identities { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 10px; margin: 8px 0 0; font-size: 12px; }
+.member-identities dt { color: var(--muted); }
+.member-identities dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+@media (max-width: 850px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  #list { max-height: 40vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .member-cards details > summary::after { transition: none; }
+}
+
+/* ── 记忆审计（impression-audit）：勋章 + 就地证据 ── */
+.member-impression-item { position: relative; }
+.member-impression-item .audit-badge {
+  margin-left: 8px; flex: 0 0 auto; padding: 1px 8px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, currentColor 55%, transparent);
+  background: transparent; font-size: 12px; line-height: 18px; cursor: pointer; white-space: nowrap;
+}
+.member-impression-item .audit-badge[data-level="green"] { color: #3fb950; }
+.member-impression-item .audit-badge[data-level="orange"] { color: #d29922; }
+.member-impression-item .audit-badge[data-level="red"] { color: #f85149; }
+.member-impression-item .audit-badge[data-level="gray"] { color: #8b949e; }
+.member-impression-item .audit-badge[aria-expanded="true"] { background: color-mix(in srgb, currentColor 14%, transparent); }
+.member-impression-item .audit-evidence {
+  flex: 1 1 100%; margin: 6px 0 2px 26px; padding: 8px 10px; border-radius: 6px;
+  border-left: 3px solid var(--border, #30363d); background: color-mix(in srgb, var(--panel, #161b22) 72%, transparent);
+  font-size: 12px; line-height: 1.6;
+}
+.member-impression-item .audit-evidence .audit-why { margin: 0 0 4px; color: var(--muted); }
+.member-impression-item .audit-evidence .audit-phrase { margin: 2px 0; overflow-wrap: anywhere; }
+.member-impression-item .audit-evidence .actions { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+.audit-toast { margin: 0 0 8px; padding: 6px 10px; border-radius: 6px; background: color-mix(in srgb, #f85149 16%, transparent); color: #f85149; font-size: 12px; }

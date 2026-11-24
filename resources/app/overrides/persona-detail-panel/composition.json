@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "id": "persona-detail-panel",
+  "order": 20,
+  "routes": [
+    {
+      "id": "persona-detail",
+      "module": "routes.js",
+      "export": "register"
+    }
+  ]
+}

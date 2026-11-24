@@ -1,0 +1,5 @@
+.work-dialog.persona-market-dialog{width:min(1120px,calc(100vw - 28px))}
+dialog.persona-market-dialog[data-managed-dialog] > .work-dialog-head{position:static;margin:0}
+.persona-market-dialog > .work-dialog-actions:empty,.persona-market-dialog > [role=status]:empty{display:none}
+.persona-market-tools{justify-content:flex-end;margin:0 0 14px}
+.persona-market-dialog #persona-market{min-width:0}

@@ -1,0 +1,3 @@
+import {safeFetch} from './kernel/safe-fetch.js';
+export async function safeFetchBinary(url,maxBytes=10485760){const res=await safeFetch(String(url),{maxBytes:Math.max(1024,Number(maxBytes)||10485760),expectBinary:true,timeoutMs:20000});if(!(res.status>=200&&res.status<300))throw Error('下载失败 HTTP '+res.status);const body=res.body;const headers=res.headers;const contentType=String((headers&&(headers.get?headers.get('content-type'):headers['content-type']))||'');return{buffer:Buffer.isBuffer(body)?body:Buffer.from(String(body??''),'utf8'),contentType,status:res.status,finalUrl:res.finalUrl};}
+export const safeFetchImpl=safeFetch;

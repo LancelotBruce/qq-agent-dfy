@@ -1,0 +1,14 @@
+{
+  "id": "cache-stability",
+  "name": "缓存稳定优化",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "category": "utility",
+  "description": "稳定视频说明，将易变记忆和表情包移至历史之后，提高输入前缀复用。",
+  "enabledByDefault": true,
+  "capabilities": [
+    "llm.request-params"
+  ],
+  "settings": {},
+  "requires": []
+}

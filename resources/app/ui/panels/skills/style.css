@@ -1,0 +1,132 @@
+@import url('../extension-authoring.css');
+
+/* One compact card grammar for installed skills, plugins and default modules. */
+#skill-market-status:empty { display:none; }
+.head .eyebrow { display:none; }
+.head .actions input { min-width:150px; max-width:240px; flex:1 1 150px; }
+.head #installed-actions { flex:1 1 auto; justify-content:flex-end; }
+#list {
+  --extension-columns:3;
+  display:grid;
+  grid-template-columns:repeat(var(--extension-columns),minmax(0,1fr));
+  grid-auto-rows:min-content;
+  align-content:start;
+  align-items:stretch;
+  gap:10px;
+}
+#list > .empty { grid-column:1/-1; }
+#list .list-item::before { content:none; }
+.default-capabilities { grid-column:1/-1; min-width:0; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius-card); background:var(--surface); }
+.default-capabilities > summary { width:fit-content; max-width:100%; cursor:pointer; font-size:12px; font-weight:600; line-height:1.5; }
+.default-capability-grid { display:grid; grid-template-columns:repeat(var(--extension-columns),minmax(0,1fr)); grid-auto-rows:min-content; align-content:start; align-items:stretch; gap:10px; padding-top:10px; }
+
+/* Specificity intentionally beats the later visual-refinements catalogue rule.
+   Explicit user padding/radius overrides keep their normal priority. */
+body:is([data-panel="skills"],[data-panel="plugins"]) #list .list-item.extension-switch-card {
+  --extension-card-padding:12px;
+  position:relative;
+  isolation:isolate;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-auto-rows:min-content;
+  align-content:start;
+  gap:7px;
+  min-width:0;
+  min-height:0;
+  margin:0;
+  padding:var(--extension-card-padding);
+  border:var(--content-border-width,var(--border-width)) solid var(--line);
+  border-radius:var(--radius-card);
+  background:var(--surface);
+  box-shadow:none;
+  transition:border-color var(--motion-fast),background-color var(--motion-fast);
+}
+body[data-custom-card-padding="on"] #list .list-item.extension-switch-card { --extension-card-padding:var(--card-padding,12px); }
+body:is([data-panel="skills"],[data-panel="plugins"]) #list .list-item.extension-switch-card:hover { border-color:color-mix(in srgb,var(--accent) 55%,var(--line)); }
+body:is([data-panel="skills"],[data-panel="plugins"]) #list .list-item.extension-switch-card[data-state="on"] {
+  border-color:color-mix(in srgb,var(--accent) 75%,var(--line));
+  background:color-mix(in srgb,var(--accent) 7%,var(--surface));
+  box-shadow:inset 3px 0 var(--accent);
+}
+body:is([data-panel="skills"],[data-panel="plugins"]) #list .list-item.extension-switch-card[data-state="error"] { border-color:var(--bad); background:color-mix(in srgb,var(--bad) 5%,var(--surface)); box-shadow:inset 3px 0 var(--bad); }
+body:is([data-panel="skills"],[data-panel="plugins"]) #list .list-item.extension-switch-card[data-state="pending"] { border-color:var(--accent); border-style:dashed; }
+#list .extension-switch-card [hidden] { display:none!important; }
+#list .extension-switch-card > .row { display:contents; }
+#list .extension-switch-card .row > div:first-child { order:0; grid-column:1/-1; min-width:0; padding-right:30px; pointer-events:none; }
+#list .extension-switch-card .row strong { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; overflow-wrap:anywhere; font-size:15px; line-height:1.35; font-weight:650; }
+#list .extension-switch-card .row .muted,#list .extension-summary { margin-top:4px; color:var(--muted); font-size:11px; line-height:1.45; overflow-wrap:anywhere; }
+#list .extension-switch-card .extension-description { order:1; grid-column:1/-1; margin:0; padding:0; border:0; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; overflow:hidden; font-size:12px; line-height:1.5; color:var(--muted); overflow-wrap:anywhere; pointer-events:none; }
+#list .extension-switch-card .extension-diagnostics { order:2; grid-column:1/-1; min-width:0; pointer-events:none; }
+#list .extension-switch-card .extension-diagnostics:empty { display:none; }
+#list .extension-switch-card .extension-diagnostics p { margin:0; font-size:11px; line-height:1.5; overflow-wrap:anywhere; }
+#list .extension-switch-card .extension-update-status,#list .extension-switch-card .extension-toggle-feedback { order:3; grid-column:1/-1; margin:0; padding:0; border:0; font-size:11px; line-height:1.5; overflow-wrap:anywhere; pointer-events:none; }
+#list .extension-switch-card .extension-update-status:empty,#list .extension-switch-card .extension-toggle-feedback:empty { display:none; }
+#list .extension-switch-card .actions { order:4; grid-column:1; position:relative; z-index:2; display:flex; flex-wrap:wrap; width:100%; min-width:0; gap:5px; margin:0; pointer-events:none; }
+#list .extension-switch-card .actions > * { pointer-events:auto; }
+#list .extension-switch-card .actions button { min-height:30px; padding:4px 8px; font-size:11px; line-height:1.35; white-space:normal; max-width:100%; }
+#list .extension-switch-card > details { order:5; grid-column:2; align-self:end; position:relative; z-index:2; min-width:0; margin:0; color:var(--muted); font-size:11px; }
+#list .extension-switch-card > details > summary { width:fit-content; max-width:100%; min-height:30px; display:flex; align-items:center; cursor:pointer; padding:4px 2px; line-height:1.5; }
+#list .extension-switch-card > details > summary::before { content:'›'; margin-right:4px; font-size:15px; line-height:1; }
+#list .extension-switch-card > details[open] { grid-column:1/-1; border-top:1px solid var(--line); padding-top:7px; }
+#list .extension-switch-card > details[open] > summary::before { transform:rotate(90deg); }
+#list .extension-switch-card .extension-full-description { display:block; margin:0 0 7px; font-size:12px; line-height:1.6; color:var(--text); white-space:pre-wrap; overflow-wrap:anywhere; }
+#list .extension-switch-card > details[open] .extension-description { display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; pointer-events:auto; }
+.extension-id,.extension-root-path,.extension-dependencies { display:block; color:var(--faint); font:10px/1.5 var(--font-mono); overflow-wrap:anywhere; }
+#list .extension-switch-card > details .extension-id,#list .extension-switch-card > details .extension-dependencies { margin-bottom:4px; }
+
+/* A sibling overlay switch avoids putting links/buttons inside an ARIA switch.
+   Actual controls sit above it; gaps between those controls still toggle. */
+#list .extension-switch-card > .extension-card-toggle {
+  position:absolute!important;
+  inset:0;
+  z-index:1;
+  display:block;
+  width:100%;
+  height:100%;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:inherit!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  clip-path:none!important;
+  transform:none!important;
+  color:inherit;
+  cursor:pointer;
+  opacity:1;
+}
+#list .extension-switch-card > .extension-card-toggle:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+#list .extension-switch-card > .extension-card-toggle:disabled { opacity:1; cursor:progress; }
+.extension-switch-indicator { position:absolute; top:var(--extension-card-padding,12px); right:var(--extension-card-padding,12px); display:grid; place-items:center; width:20px; height:20px; border:1px solid var(--muted); border-radius:50%; color:var(--muted); background:transparent; font-size:12px; line-height:1; pointer-events:none; }
+.extension-switch-indicator svg { width:13px; height:13px; }
+[data-state="on"] .extension-switch-indicator { color:var(--accent-ink); border-color:var(--accent); background:var(--accent); }
+[data-state="error"] .extension-switch-indicator { color:var(--bad); border-color:var(--bad); }
+[data-state="pending"] .extension-switch-indicator { color:transparent; font-size:0; border-color:var(--accent); border-right-color:transparent; animation:extension-card-wait .8s linear infinite; }
+[data-state="pending"] .extension-switch-indicator svg { visibility:hidden; }
+@keyframes extension-card-wait { to { transform:rotate(360deg); } }
+@media(prefers-reduced-motion:reduce) { [data-state="pending"] .extension-switch-indicator { animation:none; border-style:dashed; } }
+
+#conflicts:not(:empty) { margin-bottom:12px; }
+#capability-providers:not(:empty) { margin-bottom:14px; }
+.capability-provider-picker { border:1px solid var(--line); border-radius:var(--radius-card); background:var(--surface); padding:12px; }
+.capability-provider-picker > summary { font-weight:600; }
+.capability-provider-picker > .muted { margin:10px 0; max-width:80ch; line-height:1.6; }
+.capability-provider-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:10px; }
+.capability-provider-row { display:flex; flex-wrap:wrap; align-items:center; gap:7px; min-width:0; padding:10px; background:var(--surface-2); border-left:2px solid var(--accent); }
+.capability-provider-info,.capability-provider-chain { flex-basis:100%; min-width:0; }
+.capability-provider-info code { display:block; margin-bottom:4px; font-size:12px; overflow-wrap:anywhere; }
+.capability-provider-info small { display:block; line-height:1.6; }
+.capability-provider-chain { overflow-wrap:anywhere; }
+.capability-provider-row select { flex:1 1 150px; min-width:0; max-width:100%; }
+.capability-provider-row > .error { flex-basis:100%; }
+.capability-provider-row > .error:empty { display:none; }
+.extension-settings { width:min(640px,calc(100vw - 32px)); }
+@media(max-width:1000px) { #list { --extension-columns:2; } }
+@media(max-width:620px) {
+  #list { --extension-columns:1; }
+  .capability-provider-list { grid-template-columns:minmax(0,1fr); }
+  .head .actions input { max-width:none; flex-basis:100%; }
+  .default-capabilities { padding:9px; }
+}

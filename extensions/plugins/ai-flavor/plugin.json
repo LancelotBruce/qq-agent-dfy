@@ -1,0 +1,67 @@
+{
+  "id": "ai-flavor",
+  "name": "去AI味",
+  "version": "1.0.1",
+  "apiVersion": 1,
+  "category": "message",
+  "entry": "index.js",
+  "description": "治 AI 八股（“我记下了”“这句话我认了”“声音没抖”这类）。\n\n两道拦截：①每轮把「禁写清单 + 现成说法」挂到本轮 user 消息末尾，每次随机抽样，避免固定语料变成新的八股（挂 user 不挂 system，system 才能逐字节固定、吃满前缀缓存）；②模型已经写出的草稿里若还有八股句，直接替换成语料库说法，不靠它自觉。语料在 corpus.js，按「标签 → 禁句/可说的话」分类，加一行就多一条能说的话。\n\n只改措辞，不碰人设和业务逻辑；关掉开关即完全失效。\n\n更新记录\n· 1.0.0（2026-11-18）从扩展缓存快照恢复到 0.5 插件目录，语料与开关未改\n· 1.0.1（2026-11-22）风格指令从 system 尾部改挂本轮 user 末尾，system 逐字节固定吃满前缀缓存；超长裁剪改为按整行截断，不再留半句",
+  "author": "为 QQ Agent 定制",
+  "enabledByDefault": true,
+  "capabilities": [],
+  "requires": [],
+  "settings": {
+    "enabled": true,
+    "inject": true,
+    "rewrite": true,
+    "samplePerTag": 2,
+    "extraBanned": "",
+    "extraSay": "",
+    "verbose": false
+  },
+  "configSchema": {
+    "enabled": {
+      "type": "boolean",
+      "label": "启用去AI味",
+      "description": "总开关。关掉后既不注入指令也不改写草稿。",
+      "group": "开关"
+    },
+    "inject": {
+      "type": "boolean",
+      "label": "每轮注入风格指令",
+      "description": "默认开。把「禁写清单 + 现成说法」挂到本轮 user 消息末尾，每次随机抽样；不写进 system，避免把前缀缓存打断。",
+      "group": "开关"
+    },
+    "rewrite": {
+      "type": "boolean",
+      "label": "改写已生成的草稿",
+      "description": "默认开。模型写出来的文字里还有八股句时直接替换。关掉就只靠提示词自觉。",
+      "group": "开关"
+    },
+    "samplePerTag": {
+      "type": "number",
+      "label": "每类抽几句语料",
+      "description": "默认 2。设太大提示词会变长，容易把上下文挤掉。",
+      "group": "注入"
+    },
+    "extraBanned": {
+      "type": "string",
+      "label": "额外禁写句式",
+      "description": "逗号或换行分隔。只进禁写清单，不会被自动改写（防止误删正文）。",
+      "group": "自定义"
+    },
+    "extraSay": {
+      "type": "string",
+      "label": "额外可用说法",
+      "description": "一行一条，格式 `标签|说法1,说法2`。标签写已有的（表态承诺/认同附和/客服腔…）就往里加，写新的就新建一类。",
+      "group": "自定义"
+    },
+    "verbose": {
+      "type": "boolean",
+      "label": "日志输出注入记录",
+      "description": "默认关。开着每轮都会在日志里留下注入记录，排查用。",
+      "group": "排查"
+    }
+  },
+  "tools": []
+}

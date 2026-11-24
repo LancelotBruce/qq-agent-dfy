@@ -1,0 +1,465 @@
+/* 记忆与存档优化 · 面板样式
+ *
+ * 原则：**能复用核心类名就复用**（.btn / .badge / .inp / .collapsible.mem-fold /
+ * .mem-who / .mem-actions / .coll-body / .muted / .detail-header / .chat-item），
+ * 这里只补核心没有的那几样（右侧状态区、进度条、记忆行、日期下拉）。
+ *
+ * 颜色一律用核心的设计 token —— 尤其是文字色必须用 var(--tx)/var(--tx2)：
+ *   v1 用的是不存在的 --fg 兜底色（近白），亮色主题下文字直接看不见。
+ *   --tx / --tx2 / --tx3 是两套主题都会自动切换的那三个。
+ */
+
+/* ── 记忆列表项上的小角标（短期 N · 标签 N · 待裁决 N）── */
+.mp-badge {
+  color: var(--tx3);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* ── 详情页：左边内容占满 + 右边一列常驻操作/状态栏 ──
+ * 以前按键横排在标题下面，一屏十来行按钮把页面撑得很空，右边状态栏却孤零零占着。
+ * 现在改成两列：操作和排序都在右栏自上而下排，左边留给成员列表。 */
+.mp-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 252px;
+  gap: 14px;
+  align-items: start;
+}
+.mp-main {
+  min-width: 0;
+}
+.mp-page .mp-side {
+  width: 100%;
+  max-width: none;
+  flex: none;
+  position: sticky;
+  top: 8px;
+  align-self: start;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 980px) {
+  .mp-page { grid-template-columns: minmax(0, 1fr); }
+  .mp-page .mp-side { position: static; }
+}
+
+/* .mp-sel 带 flex:1 1 90px，放进竖排容器后 flex-basis 变成「高度 90px」，
+ * 下拉会被拉成一个 100 多像素高的空盒子；这里固定成普通单行高度 */
+.mp-ops .mp-sel {
+  flex: 0 0 auto;
+  height: 30px;
+}
+
+/* 右栏最上面的操作区：整列竖排，一个按钮一行 */
+.mp-ops {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: -2px 0 9px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--bd);
+}
+.mp-ops-t {
+  font-size: 11px;
+  color: var(--tx3);
+  letter-spacing: .5px;
+}
+.mp-ops .btn {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.3;
+  padding: 0 9px;
+}
+.mp-ops #mp-sort {
+  width: 100%;
+  flex: 0 0 auto;
+  max-width: none;
+  min-height: 30px;
+  padding: 0 6px;
+  font-size: 12.5px;
+}
+
+.mp-hd {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.mp-hd-main {
+  flex: 1 1 420px;
+  min-width: 0;
+}
+
+.mp-side {
+  flex: 0 0 330px;
+  max-width: 100%;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--bg1);
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.mp-side-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mp-status-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--tx);
+  line-height: 1.5;
+  word-break: break-word;
+}
+.mp-dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tx3);
+  box-shadow: 0 0 0 3px transparent;
+}
+.mp-dot-ok { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.mp-dot-err { background: var(--err); box-shadow: 0 0 0 3px var(--err-soft); }
+.mp-dot-run { background: var(--warn); box-shadow: 0 0 0 3px var(--warn-soft); animation: mp-pulse 1.2s ease-in-out infinite; }
+.mp-dot-queue { background: var(--ac); box-shadow: 0 0 0 3px var(--ac-soft); animation: mp-pulse 1.6s ease-in-out infinite; }
+@keyframes mp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .45; }
+}
+
+.mp-progress {
+  height: 4px;
+  margin: 7px 0 8px;
+  border-radius: 3px;
+  background: var(--bd);
+  overflow: hidden;
+}
+.mp-progress > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: var(--tx3);
+  transition: width .3s ease;
+}
+.mp-progress > i.on { background: var(--ac); }
+
+.mp-side-model {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mp-sel {
+  flex: 1 1 90px;
+  min-width: 0;
+  padding: 2px 4px;
+  font-size: 12px;
+}
+.mp-side-hint {
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.mp-side-fail { margin-top: 5px; font-size: 11px; }
+.mp-fail > summary { cursor: pointer; color: var(--warn); }
+.mp-fail-item {
+  color: var(--tx2);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+/* ── 详情里的小结构 ── */
+.mp-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 0;
+}
+.mp-row-k {
+  color: var(--tx3);
+  font-size: 12px;
+  min-width: 32px;
+}
+.mp-sec {
+  color: var(--tx2);
+  font-size: 12px;
+  margin: 8px 0 2px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--bd);
+}
+/* 每条记忆前面的勾选框：够大好点，别跟文字贴太死 */
+.mp-line .mp-pick {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0 0;
+  cursor: pointer;
+}
+.mp-all-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--tx3);
+  cursor: pointer;
+  user-select: none;
+  padding: 0 4px 0 6px;
+  white-space: nowrap;
+}
+.mp-all-wrap .mp-pick {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+/* 成员块标题栏上按钮变多了：放不下就整体换行，换行后从左排起，
+ * 别用 margin-left:auto 顶到最右——那样第二行左边会空出一大片。
+ * 注意特异性要压过核心的 `.mem-fold > summary .mem-actions`，否则 margin-left 改不动 */
+.mp-page .mem-fold > summary .mem-actions {
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-start;
+  margin-left: 0;
+}
+/* 按钮收窄一点，让「标题 + 6 个按钮」尽量挤进同一行，避免第二行左侧空一大块 */
+.mp-page .mem-fold > summary .mem-actions .btn {
+  font-size: 11px;
+  padding: 0 7px;
+}
+.mp-page .mem-fold > summary .mem-actions .mp-all-wrap {
+  font-size: 11px;
+  padding: 0 2px 0 4px;
+  gap: 3px;
+}
+/* 核心样式给 .mem-who 设了 flex:1 + 省略号，标题栏一多按钮名字就被截成「（...」。
+ * 这里放宽：名字按内容宽度、始终一行，放不下才让按钮整体换行到第二行 */
+.mp-page .mem-fold > summary { flex-wrap: wrap; row-gap: 6px; }
+.mp-page .mem-fold > summary .mem-who {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 核心样式会自动在 summary 右侧画一个「›」箭头；既然折叠键已经单独做出来，
+ * 这个自带箭头就成了会点错的一个假按键，直接藏掉 */
+.mp-page .mem-fold > summary::after { display: none; }
+
+/* 折叠改成一个专用小三角：标题栏上其余地方点了都不会再收放整块 */
+.mp-page .mem-fold > summary .mp-fold-btn {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--tx3);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-xs);
+  cursor: pointer;
+}
+.mp-page .mem-fold > summary .mp-fold-btn:hover {
+  color: var(--ac);
+  border-color: var(--ac-line);
+  background: var(--hover);
+}
+
+/* ── 交叉验证：勾人的入口在成员标题栏，结果标红在条目上 ────────────── */
+/* 「选人」和「全选条目」是两个概念，样式上也分开：这个贴在标题文字左边、字更小 */
+.mp-page .mp-who-pick {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  line-height: 1;
+  color: var(--tx3);
+  padding: 3px 6px;
+  background: transparent;
+  border: 1px dashed var(--line, rgba(255, 255, 255, .18));
+  border-radius: var(--r-xs);
+  cursor: pointer;
+  user-select: none;
+}
+.mp-page .mp-who-pick:hover { color: var(--ac); border-color: var(--ac-line); background: var(--hover); }
+.mp-page .mp-who-pick.mp-on { color: var(--ac); border-style: solid; border-color: var(--ac); }
+/* 方框是画出来的，不是原生 checkbox：原生控件放进 <summary> 会被折叠默认行为吃掉点击 */
+.mp-page .mp-whobox {
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--tx3);
+  border-radius: 2px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 9px;
+  line-height: 1;
+  color: transparent;
+}
+.mp-page .mp-whobox::after { content: '✓'; }
+.mp-page .mp-who-pick.mp-on .mp-whobox { border-color: var(--ac); background: var(--ac); color: #fff; }
+
+ /* 顶部一条：选了谁、点交叉验证、上次查出几处 */
+.mp-page .mp-xcbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0 4px;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: var(--tx2);
+  border: 1px solid var(--line, rgba(255,255,255,.12));
+  border-radius: var(--r-xs);
+  background: var(--hover);
+}
+.mp-page .mp-xcbar .mp-xc-count b { color: var(--ac); }
+.mp-page .mp-xc-bad { color: var(--err); font-size: 12px; }
+
+/* 有疑点的条目：左侧红条 + 淡红底，一眼能挑出来去手改 */
+.mp-page .mp-line.mp-bad {
+  margin: 3px 0;
+  padding: 4px 6px 4px 8px;
+  border-radius: 4px;
+  background: var(--err-soft);
+  box-shadow: inset 3px 0 0 var(--err);
+}
+.mp-page .mp-bad-tip {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--err);
+}
+
+/* 「定位」跳过来时闪三下，一眼能在长列表里找到那一条 */
+.mp-page .mp-line.mp-flash {
+  outline: 2px solid var(--err);
+  outline-offset: 2px;
+  animation: mp-xc-flash .7s ease-in-out 3;
+}
+@keyframes mp-xc-flash {
+  0%, 100% { background: var(--err-soft); }
+  50% { background: rgba(255, 90, 90, .38); }
+}
+
+.mp-line {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 2px 0;
+  font-size: 13px;
+  color: var(--tx);
+}
+.mp-line-t {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+  line-height: 1.55;
+}
+.mp-line-a {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+}
+.mp-edit-ta {
+  flex: 1 1 auto;
+  min-height: 52px;
+  width: 100%;
+  resize: vertical;
+}
+
+/* 标签 */
+.mp-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.mp-tags .badge { gap: 4px; }
+
+/* 点击区加固 ────────────────────────────────────────────────────────
+ * 核心的 .btn-small 是 26px 高 / 11.5px 字，配上本面板密集的排布，
+ * 高 DPI 屏上又小又挤，实际很难点中（表现为"点了没反应"）。
+ * 这里把面板内所有按钮统一抬到 30px 高、12.5px 字，并保证 cursor/触控行为一致。
+ */
+.mp-hd .btn,
+.mp-line-a .btn,
+.mp-add-row .btn,
+.mp-row .btn,
+.mp-backups .btn,
+.mp-q .btn,
+.mp-side .btn {
+  min-height: 30px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+/* 一排按钮之间留出空隙，避免误点到隔壁 */
+.mp-hd .sub .btn { margin: 2px 0; }
+.mp-hd .sub { row-gap: 8px; }
+.mp-line-a .btn { min-width: 46px; }
+.mp-line-a { gap: 6px; }
+.mp-add-row .btn { min-width: 52px; }
+.mp-backups .btn, .mp-q .btn { margin: 3px 4px 0 0; }
+.mp-side .mp-sel { min-height: 26px; font-size: 12.5px; }
+/* 右侧两组模型选择上下叠着，各占一行 */
+.mp-side-model + .mp-side-model { margin-top: 6px; }
+
+/* 标签上的 ×：核心 .badge 是固定 21px 高的胶囊，× 挤在里面只有十几像素的可点区，
+ * 指头根本压不准。这里把标签改成自适应高度，× 独占 20×20 的方形可点区。 */
+.mp-tags .badge {
+  gap: 4px;
+  height: auto;
+  min-height: 24px;
+  padding: 2px 4px 2px 8px;
+}
+.mp-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0 2px;
+  margin-left: 3px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.mp-x:hover { opacity: 1; color: var(--err); background: rgba(255,100,100,.1); }
+.mp-tag-in { width: 88px; min-height: 26px; }
+
+/* 手工记一条 */
+.mp-add-row { margin-top: 6px; }
+.mp-add-in { flex: 1 1 240px; min-width: 160px; }
+.mp-add-kind { flex: 0 0 auto; }
+
+/* 存档区 */
+.mp-date { width: auto; padding: 2px 4px; }
+.mp-backups { margin-top: 4px; }
+.mp-q {
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--bd);
+  font-size: 13px;
+}
+.mp-q:last-child { border-bottom: 0; }
+.mp-q-in { flex: 1 1 220px; }
+
+/* 窄窗口下状态区落到下面、按钮行折行 */
+@media (max-width: 1080px) {
+  .mp-side { flex: 1 1 100%; }
+}
+@media (max-width: 880px) {
+  .mp-line { flex-wrap: wrap; }
+  .mp-line-a { width: 100%; justify-content: flex-end; }
+}

@@ -1,0 +1,45 @@
+export const VALUE_PORT_ROW_HEIGHT=22;
+export const VALUE_TYPE_LABELS={stream:'事件流',sequence:'列表或事件流',text:'文字',number:'数值',boolean:'真假',timestamp:'时间',user_id:'QQ',group_id:'群号',message_id:'消息 ID',group_ids:'群号列表',user_ids:'QQ 列表',message:'消息',object:'对象',list:'列表',any:'任意值'};
+export const VALUE_COLORS={stream:'#ecbf78',sequence:'#ecbf78',text:'#72cba5',number:'#e7b773',boolean:'#bf9bef',timestamp:'#d9c775',user_id:'#80b8f6',group_id:'#64c7db',message_id:'#87a9d0',group_ids:'#64c7db',user_ids:'#7ab7e1',message:'#d498c3',object:'#a4ada8',list:'#72bcb7',any:'#a8ada7'};
+export function compatibleValue(output,input){return output===input||input==='sequence'&&['stream','list','user_ids','group_ids','message'].includes(output)||output==='any'||input==='any'||input==='list'&&['user_ids','group_ids','message'].includes(output);}
+export function allValuePorts(node,catalog,direction){return catalog.find(s=>s.type===node.type)?.ports?.[direction]??[];}
+export function inputRequirement(node,port){
+  const variable=node.type==='format_text'&&['a','b','c','d'].includes(port.key),dynamicTemplate=variable&&!!node.bindings?.template,template=Object.hasOwn(node.values??{},'template')?node.values.template:node.config?.template,templateRequired=variable&&new RegExp('\\{\\{'+port.key+'\\}\\}').test(template??'');
+  const requirement=dynamicTemplate?'conditional':templateRequired||!port.optional&&(port.required||!!port.inherit)?'required':'optional';
+  const state=(kind,label,hint,provided)=>({kind,label,hint,requirement,provided,missing:requirement==='required'&&!provided});
+  if(node.bindings?.[port.key])return state('linked','已连线','使用连线来源；不用重复填写',true);
+  const explicit=Object.hasOwn(node.values??{},port.key);
+  if(!explicit&&!port.configKey&&port.inherit){
+    if(port.targetUser)return state('auto','自动','留空按待处理成员名单执行；指定 QQ 后仅处理这一人',true);
+    const name={group:'当前群的群号',user:'这次事件相关的 QQ',targets:'当前执行路径中的成员名单',event_time:'触发消息发送时间',current_time:'执行到此处的时间',message:'收到的完整消息',message_id:'触发消息 ID',text:'消息中的文字',event:'完整事件资料',time:'触发时间'}[port.inherit]??'当前流程';
+    return state('auto','自动','使用'+name+'；需要改用其他值时再填写或连线',true);
+  }
+  const value=explicit?node.values[port.key]:port.configKey?(node.config?.[port.configKey]??port.default):port.default,emptySetting=!!port.configKey&&port.required&&port.type==='text'&&typeof value==='string'&&!value.trim(),provided=value!==undefined&&(value!==null||port.type==='any')&&!emptySetting;
+  if(provided)return state('filled','已填',explicit?'使用填写的固定值，覆盖节点设置和自动来源':'使用节点设置或默认值，无需连线',true);
+  if(requirement==='conditional')return state('optional','依模板','模板引用这个变量时需要提供；未引用时可留空',false);
+  if(requirement==='optional')return state('optional','可选','可不提供；按节点说明处理缺省值',false);
+  return state('required','必填','需要填写内容或连接一个来源；不一定要连线',false);
+}
+export function visibleValuePorts(rule,node,catalog,direction){const selected=rule.layout?.visiblePorts?.[node.id]?.[direction];return allValuePorts(node,catalog,direction).filter(port=>{const connected=direction==='inputs'?node.bindings?.[port.key]:rule.nodes.some(n=>Object.values(n.bindings??{}).some(b=>b.nodeId===node.id&&b.port===port.key));return connected||(selected?selected.includes(port.key):port.visible!==false);});}
+export function canvasValuePorts(rule,node,catalog,direction,{compact=false,connectFrom=null}={}){
+  const spec=catalog.find(s=>s.type===node.type),pinned=rule.layout?.visiblePorts?.[node.id]?.[direction],common=new Set(['user_id','text','time']);
+  return allValuePorts(node,catalog,direction).filter(port=>{
+    const connected=direction==='inputs'?!!node.bindings?.[port.key]:rule.nodes.some(n=>Object.values(n.bindings??{}).some(b=>b.nodeId===node.id&&b.port===port.key));
+    const missing=direction==='inputs'&&inputRequirement(node,port).missing,explicit=pinned?.includes(port.key)===true;
+    if(connected||missing||explicit)return true;
+    if(connectFrom&&direction==='inputs')return !dataLinkIssue(rule,catalog,connectFrom.source,connectFrom.output,node.id,port.key);
+    if(port.visible===false)return false;
+    return !compact||direction==='outputs'&&(spec?.pure||spec?.trigger&&common.has(port.key));
+  });
+}
+function controlChildren(rule,node,catalog){const spec=catalog.find(s=>s.type===node.type);if(!spec||spec.terminal||spec.pure)return [];const implicit=rule.nodes[rule.nodes.indexOf(node)+1]?.scope===node.scope?rule.nodes[rule.nodes.indexOf(node)+1]?.id:'$end';const raw=spec.loop?[node.each,node.next??implicit]:spec.routeKind?[...(node.routes??[]).map(r=>r.next),node.otherwise]:[node.next??implicit,...(spec.branch?[node.otherwise]:[])];return raw.flatMap(v=>Array.isArray(v)?v:[v]).filter(v=>v&&v!=='$end');}
+export function graphWouldCycle(rule,catalog,source,target,ignore=null){if(source===target)return true;const children=new Map(rule.nodes.map(n=>[n.id,controlChildren(rule,n,catalog)]));for(const node of rule.nodes)for(const [key,binding]of Object.entries(node.bindings??{})){if(ignore?.nodeId===node.id&&ignore?.key===key)continue;children.get(binding.nodeId)?.push(node.id);}const seen=new Set();function visit(id){if(id===source)return true;if(seen.has(id))return false;seen.add(id);return (children.get(id)??[]).some(visit);}return visit(target);}
+export function dataLinkIssue(rule,catalog,source,output,target,input){const from=rule.nodes.find(n=>n.id===source),to=rule.nodes.find(n=>n.id===target);if(!from||!to)return '节点已不存在';const a=allValuePorts(from,catalog,'outputs').find(p=>p.key===output),b=allValuePorts(to,catalog,'inputs').find(p=>p.key===input);if(!a||!b)return '字段已不存在';const scopeIssue=valueScopeIssue(rule,from,to,a);if(scopeIssue)return scopeIssue;if(!compatibleValue(a.type,b.type))return `类型不兼容：${VALUE_TYPE_LABELS[a.type]} → ${VALUE_TYPE_LABELS[b.type]}`;if(graphWouldCycle(rule,catalog,source,target,{nodeId:target,key:input}))return '这条数据线会形成循环';if((input==='user_id'&&(to.bindings?.targets||Object.hasOwn(to.values??{},'targets')))||(input==='targets'&&(to.bindings?.user_id||Object.hasOwn(to.values??{},'user_id'))))return '单个 QQ 与待处理成员名单请只连接一种';return '';}
+export function valueEdges(rule,catalog){return rule.nodes.flatMap(node=>Object.entries(node.bindings??{}).map(([input,b])=>{const from=rule.nodes.find(n=>n.id===b.nodeId),port=from&&allValuePorts(from,catalog,'outputs').find(p=>p.key===b.port);return {kind:'data',key:`data:${b.nodeId}:${b.port}:${node.id}:${input}`,from:b.nodeId,to:node.id,output:b.port,input,type:port?.type??'any'};}));}
+export function valueOutputPoint(item,key){return {x:item.x+item.width,y:item.y+item.dataStart+item.outputs.findIndex(p=>p.key===key)*VALUE_PORT_ROW_HEIGHT};}
+export function valueInputPoint(item,key){return {x:item.x,y:item.y+item.dataStart+item.inputs.findIndex(p=>p.key===key)*VALUE_PORT_ROW_HEIGHT};}
+export function preserveValueVisibility(rule,positions){rule.layout={...rule.layout,version:1,positions};}
+export function pruneValueBindings(rule,catalog){let removed=0;for(const node of rule.nodes)for(const [key,b]of Object.entries(node.bindings??{})){if(dataLinkIssue(rule,catalog,b.nodeId,b.port,node.id,key)){delete node.bindings[key];removed++;}}return removed;}
+
+export function belongsTo(rule,node,id){let scope=node.scope;for(let i=0;i<8&&scope;i++){if(scope===id)return true;scope=rule.nodes.find(n=>n.id===scope)?.scope;}return false;}
+export function valueScopeIssue(rule,source,target,output){if(output?.iterationOnly&&!belongsTo(rule,target,source.id))return '当前项只能在循环内使用；请先在右侧选择执行范围';if(source.scope&&!belongsTo(rule,target,source.scope))return '循环内数据只能传到同一循环内；外部请使用汇总输出';return '';}

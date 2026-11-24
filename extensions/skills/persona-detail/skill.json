@@ -1,0 +1,58 @@
+{
+  "id": "persona-detail",
+  "name": "人设细节库",
+  "version": "1.2.4",
+  "apiVersion": 1,
+  "category": "knowledge",
+  "description": "把特别细节的人设（外形长相、家人、习惯、经历、生日、小秘密、外号等）存成单独的档案，系统提示词里只留一句指引，不占正文。被问到具体细节时，模型先调 query_persona_detail 按需调取，查到再按自己的口吻说，查不到就说记不清、不许编。装到新环境可自举：bootstrap_persona_detail 读角色卡给出拆分规则（顺带自动备份一份人设）→ 模型整理 → manage_persona_detail action=import 批量写入；store.json 由插件在存档目录自动创建。**整理结果不直接入库**：先进待确认队列，每条带来源标签（角色卡原文 / 聊天记录 / 主人手写 / 推断），主人在面板逐条点「入库」或「丢弃」后才生效。人设与档案都会按时间戳备份到存档目录，面板 /api/persona-detail/ui 可一键退回，也能直接增删改查。",
+  "author": "本地自建",
+  "entry": "index.js",
+  "permissions": [],
+  "capabilities": [],
+  "requires": [],
+  "enabledByDefault": true,
+  "settings": {
+    "adminQq": "",
+    "maxResults": 4,
+    "maxEntryChars": 300,
+    "maxEntries": 100,
+    "storeDir": ""
+  },
+  "configSchema": {
+    "adminQq": {
+      "type": "string",
+      "label": "管理员 QQ 号",
+      "description": "只有这个 QQ 号能在聊天里增删改细节条目，多个用逗号分隔。留空则管理工具不可用（查询工具照常）。"
+    },
+    "maxResults": {
+      "type": "number",
+      "label": "每次最多返回几条",
+      "description": "默认 4（1~10）。返回太多会稀释上下文，也更费 token。"
+    },
+    "maxEntryChars": {
+      "type": "number",
+      "label": "单条字数上限",
+      "description": "默认 300（50~1000）。细节条目再细也该一条说清，太长说明该拆成多条。"
+    },
+    "maxEntries": {
+      "type": "number",
+      "label": "档案条目总数上限",
+      "description": "默认 100（10~1000）。写满后需先删旧条目才能再加。"
+    },
+    "storeDir": {
+      "type": "string",
+      "label": "存档目录",
+      "description": "存档（store.json、staging.json 及各自的 .bak）所在目录的绝对路径，填了就写到这里方便直接查看；留空则落回 QQ Agent 数据目录。store.json 是已确认的档案，staging.json 是 AI 整理出来、等主人确认的条目，query-log.json 是模型每次查档案的借阅记录（面板可看查了什么、哪些查空了）。管理面板：http://127.0.0.1:3210/api/persona-detail/ui"
+    }
+  },
+  "prompt": {
+    "sections": [
+      {
+        "id": "persona-detail-guide",
+        "title": "人设细节档案",
+        "priority": 10,
+        "content": "【人设细节档案】角色卡只有「我是谁、怎么说话」，其余细节在档案（图书馆）里，按类可查：\n- 人设背景：出身来历、身份经历\n- 家庭信息：家人亲戚、称呼\n- 外形外貌：长相头发、身材、衣着、随身物\n- 性格喜好：脾气口味、怕什么、喜欢什么\n- 习惯技能：作息、口头禅、会做什么\n- 外号与梗：别人怎么叫、群里的说法\n- 群内黑话\n这些角色卡没有。只在被问到、或出现的具体人/物/时间/经历/称呼/说法角色卡确实没写时，调 query_persona_detail：query 写具体名词（空格分开），可填 category。查到只用我的口吻说一两句，别念条目、别列清单；查不到就搪塞（「这事儿我哪记得」），不许编、不许拿常识补；绝不出戏（不说「档案/设定/资料库里没有」）。「好像是」的条目说得软一点。角色卡已写的（姓名、身份、性格规则、喜好禁令、输出规范）不用查。"
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>社区 · QQ Agent</title><link rel="stylesheet" href="../common.css"><link rel="stylesheet" href="../market-browser.css"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="../visual-refinements.css"></head>
+<body data-panel="community"><main>
+<header class="head"><div><h2>社区</h2><div id="meta" class="muted">读取社区账号…</div></div><div class="actions"><button id="refresh" type="button">刷新</button></div></header>
+<div class="community-navigation"><nav id="community-tabs" class="extension-views" role="tablist" aria-label="社区"><button role="tab" disabled data-community-tab="account" aria-selected="true" aria-controls="hub-account">账号</button><button role="tab" disabled data-community-tab="feed" aria-selected="false" aria-controls="hub-feed" tabindex="-1">雷霆语录</button><button role="tab" disabled id="open-site-btn" data-community-tab="browser" aria-selected="false" aria-controls="hub-browser" tabindex="-1" title="在当前页面浏览 Kondius.cn">作者官网</button></nav></div>
+<section id="hub-account" role="tabpanel">
+  <section class="card" id="pane-account" aria-label="社区账号">
+    <div class="community-account-toolbar">
+      <div id="account-state" class="muted">读取社区账号…</div>
+      <div id="account-work-types" class="community-section-head" hidden><h3 id="works-heading">我的作品</h3><div class="community-work-kinds" role="group" aria-label="作品类型"><button data-work-kind="plugin" aria-pressed="true">插件</button><button data-work-kind="skill" aria-pressed="false">技能</button><button data-work-kind="persona" aria-pressed="false">人设</button></div></div>
+    </div>
+    <div id="account-auth" hidden>
+      <div class="grid-2" id="login-form">
+        <label><span>用户名 / 邮箱</span><input id="login-id" autocomplete="username" placeholder="社区账号"></label>
+        <label><span>密码</span><input id="login-password" type="password" autocomplete="current-password" placeholder="密码"></label>
+        <label><span>显示名称（注册时填写）</span><input id="login-name" autocomplete="nickname" placeholder="展示给别人的名字"></label>
+        <div class="actions"><button id="login" class="primary" type="button">登录</button><button id="register" type="button">注册</button><button id="login-cancel" type="button" hidden>取消登录等待</button></div>
+      </div>
+      <p id="login-note" class="muted" role="status" aria-live="polite"></p>
+    </div>
+    <section id="account-works" aria-labelledby="works-heading" hidden>
+      <p id="works-status" role="status" class="market-feedback muted"></p><div id="works-list"></div>
+    </section>
+  </section>
+</section>
+<section id="hub-feed" role="tabpanel" hidden><div id="community-feed"></div></section>
+<section id="hub-browser" role="tabpanel" hidden><div class="community-browser-toolbar" aria-label="网页导航"><button id="browser-back" type="button" aria-label="后退" title="后退" disabled>←</button><button id="browser-forward" type="button" aria-label="前进" title="前进" disabled>→</button><button id="browser-reload" type="button" aria-label="刷新网页" title="刷新网页">↻</button><button id="browser-home" type="button" aria-label="返回作者官网" title="返回作者官网">⌂</button><form id="browser-address-form"><input id="browser-address" aria-label="网址" value="https://kondius.cn/" autocomplete="off" spellcheck="false"><button id="browser-go" type="button" aria-label="访问网址" title="访问网址">→</button></form><button id="browser-close" type="button" aria-label="关闭网页" title="关闭网页，返回账号">×</button></div><p id="browser-status" class="market-feedback" role="status"></p><div id="browser-viewport" aria-label="网页浏览区域"></div></section>
+</main><script type="module" src="panel.js"></script></body></html>

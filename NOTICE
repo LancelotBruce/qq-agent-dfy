@@ -1,0 +1,28 @@
+# NOTICE
+
+本仓库（qq-agent-dfy）是 **Kondius** 开发的 QQ Agent 5.x（0.5.1）的**修改版本**（modified version），非官方仓库，未获原作者背书。
+
+- 上游作者：Kondius
+  - GitHub：https://github.com/K0nd1us
+  - 博客：https://www.kondius.cn/
+  - 原项目：https://github.com/K0nd1us/QQ-agent
+- 上游许可：MIT License（`author: QQ Agent contributors`，作者署名 Kondius）
+- 本仓库维护者：LancelotBruce（https://github.com/LancelotBruce）
+
+## 修改说明
+
+1. 内核 `resources/app` 为 0.5.1 原样快照，仅做脱敏：账号、群号替换为占位值（`1000000000` 起、`2000000000` 起），本机路径替换为通用路径，移除运行期数据、日志与个人配置。
+2. `extensions/` 下 14 个插件与 3 个技能为在原架构上长期迭代后的改写版本，逐版变更见各自 `plugin.json` 的「更新记录」与 `CHANGELOG.md`。
+3. 新增与修改部分的著作权归 LancelotBruce，同样以 MIT License 发布；原始部分的著作权归 Kondius，保留其版权声明与许可全文。
+
+## 二次分发要求
+
+再分发或再修改时，必须保留 `LICENSE` 全文与本 `NOTICE`；对外介绍须写明「基于 Kondius 的 QQ Agent」，不得标注为官方版本，不得移除版权行。
+
+## 不含内容
+
+本仓库不分发 Electron 运行时（`QQ Agent.exe`、`*.dll`、`*.pak`）、OneBot 协议端（SnowLuma）程序及其配置、`node_modules`、任何账号 / 密钥 / 令牌 / 聊天记录 / 记忆库 / 表情库 / 日志。SnowLuma 等第三方组件适用其各自的 EULA / PRIVACY。
+
+## 撤回承诺
+
+若原作者对公开本仓库提出异议，维护者将立即转为私有或下架，不以任何理由对抗原作者意愿。
