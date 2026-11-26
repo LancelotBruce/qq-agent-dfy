@@ -6,9 +6,22 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 
 本仓库是 **0.5.1 版本的源码快照**，只保留可读、可改的代码部分：
 
-- 包含：内核 `resources/app` 的 `src / ui / bundled / plugins / skills / overrides / docs / examples / scripts`，以及 `extensions` 下的全部插件与技能
-- 不包含：Electron 运行时二进制（`QQ Agent.exe`、`*.dll`、`*.pak`）、OneBot 协议端（SnowLuma）的程序与配置、`node_modules`、任何账号 / 密钥 / 令牌 / 聊天记录 / 记忆库 / 表情库 / 日志
+- 仓库内包含：内核 `resources/app` 的 `src / ui / bundled / plugins / skills / overrides / docs / examples / scripts`，以及 `extensions` 下的全部插件与技能
+- 仓库内不包含：Electron 运行时二进制（`QQ Agent.exe`、`*.dll`、`*.pak`）、`node_modules`、OneBot 协议端的程序与配置、任何账号 / 密钥 / 令牌 / 聊天记录 / 记忆库 / 表情库 / 日志。可运行的客户端整包见下方「直接运行」
 - 文中出现的 `1000000000`、`2000000000` 一类号码均为占位值，不是真实账号
+
+## 直接运行（不用自己装依赖）
+
+[Releases](https://github.com/LancelotBruce/qq-agent-dfy/releases) 里有一个约 155 MB 的 Windows x64 便携包，解压即用，与本文源码同版本：
+
+1. 解压到短路径，例如 `D:\QQAgent`（不要放 `C:\Program Files`，那里没有写权限，数据写不进去）
+2. 双击 `启动.cmd`，或直接双击 `QQ Agent.exe`
+3. 控制台出现 `控制台：http://127.0.0.1:3210/` 后，浏览器打开该地址即可
+4. 连 QQ 需自备 OneBot v11 协议端（NapCat / LLOneBot 一类，需先装官方 QQ NT）。协议端不在仓库与发布包内：那属于第三方注入工具，不在本项目授权范围内，也不适合随包分发。协议端没起来时面板照样能开、插件照样能加载，只是发不出消息
+
+包里剥掉了 `data-v05` 个人数据、`config`（含 token 与账号）、`logs` 与全部 `*.bak`，首次启动会在包内新建空的数据目录。首次开机要填的必填项见下方「首次配置必填项」。
+
+想改插件就用这份源码：`extensions/plugins/<id>/index.js` 改完在面板里重启该插件即可；改内核则改 `resources/app/src`，用发布的 `resources/app` 整目录替换。
 
 ## 目录结构
 
@@ -98,7 +111,7 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 1. **来源与身份**：本仓库是基于 Kondius 开发的 QQ Agent 5.x（0.5.1）修改而来的**非官方衍生版本**（modified version）。一切原始设计、内核代码与内置扩展的著作权归原作者；本仓库只对「新增/改写的插件与技能 + 脱敏整理」主张权利。
 2. **许可**：上游与本仓库均采用 **MIT License**（全文见 `LICENSE`）。依 MIT 要求，本仓库保留原作者版权声明与许可全文，并在 `LICENSE` 中明确标注为修改版本、注明修改者。
 3. **修改范围**：内核 `resources/app` 为原样快照（仅替换账号/群号/本机路径为占位值、移除运行期数据）；`extensions/` 下的 13 个插件与 3 个技能为在本机长期迭代后的改写版，逐版变更见各自 `plugin.json` 的「更新记录」。
-4. **不含内容**：不分发 Electron 运行时（`QQ Agent.exe`、`*.dll`、`*.pak`）、OneBot 协议端（SnowLuma）程序或其配置、`node_modules`、任何账号/密钥/令牌/聊天记录/记忆库/表情库/日志。
+4. **不含内容**：Git 树内不分发 Electron 运行时（`QQ Agent.exe`、`*.dll`、`*.pak`）、`node_modules`、OneBot 协议端（SnowLuma）程序或其配置、任何账号/密钥/令牌/聊天记录/记忆库/表情库/日志。Releases 的便携包含 Electron 运行时（Electron 与 Node 的开源许可见 `LICENSE.electron.txt`、`LICENSES.chromium.html`），但**仍不含协议端与任何个人数据**。
 5. **二次分发**：可以自由使用、修改、再分发，但**必须**保留 `LICENSE` 全文、本声明与原作者署名；介绍时请写成「基于 Kondius 的 QQ Agent」，不得标注为官方版本，也不得移除或改写版权行。
 6. **与第三方的关系**：本项目与腾讯 / QQ、哔哩哔哩、小黑盒、DeepSeek 等公司均无关联，相关名称仅用于说明兼容对象；SnowLuma 等第三方组件有各自的 EULA / PRIVACY，须另行遵守。
 7. **免责与撤回**：自动化操作 QQ 账号存在风控、限流、封号与违反平台条款的风险，使用后果自负，本项目仅供学习与研究。**若原作者对公开本仓库提出异议，维护者将立即转为私有或下架，不以任何理由对抗原作者意愿。**
@@ -108,4 +121,5 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 
 - 2026-11：整理为可公开的源码快照；移除运行时二进制、协议端、`node_modules` 与全部个人数据；占位号统一为 `1000000000` 起、群号 `2000000000` 起；补全 `.gitignore`、README 与许可证声明。
 - 2026-11-24：补上原作者 Kondius 的 GitHub / 博客 / 原项目链接，新增加 `NOTICE` 与「原作者与开源声明」（MIT 署名、修改标注、二次分发要求、撤回承诺）。
-- 2026-11-26：按本机最新运行体重新同步——内核吸收 11-25 的改动，插件更新到 affinity 1.7.1 / conversation-memory 1.1.1 / memory-plus 2.12.0 / topic-ledger 1.2.9；移除已卸载的 `emotion-profile`、`ai-cover`、`mimo-tts`、`api-beggar`、`persona-self-edit` 与过期的个人向 CHANGELOG。
+- 2026-11-26：按本机最新运行体重新同步——内核吸收 11-25 的改动，插件更新到 affinity 1.7.1 / conversation-memory 1.1.1 / memory-plus 2.12.0 / topic-ledger 1.2.9 / memory-recall 1.1.5；移除已卸载的 `emotion-profile`、`ai-cover`、`mimo-tts`、`api-beggar`、`persona-self-edit` 与过期的个人向 CHANGELOG。
+- 2026-11-26：发布 `v0.5.1-dfy.1` 便携包（Windows x64，约 155 MB），含 Electron 运行时与 `node_modules`，解压即用；已剥离 `data-v05` 个人数据、`config`、`logs`、`*.bak` 与协议端。

@@ -2426,8 +2426,8 @@ function refreshLongSnapshot(chatKey, force = false) {
 }
 
 /** 核心数据根（<应用>/data），长期记忆正文在它下面的 memory/。
- *  ⚠️ 不能用 dataDir() 往上退：dataDir() 现在是用户指定的记忆文件夹
- *  （默认 E 盘），退一级会指到 E:\Desktop，长期记忆就读不到了。 */
+ *  ⚠️ 不能用 dataDir() 往上退：dataDir() 现在是用户指定的记忆文件夹，
+ *  退一级会指到桌面这类位置，长期记忆就读不到了。 */
 function dataDirRoot() {
   return path.dirname(coreMemoryRoot());
 }
