@@ -13,17 +13,19 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 本仓库是 **0.5.1 版本的源码快照**，只保留可读、可改的代码部分：
 
 - 仓库内包含：内核 `resources/app` 的 `src / ui / bundled / plugins / skills / overrides / docs / examples / scripts`，以及 `extensions` 下的全部插件与技能
-- 仓库内不包含：Electron 运行时二进制（`QQ Agent.exe`、`*.dll`、`*.pak`）、`node_modules`、OneBot 协议端的程序与配置、任何账号 / 密钥 / 令牌 / 聊天记录 / 记忆库 / 表情库 / 日志。**本仓库只提供源码，不能直接双击运行**；完整客户端需自行组装运行时，便携包附件情况见下方「运行方式」
+- 仓库内不包含：Electron 运行时二进制（`QQ Agent.exe`、`*.dll`、`*.pak`）、`node_modules`、OneBot 协议端的程序与配置、任何账号 / 密钥 / 令牌 / 聊天记录 / 记忆库 / 表情库 / 日志。**clone 下来的目录不能直接双击运行**；可运行的整包见 Releases 页 `v0.5.1-dfy.1`（说明见下方「运行方式」）
 - 文中出现的 `1000000000`、`2000000000` 一类号码均为占位值，不是真实账号
 
 ## 运行方式
 
-**便携包当前没有提供。** Releases 页下的 `v0.5.1-dfy.1` 只是个标签位，附件（约 155 MB 的 Windows x64 整包）因上传通道受限暂未挂上，点击下载会 404。仓库里只有源码：`resources/app` 与 `extensions` 的 JS/JSON/HTML，不含 Electron 运行时与 `node_modules`，**所以 clone 下来不能直接双击运行**。
+**便携包已提供。** Releases 页 `v0.5.1-dfy.1` 下挂有 `QQAgent-0.5.1-win64-portable-20261126.zip`：Windows x64，162,252,835 字节（约 154.74 MB），SHA256 `809d872ebd0b877e209d889a3278effdb6d8257a9d95e77fef73aebb90aa932a`。解压即用，不需要安装器；包内已剥离 `data-v05`、`config`、`logs`、`*.bak` 与 OneBot 协议端。
 
-要拿到可运行的客户端，目前只有两条路：
+本仓库本身仍然只有源码：`resources/app` 与 `extensions` 的 JS/JSON/HTML，不含 Electron 运行时与 `node_modules`，**所以 clone 下来不能直接双击运行**。
 
-1. 用你已有的同版本安装目录（`QQ Agent.exe` + `resources` + `node_modules`），把本仓库的 `resources/app` 与 `extensions/` 覆盖进去；这是最快的方式
-2. 自己组装：Electron 运行时 + 本仓库的 `resources/app`，在 `resources/app` 下补 `npm install --omit=dev` 生成 `node_modules`
+要拿到可运行的客户端，有两种方式：
+
+1. **直接下载便携包**：从 Releases 下 `v0.5.1-dfy.1` 的附件解压到短路径，双击 `启动.cmd`。下面的步骤就适用
+2. **自行组装**：Electron 运行时 + 本仓库的 `resources/app`，在 `resources/app` 下补 `npm install --omit=dev` 生成 `node_modules`；或者拿已有的同版本安装目录，把本仓库的 `resources/app` 与 `extensions/` 覆盖进去，这是最快的替代法
 
 下面的步骤适用于**已经拿到整包**之后（无论是别人传给你的，还是你自行组装的同结构目录）：
 
@@ -126,7 +128,7 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 1. **来源与身份**：本仓库是基于 Kondius 开发的 QQ Agent 5.x（0.5.1）修改而来的**非官方衍生版本**（modified version）。一切原始设计、内核代码与内置扩展的著作权归原作者；本仓库只对「新增/改写的插件与技能 + 脱敏整理」主张权利。
 2. **许可**：上游与本仓库均采用 **MIT License**（全文见 `LICENSE`）。依 MIT 要求，本仓库保留原作者版权声明与许可全文，并在 `LICENSE` 中明确标注为修改版本、注明修改者。
 3. **修改范围**：内核 `resources/app` 为原样快照（仅替换账号/群号/本机路径为占位值、移除运行期数据）；`extensions/` 下的 13 个插件与 3 个技能为在本机长期迭代后的改写版，逐版变更见各自 `plugin.json` 的「更新记录」。
-4. **不含内容**：Git 树内不分发 Electron 运行时（`QQ Agent.exe`、`*.dll`、`*.pak`）、`node_modules`、OneBot 协议端（SnowLuma）程序或其配置、任何账号/密钥/令牌/聊天记录/记忆库/表情库/日志。若后续补传便携包，包内会带 Electron 运行时（Electron 与 Node 的开源许可见 `LICENSE.electron.txt`、`LICENSES.chromium.html`），但**仍不含协议端与任何个人数据**。
+4. **不含内容**：Git 树内不分发 Electron 运行时（`QQ Agent.exe`、`*.dll`、`*.pak`）、`node_modules`、OneBot 协议端（SnowLuma）程序或其配置、任何账号/密钥/令牌/聊天记录/记忆库/表情库/日志。便携包（Releases 附件）内会带 Electron 运行时（Electron 与 Node 的开源许可见 `LICENSE.electron.txt`、`LICENSES.chromium.html`），但**仍不含协议端与任何个人数据**。
 5. **二次分发**：可以自由使用、修改、再分发，但**必须**保留 `LICENSE` 全文、本声明与原作者署名；介绍时请写成「基于 Kondius 的 QQ Agent」，不得标注为官方版本，也不得移除或改写版权行。
 6. **与第三方的关系**：本项目与腾讯 / QQ、哔哩哔哩、小黑盒、DeepSeek 等公司均无关联，相关名称仅用于说明兼容对象；SnowLuma 等第三方组件有各自的 EULA / PRIVACY，须另行遵守。
 7. **免责与撤回**：自动化操作 QQ 账号存在风控、限流、封号与违反平台条款的风险，使用后果自负，本项目仅供学习与研究。**若原作者对公开本仓库提出异议，维护者将立即转为私有或下架，不以任何理由对抗原作者意愿。**
@@ -140,6 +142,7 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 - 2026-11：整理为可公开的源码快照；移除运行时二进制、协议端、`node_modules` 与全部个人数据；占位号统一为 `1000000000` 起、群号 `2000000000` 起；补全 `.gitignore`、README 与许可证声明。
 - 2026-11-24：补上原作者 Kondius 的 GitHub / 博客 / 原项目链接，新增加 `NOTICE` 与「原作者与开源声明」（MIT 署名、修改标注、二次分发要求、撤回承诺）。
 - 2026-11-26：按本机最新运行体重新同步——内核吸收 11-25 的改动，插件更新到 affinity 1.7.1 / conversation-memory 1.1.1 / memory-plus 2.12.1 / topic-ledger 1.2.9 / memory-recall 1.1.5；移除已卸载的 `emotion-profile`、`ai-cover`、`mimo-tts`、`api-beggar`、`persona-self-edit` 与过期的个人向 CHANGELOG。
-- 2026-11-26：发布 `v0.5.1-dfy.1` 标签；便携包（Windows x64，约 155 MB，含 Electron 运行时与 `node_modules`，已剥离 `data-v05`、`config`、`logs`、`*.bak` 与协议端）**暂未提供附件**，原因是 Release 附件上传通道受限。仓库只提供源码，运行方式见上文「运行方式」。
+- 2026-11-26：发布 `v0.5.1-dfy.1` 标签；便携包（Windows x64，162,252,835 字节，含 Electron 运行时与 `node_modules`，已剥离 `data-v05`、`config`、`logs`、`*.bak` 与协议端）**已挂为 Release 附件**。
 - 2026-11-26：memory-plus 升到 2.12.1——档案默认目录不再硬编码旧机路径，改为按数据目录解析；换机部署不会再写错位置。
 - 2026-11-26：仓库转为公开。置顶补充「版权归原作者 / 责任自负 / 仅供学习研究」三块声明；「原作者与开源声明」新增第 8~10 条（版权归属、责任划分、使用范围），`NOTICE` 增加「版权与责任」「使用范围」两节；同时把插件数订正为 13 个。
+- 2026-11-26：便携包补传完成并复核——附件 `QQAgent-0.5.1-win64-portable-20261126.zip`，162,252,835 字节，SHA256 `809d872ebd0b877e209d889a3278effdb6d8257a9d95e77fef73aebb90aa932a`，包内 memory-plus 为 2.12.1。
