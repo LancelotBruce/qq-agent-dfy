@@ -13,7 +13,16 @@ const CACHE = new Map();          // uid -> { mtimeMs, data }
 const SENSITIVE = ['黄油', '黄游', '小黄游', '成人游戏', '隆胸', '黄图', '色情', '本子', '约炮', '裸聊'];
 const MAX_CACHE = 400;
 
-export const DEFAULT_DIR = 'D:\\QQAgent\\记忆\\profiles';
+/**
+ * 档案默认目录。
+ * 跟着宿主数据目录走（QQ_AGENT_DATA_DIR）；拿不到才回落到进程目录。
+ * 旧版直接写死 'D:\\QQAgent\\记忆\\profiles'，换机后 storeDir 一旦为空就会静默写到旧机路径。
+ */
+export function defaultDir() {
+  const root = String(process.env.QQ_AGENT_DATA_DIR || '').trim();
+  return path.join(root || process.cwd(), '记忆', 'profiles');
+}
+export const DEFAULT_DIR = defaultDir();
 
 export function profileDir(dir) {
   const d = String(dir || '').trim();

@@ -78,7 +78,8 @@ function profileDirResolved(c) {
   if (explicit) return explicit;
   const store = String(c?.storeDir || '').trim();
   if (store) return path.join(store, 'profiles');
-  return profileDirOf('');
+  // 兜底跟宿主数据目录走，不写死某台机器的路径（旧版会落回 D:\QQAgent\记忆\profiles）。
+  return path.join(dataDirRoot(), '记忆', 'profiles');
 };
 const blockCache = new Map();       // sessionId -> { text, at }
 const timers = [];
