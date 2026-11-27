@@ -1,0 +1,104 @@
+{
+  "id": "group-pacing",
+  "name": "群聊动态节奏（忙时提前收口）",
+  "version": "1.0.2",
+  "apiVersion": 1,
+  "category": "message",
+  "description": "【功能】按群统计最近 60 秒的不同真人发言人数和消息密度，闲时保持原来的 25 秒等待，3 人进入 12 秒、4 人进入 8 秒、5 人以上进入 5 秒，减少一次把四五个人同时说的话压进同一批。\n【怎么用】安装后自动生效，只管群聊；参数可在控制台设置页调整。每次命中忙时档位后保持 120 秒，之后按 30 秒一档回落，直到回到 25 秒。\n【更新记录】v1.0.0：首版，支持 3/4/5 人三档动态等待，配合内核 wake.delay 扩展点使用。\nv1.0.1：入站观察不再被免回插件截断，增加档位切换与内核取等待日志，方便核对是否真正生效。\nv1.0.2：忙时档位保持时间从 60 秒延长到 120 秒。",
+  "author": "本机定制",
+  "enabledByDefault": true,
+  "capabilities": [
+    "wake.delay",
+    "status.group-pacing"
+  ],
+  "requires": [],
+  "permissions": [],
+  "settings": {
+    "enabled": true,
+    "onlyGroups": true,
+    "windowSeconds": 60,
+    "holdSeconds": 120,
+    "stepDownSeconds": 30,
+    "mildPeople": 3,
+    "mildMessages": 6,
+    "mildDelayMs": 12000,
+    "busyPeople": 4,
+    "busyMessages": 8,
+    "busyDelayMs": 8000,
+    "burstPeople": 5,
+    "burstMessages": 8,
+    "burstDelayMs": 5000
+  },
+  "configSchema": {
+    "enabled": {
+      "type": "boolean",
+      "label": "启用动态节奏",
+      "description": "关掉后完全回到内核原来的固定等待。"
+    },
+    "onlyGroups": {
+      "type": "boolean",
+      "label": "只管群聊",
+      "description": "默认开。私聊继续走 wakeDelayMsPrivate，不受影响。"
+    },
+    "windowSeconds": {
+      "type": "number",
+      "label": "统计窗口（秒）",
+      "description": "默认 60 秒。看这个窗口内有多少个不同真人发言。"
+    },
+    "holdSeconds": {
+      "type": "number",
+      "label": "忙时档位保持（秒）",
+      "description": "默认 120 秒。最后一次命中后至少保持这么久，避免讨论中间掉回慢档。"
+    },
+    "stepDownSeconds": {
+      "type": "number",
+      "label": "回落每档间隔（秒）",
+      "description": "默认 30 秒。爆发结束后按 5→8→12→25 秒逐档回落。"
+    },
+    "mildPeople": {
+      "type": "number",
+      "label": "轻度忙：人数阈值",
+      "description": "默认 3 人。"
+    },
+    "mildMessages": {
+      "type": "number",
+      "label": "轻度忙：消息数阈值",
+      "description": "默认 6 条，避免三个人偶尔各说一句就切档。"
+    },
+    "mildDelayMs": {
+      "type": "number",
+      "label": "轻度忙：等待毫秒",
+      "description": "默认 12000，即 12 秒。"
+    },
+    "busyPeople": {
+      "type": "number",
+      "label": "忙：人数阈值",
+      "description": "默认 4 人。"
+    },
+    "busyMessages": {
+      "type": "number",
+      "label": "忙：消息数阈值",
+      "description": "默认 8 条。"
+    },
+    "busyDelayMs": {
+      "type": "number",
+      "label": "忙：等待毫秒",
+      "description": "默认 8000，即 8 秒。"
+    },
+    "burstPeople": {
+      "type": "number",
+      "label": "爆发：人数阈值",
+      "description": "默认 5 人。"
+    },
+    "burstMessages": {
+      "type": "number",
+      "label": "爆发：消息数阈值",
+      "description": "默认 8 条。"
+    },
+    "burstDelayMs": {
+      "type": "number",
+      "label": "爆发：等待毫秒",
+      "description": "默认 5000，即 5 秒。"
+    }
+  }
+}

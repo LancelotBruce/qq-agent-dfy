@@ -45,7 +45,7 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 | 目录 | 文件数 | 是什么 | 什么时候动 |
 |---|---|---|---|
 | `resources/app/` | 约 570 | 上游内核源码快照（对应安装根的 `resources\app`） | 只有改内核才动 |
-| `extensions/` | 90 | 14 个插件 + 3 个技能（实际启用位置） | 日常改插件就在这里 |
+| `extensions/` | 93 | 15 个插件 + 3 个技能（实际启用位置） | 日常改插件就在这里 |
 | `tools/` | 1 | `pack-split.ps1`，核心 / 插件 / 单插件三种打包 | 改打包规则才动 |
 | `docs/` | 2 | 自动生成的目录树与可视化页 | 每次提交后重生成，不用手改 |
 
@@ -79,6 +79,7 @@ resources/app/
 | dfy-chronicle | 1.0.4 | 调试编年史：把 2026-10-27 → 11-27 这段调试过程做成结构化档案（12 段主线、10 起事故、8 组数字、7 条口径、6 个未决项），聊天发「/编年史」查总览、按关键词查条目、看详情或发长图；纯本地只读，不改人设、不动记忆 |
 | early-finish | 1.2.0 | 发言完成后若无遗留动作就直接结束本轮，减少无谓的模型调用 |
 | group-manner | 1.0.0 | 群聊分寸：只在被叫到或感兴趣时开口，私聊不受影响 |
+| group-pacing | 1.0.2 | 群聊动态节奏：按最近 60 秒的发言人数与密度自动缩短等待（3 人 12 秒、4 人 8 秒、5 人以上 5 秒），忙时档位保持 120 秒后按 30 秒一档回落，避免把四五个人同时说的话压进同一批 |
 | memory-plus | 2.12.1 | 长期 / 短期两层记忆，接管控制台「记忆」页，含整理、检索、回档、省 token 护栏；档案默认目录按数据目录解析，不再硬编码旧机路径 |
 | sticker-steal | 5.5.8 | 自动收集群友表情到本地库并按需配图；启用后接管「发表情」这件事 |
 | topic-ledger | 1.3.4 | 群聊话题台账：按话题归档、回溯与补录，减少重复讨论；台账页支持「精修收尾 / 强制收尾」、页头「全部精修 / 全部收尾」，右上角「编辑」可勾选两条相邻链「合并所选」；对应工具 `force_close` / `merge_chains` |
@@ -144,7 +145,7 @@ resources/app/
 
 1. **来源与身份**：本仓库是基于 Kondius 开发的 QQ Agent 5.x（0.5.1）修改而来的**非官方衍生版本**（modified version）。一切原始设计、内核代码与内置扩展的著作权归原作者；本仓库只对「新增/改写的插件与技能 + 脱敏整理」主张权利。
 2. **许可**：上游与本仓库均采用 **MIT License**（全文见 `LICENSE`）。依 MIT 要求，本仓库保留原作者版权声明与许可全文，并在 `LICENSE` 中明确标注为修改版本、注明修改者。
-3. **修改范围**：内核 `resources/app` 为原样快照（仅替换账号/群号/本机路径为占位值、移除运行期数据）；`extensions/` 下的 14 个插件与 3 个技能为在本机长期迭代后的改写版，逐版变更见各自 `plugin.json` 的「更新记录」。
+3. **修改范围**：内核 `resources/app` 为原样快照（仅替换账号/群号/本机路径为占位值、移除运行期数据）；`extensions/` 下的 15 个插件与 3 个技能为在本机长期迭代后的改写版，逐版变更见各自 `plugin.json` 的「更新记录」。
 4. **不含内容**：Git 树内不分发 Electron 运行时（`QQ Agent.exe`、`*.dll`、`*.pak`）、`node_modules`、OneBot 协议端（SnowLuma）程序或其配置、任何账号/密钥/令牌/聊天记录/记忆库/表情库/日志。便携包（Releases 附件）内会带 Electron 运行时（Electron 与 Node 的开源许可见 `LICENSE.electron.txt`、`LICENSES.chromium.html`），但**仍不含协议端与任何个人数据**。
 5. **二次分发**：可以自由使用、修改、再分发，但**必须**保留 `LICENSE` 全文、本声明与原作者署名；介绍时请写成「基于 Kondius 的 QQ Agent」，不得标注为官方版本，也不得移除或改写版权行。
 6. **与第三方的关系**：本项目与腾讯 / QQ、哔哩哔哩、小黑盒、DeepSeek 等公司均无关联，相关名称仅用于说明兼容对象；SnowLuma 等第三方组件有各自的 EULA / PRIVACY，须另行遵守。
@@ -161,7 +162,7 @@ resources/app/
 | 附件 | 大小（约） | 装什么 | 什么时候需要更新 |
 |---|---|---|---|
 | `QQAgent-0.5.1-dfy-win64-core-YYYYMMDD.zip` | 158 MB | Electron 运行时 + `resources/`（内核与内置能力），不含 `extensions/plugins`、`extensions/skills` | 只有换内核版本、换运行时才重打 |
-| `QQAgent-0.5.1-dfy-extensions-YYYYMMDD.zip` | 4~5 MB | `extensions/plugins`（14 个插件）+ `extensions/skills`（3 个技能） | 每次改插件就重打这一个 |
+| `QQAgent-0.5.1-dfy-extensions-YYYYMMDD.zip` | 4~5 MB | `extensions/plugins`（15 个插件）+ `extensions/skills`（3 个技能） | 每次改插件就重打这一个 |
 
 安装顺序：先解压核心包到一个目录，再把插件包解压到**同一目录**（包内已保留 `extensions/` 层级，直接覆盖即可）。两者都不含协议端、账号、聊天记录与任何个人数据。
 
@@ -179,7 +180,7 @@ resources/app/
 
 ```powershell
 pwsh tools/pack-split.ps1 -Only plugins   # 日常：只重打插件合集包
-pwsh tools/pack-split.ps1 -Only single    # 只重打 14 个单插件小包（输出到 release-split/plugins/）
+pwsh tools/pack-split.ps1 -Only single    # 只重打 15 个单插件小包（输出到 release-split/plugins/）
 pwsh tools/pack-split.ps1 -Only core      # 换内核时才用（需 -CoreSrc 指向解包好的客户端目录）
 pwsh tools/pack-split.ps1                 # 三样都打
 ```
@@ -201,4 +202,5 @@ pwsh tools/pack-split.ps1                 # 三样都打
 - 2026-11-27：`topic-ledger` 升到 1.3.4——台账页右上角「编辑」打开复选框，勾选同会话、时间相邻的两条链可「合并所选」，合并后保留「补精修」；新增 `merge_chains` 工具，`splitReason` 多记 `manual-merge`，手动收尾/合并过的链不再被碎片归并吞掉。
 - 2026-11-27：发布附件补「每个插件一个独立小包」——`tools/pack-split.ps1` 新增 `-Only single`，按各插件 `plugin.json` 的版本号产出 `QQAgent-dfy-plugin-<名>-<版本>-<日期>.zip`（包内只含 `extensions/plugins/<名>/`）；14 个单插件包与重打的插件合集包均已上传，Release 正文附逐包清单。
 - 2026-11-27：补入 `memory-plus` 与 `persona-detail` 的 `CHANGELOG.md`（脱敏后入库，真实 QQ 号与本地路径已替换为占位值），逐版改动不必再从 `plugin.json` 的更新记录里翻；目录统计同步更新。
-- 2026-11-27：仓库整理——两份自动生成的目录文档移入 `docs/`，根目录只留 `README.md` / `LICENSE` / `NOTICE` / `.gitignore`；README 的「目录结构」改成四块说明（内核约 570 文件、扩展 90、工具 1、文档 2），并清掉工作树里的空目录。
+- 2026-11-27：仓库整理——两份自动生成的目录文档移入 `docs/`，根目录只留 `README.md` / `LICENSE` / `NOTICE` / `.gitignore`；README 的「目录结构」改成四块说明并清掉工作树里的空目录。
+- 2026-11-27：新增插件 `group-pacing` 1.0.2（群聊动态节奏）——按最近 60 秒的不同发言人数与消息密度自动切等待档位（闲时 25 秒、3 人 12 秒、4 人 8 秒、5 人以上 5 秒），命中后保持 120 秒再按 30 秒一档回落；走内核 `wake.delay` 扩展点，默认只管群聊，参数在设置页可调。插件数由 14 增至 15。
