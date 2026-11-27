@@ -193,3 +193,4 @@ pwsh tools/pack-split.ps1                 # 三样都打
 - 2026-11-27：README 补「插件的来源与二次开发」一节——说明插件起步于原作者插件市场、版本已远超市场版且不保证兼容、融合了其他开源项目的思路，并开放 Issue 反馈渠道；仓库 About 简介同步改为 14 个插件 + 分包说明。
 - 2026-11-27：`topic-ledger` 升到 1.3.4——台账页右上角「编辑」打开复选框，勾选同会话、时间相邻的两条链可「合并所选」，合并后保留「补精修」；新增 `merge_chains` 工具，`splitReason` 多记 `manual-merge`，手动收尾/合并过的链不再被碎片归并吞掉。
 - 2026-11-27：发布附件补「每个插件一个独立小包」——`tools/pack-split.ps1` 新增 `-Only single`，按各插件 `plugin.json` 的版本号产出 `QQAgent-dfy-plugin-<名>-<版本>-<日期>.zip`（包内只含 `extensions/plugins/<名>/`）；14 个单插件包与重打的插件合集包均已上传，Release 正文附逐包清单。
+- 2026-11-27：补入 `memory-plus` 与 `persona-detail` 的 `CHANGELOG.md`（脱敏后入库，真实 QQ 号与本地路径已替换为占位值），逐版改动不必再从 `plugin.json` 的更新记录里翻；目录统计同步更新。
