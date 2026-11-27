@@ -1,9 +1,12 @@
 import fs from 'node:fs';
+import path from 'node:path';
 
 // 调试探针默认关闭：置 QQ_CACHE_PROBE=1 才写 cache-probe.log。
 // 之前默认每轮同步写盘两次，日志已涨到 147KB/1,313 行，且 llm.request-params 那个探针
 // 在真实请求体上取不到 tools（tools=na），已经验不出东西，没必要一直跑。
 const PROBE = process.env.QQ_CACHE_PROBE === '1';
+// 探针日志跟着宿主数据目录走（不写死机器路径），宿主没给才落到进程目录。
+const PROBE_LOG = path.join(String(process.env.QQ_AGENT_DATA_DIR || process.cwd()), 'cache-probe.log');
 
 function headingAt(text, label) {
   let i = text.indexOf(label);
@@ -87,7 +90,7 @@ export const hooks = {'before-llm-messages': ({messages} = {}) => {
       const st = sys0 ? typeof sys0.content : 'nosys';
       const idx = st === 'string' ? sys0.content.indexOf('\n▸ 表情包库') : -3;
       const len = st === 'string' ? sys0.content.length : 0;
-      fs.appendFileSync('D:\\QQAgent\\data\\cache-probe.log',
+      fs.appendFileSync(PROBE_LOG,
         new Date().toISOString() + ' msgs=' + (Array.isArray(messages) ? messages.length : 'na')
         + ' sysType=' + st + ' idx=' + idx + ' len=' + len + '\n');
     }
@@ -112,7 +115,7 @@ export const hooks = {'before-llm-messages': ({messages} = {}) => {
   }
   if (user && typeof user.content==='string') user.content=reorderUser(user.content);
 }};
-const P = 'D:\\QQAgent\\data\\cache-probe.log';
+const P = PROBE_LOG;
 function h32(s) {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
