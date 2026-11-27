@@ -40,23 +40,30 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 
 ## 目录结构
 
-完整文件树（656 个源码/配置文件、逐目录体积）见 [`目录结构.md`](目录结构.md)；可折叠、可搜索的浏览器版见 [`仓库目录可视化.html`](仓库目录可视化.html)（下载后用浏览器打开，离线可用）。统计口径排除这两份自生成文档本身，故 Git 树上共 658 个文件。
+文件总数看着多，是因为内核快照本身就有 570 多个文件，不是散落的杂物。仓库只有四块：
+
+| 目录 | 文件数 | 是什么 | 什么时候动 |
+|---|---|---|---|
+| `resources/app/` | 约 570 | 上游内核源码快照（对应安装根的 `resources\app`） | 只有改内核才动 |
+| `extensions/` | 90 | 14 个插件 + 3 个技能（实际启用位置） | 日常改插件就在这里 |
+| `tools/` | 1 | `pack-split.ps1`，核心 / 插件 / 单插件三种打包 | 改打包规则才动 |
+| `docs/` | 2 | 自动生成的目录树与可视化页 | 每次提交后重生成，不用手改 |
+
+根目录只放 `README.md`、`LICENSE`、`NOTICE`、`.gitignore` 四份文件，不放别的东西；插件自带的 `README.md` / `CHANGELOG.md` 留在各自插件目录里，跟插件一起走。内核内部结构：
 
 ```
-.
-├─ resources/app/           内核源码（对应安装根 resources\app）
-│  ├─ src/                  主进程、控制台路由、提示词、技能加载
-│  ├─ ui/                   控制台前端（面板、外壳、组件）
-│  ├─ bundled/              内置能力（OneBot 传输层、兼容层、市场等）
-│  ├─ plugins/              随包内置的插件副本（带 _1 后缀）
-│  ├─ skills/               随包内置的技能副本
-│  ├─ overrides/            组合层覆盖补丁（persona-detail 管理面板）
-│  ├─ docs/ examples/ scripts/
-│  └─ package.json
-└─ extensions/
-   ├─ plugins/              14 个插件（实际启用位置）
-   └─ skills/               3 个技能
+resources/app/
+├─ src/        主进程、控制台路由、提示词、技能加载
+├─ ui/         控制台前端（面板、外壳、组件）
+├─ bundled/    内置能力（OneBot 传输层、兼容层、市场等）
+├─ plugins/    随包内置的插件副本（带 _1 后缀）
+├─ skills/     随包内置的技能副本
+├─ overrides/  组合层覆盖补丁（persona-detail 管理面板）
+├─ docs/ examples/ scripts/
+└─ package.json
 ```
+
+逐文件清单见 [`docs/目录结构.md`](docs/目录结构.md)，可折叠可搜索的浏览器版见 [`docs/仓库目录可视化.html`](docs/仓库目录可视化.html)（下载后用浏览器打开，离线可用）。
 
 ## 插件
 
