@@ -29,7 +29,7 @@ QQ Agent 是一套「薄内核 + 全插件」架构的 QQ 机器人桌面端：E
 
 下面的步骤适用于**已经拿到整包**之后（无论是别人传给你的，还是你自行组装的同结构目录）：
 
-1. 解压到短路径，例如 `D:\QQAgent`（不要放 `C:\Program Files`，那里没有写权限，数据写不进去）
+1. 解压到短路径，例如 `<安装目录>`（不要放 `C:\Program Files`，那里没有写权限，数据写不进去）
 2. 双击 `启动.cmd`，或直接双击 `QQ Agent.exe`
 3. 控制台出现 `控制台：http://127.0.0.1:3210/` 后，浏览器打开该地址即可
 4. 连 QQ 需自备 OneBot v11 协议端（NapCat / LLOneBot 一类，需先装官方 QQ NT）。协议端不在仓库与发布包内：那属于第三方注入工具，不在本项目授权范围内，也不适合随包分发。协议端没起来时面板照样能开、插件照样能加载，只是发不出消息
@@ -118,7 +118,7 @@ resources/app/
 | 机器人 QQ | 协议端登录 | 登录后自动识别 |
 | 主人 / 管理员 QQ | 插件设置 `ownerQq` / `adminIds` / `allowSenders` / `ownerQQ` | 仓库内为占位号，必须改成自己的号，否则管理类权限不生效 |
 | 模型接口 | 核心设置 `api.baseUrl` / `api.apiKey` / `api.model` | 任何 OpenAI 兼容服务均可 |
-| 记忆目录 | `memory-plus` 的 `storeDir` | 默认 `D:\QQAgent\data\记忆`，按实际环境改 |
+| 记忆目录 | `memory-plus` 的 `storeDir` | 默认 `<安装目录>\data\记忆`，按实际环境改 |
 | 人设存档目录 | `persona-detail` 的 `storeDir` | `store.json` 首次由插件自动创建 |
 
 ## 安全与合规

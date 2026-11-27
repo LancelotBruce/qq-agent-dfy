@@ -55,7 +55,7 @@
     "askCooldownMinutes": 120,
     "uiPanel": true,
     "verbose": false,
-    "storeDir": "E:\\Desktop\\QQAgent\\记忆",
+    "storeDir": "<工作目录>\\<工作目录>\\记忆",
     "crossCheckEnabled": true,
     "crossCheckProvider": "",
     "crossCheckModel": ""
@@ -328,7 +328,7 @@
     "storeDir": {
       "type": "string",
       "label": "记忆文件夹（按会话分子文件夹）",
-      "description": "短期记忆、标签、长期元数据的落盘位置。默认 E:\\Desktop\\QQAgent\\记忆，其下每个会话一个文件夹（group_群号 / private_QQ），内含 _会话.json 与长期记忆.json（只读快照）。长期记忆正文仍由核心 data/memory 独占，改快照不生效。改这里后重启生效。"
+      "description": "短期记忆、标签、长期元数据的落盘位置。默认 <工作目录>\\<工作目录>\\记忆，其下每个会话一个文件夹（group_群号 / private_QQ），内含 _会话.json 与长期记忆.json（只读快照）。长期记忆正文仍由核心 data/memory 独占，改快照不生效。改这里后重启生效。"
     },
     "crossCheckEnabled": {
       "type": "boolean",

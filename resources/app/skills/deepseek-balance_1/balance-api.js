@@ -70,13 +70,13 @@ export function createBalanceClient({
 }
 
 // ── 独立自检入口：node balance-api.js [apiKey] ─────────────────────────────
-// 不传 apiKey 时尝试读核心配置 D:\QQAgent\data\config.json 的 api.apiKey。
+// 不传 apiKey 时尝试读核心配置 <安装目录>\data\config.json 的 api.apiKey。
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1].replace(/\\/g, '/')}`).href) {
   import('node:fs').then((fs) => {
     let key = process.argv[2] || '';
     if (!key) {
       try {
-        const core = JSON.parse(fs.readFileSync('D:/QQAgent/data/config.json', 'utf8'));
+        const core = JSON.parse(fs.readFileSync('<安装目录>/data/config.json', 'utf8'));
         key = String(core?.api?.apiKey || '').trim();
       } catch { /* 读不到就让它报错 */ }
     }

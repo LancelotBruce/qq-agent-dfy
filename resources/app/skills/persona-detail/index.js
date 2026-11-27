@@ -1129,7 +1129,7 @@ const QUERY_TOOL = {
   parameters: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: '要查的具体名词，如「头发 围裙」「弟弟 小助手」「生日」「余额」；别用整句和泛词' },
+      query: { type: 'string', description: '要查的具体名词，如「头发 围裙」「弟弟 小皇子」「生日」「鲸币」；别用整句和泛词' },
       category: { type: 'string', description: '可选：限定分类，如 人设背景/家庭信息/外形外貌/性格喜好/习惯技能/外号与梗/群内黑话' },
       limit: { type: 'number', description: '可选：返回条数，默认按技能设置' },
     },

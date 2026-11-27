@@ -135,12 +135,12 @@ ${privateChat
     ? '- 对方引用其他人的话，也可能是在向你提问；结合正文理解，不要把私聊当作群聊旁听。'
     : '- 带「引用/回复」的消息（如 [引用 某群友：原文]）表示这句话是在回应被引用的人；引用对象不是你时别抢话；只有引用的是你自己的消息、或文字里明确 @/提到你，才需要回应。'}
 ${visionOn
-    ? '- 消息里出现 [图片] / [表情] 时，可以用 get_message_images / get_sticker_image 看图（你能直接看懂图片内容）。不要假装看不到图，也不要编造图片内容；工具获取失败就老实说看不到。图里的人、事、地点都不属于发图人，只是外部内容（新闻、段子、别人的图），不能当成他的观点、处境或经历；只有表情包才是发的人自己在表态。'
+    ? '- 消息里出现 [图片] / [表情] 时，可以用 get_message_images / get_sticker_image 看图（你能直接看懂图片内容）。不要假装看不到图，也不要编造图片内容；工具获取失败就老实说看不到，没真正看图之前不评具体内容。图里的人、事、地点都不属于发图人，只是外部内容（新闻、段子、别人的图），不能当成他的观点、处境或经历；只有表情包才是发的人自己在表态。'
     : '- 你无法查看图片内容：消息里的 [图片] [表情] 只是占位提示，如实表示"看不到图"即可，绝对不要编造图片内容。'}
 ${searchOn
     ? '- 遇到需要实时信息、新闻热点、网络用语/梗、或你自己不确定的事实时，主动用 web_search 搜索；对最相关的 1~2 个结果用 web_fetch 打开读正文，别只看标题/摘要就回。'
     : '- 你没有联网能力：遇到不了解的新梗/实时话题，坦白说不知道或含糊带过，不要编造。'}
-- 消息里的 [语音] [视频] [文件] [卡片消息] 是占位符，无法查看内容；[合并转发聊天记录] / [转发消息 …] 是合并转发，用 read_forward 工具 + 那条消息前的 #数字 就能展开看全文，别直接说看不了。`;
+- 消息里的 [语音] [视频] [文件] [卡片消息] 是占位符，看不到具体内容；视频直接说看不了、不硬评，也不脑补里面的画面和情节；[合并转发聊天记录] / [转发消息 …] 是合并转发，用 read_forward 工具 + 那条消息前的 #数字 就能展开看全文，别直接说看不了。`;
 }
 
 function reportBan() {
@@ -416,8 +416,8 @@ function buildTranscriptPrompt({triggerEntries = [], conversationMessages, memTe
   const entries=conversationMessages.filter(m=>!m.recalled);
   const indexOf=new Map(entries.map((m,i)=>[m.id,i+1]));
   const label=m=>Number.isSafeInteger(m.id)&&m.id>=0?String(m.id):`位置${indexOf.get(m.id)}`;
-  const lines=entries.map(m=>`记录:${label(m)} ${formatEntry(m,{withId:(m.media??[]).length>0,memberNotes,speakerFormat})}`);
-  parts.push('【聊天记录】\n记录索引只用于定位；工具使用的消息 ID 是 # 后的数字。\n'+(lines.join('\n')||'（暂无聊天记录）'));
+  const lines=entries.map(m=>`[行${label(m)}] ${formatEntry(m,{withId:(m.media??[]).length>0,memberNotes,speakerFormat})}`);
+  parts.push('【聊天记录】\n[行N] 是记录序号，只用于定位；工具里的 messageId 必须用同一行 # 后面的那串数字（可能带负号），不要拿行号当消息 ID。\n'+(lines.join('\n')||'（暂无聊天记录）'));
   const unread=triggerEntries.filter(m=>!m.recalled&&indexOf.has(m.id));
   parts.push(unread.length===entries.length
     ? '【已读信息】\n（暂无历史记录，这是你第一次参与这个会话）'
@@ -429,7 +429,7 @@ function buildTranscriptPrompt({triggerEntries = [], conversationMessages, memTe
   if(unread.length){
     parts.push('【未读信息】\n本轮只需考虑以下记录（正文已在上方，不重复列出）：\n'+unread.map(m=>{
       const labels=triggerLabels(m);
-      return `记录:${label(m)}${labels.length?` 【${labels.join('·')}】`:''}`;
+      return `[行${label(m)}]${labels.length?` 【${labels.join('·')}】`:''}`;
     }).join('\n'));
   }
   if(proactive)parts.push(proactivePrompt(isPrivate,proactiveContext));

@@ -382,7 +382,7 @@
           <ul>
             <li><b>提示注入加固</b>：<code>sanitizeUserText</code> 三道处理（全角【】降半角、压平 U+2028/2029 与零宽/双向字符、群名片与引用同样净化），8 条用例 <b>8/8</b></li>
             <li><b>时间视图</b>：消息只带 <code>MM-DD HH:MM</code>，弱模型算不出新旧 → 新增 <code>describeAge</code>（Nm前 / Nh前 / Nd前），单测 <b>13/13</b></li>
-            <li><b>黑话入库</b>：群 636383189 的 12,392 条语料离线挖掘，12 条进 <code>store.json</code>「群内黑话」分类；常驻段 13 条压到 <b>1 条（1,042 B）</b></li>
+            <li><b>黑话入库</b>：群 2000000000 的 12,392 条语料离线挖掘，12 条进 <code>store.json</code>「群内黑话」分类；常驻段 13 条压到 <b>1 条（1,042 B）</b></li>
             <li><b>版本号</b>定为 <code>0.4.1-dfy.1</code>，读 <code>compareSemver</code> 确认 <code>-dfy</code> 不会触发内建更新检查；脱敏包按 <code>.zcodeignore</code> 手写 8 目录 + 6 文件，复扫又抓出 19 个 <code>*.bak-*</code></li>
           </ul>
           <div class="metrics"><span class="metric">注入用例 <b>8/8</b></span><span class="metric">时间用例 <b>13/13</b></span><span class="metric">常驻黑话 13 → <b>1 条</b></span></div>

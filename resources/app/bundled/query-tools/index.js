@@ -13,7 +13,10 @@ export default {
       const m = K.store.findByMid(chatKey, mid, { forContext: true, contextSessionId: session?.id });
       return m ?? null;
     };
-    const midHint = (chatKey) => {
+    const rowHint = (value) => /^-?\d{1,6}$/.test(String(value ?? '').trim())
+    ? `（提示：${value} 看起来是 [行N] 的记录序号，不是消息 ID；请用该行 # 后面的数字${/^-?\d{1,4}$/.test(String(value).trim()) ? '，通常带负号或很长' : ''}）`
+    : '';
+  const midHint = (chatKey) => {
       const recent = K.store.recent(chatKey, 20, { forContext: true }).filter((m) => m.mid != null).slice(-8);
       if (recent.length === 0) return '';
       return `（最近可见的 #id：${recent.map((m) => `#${m.mid}`).join('、')}）`;
@@ -50,12 +53,12 @@ export default {
     ctx.registerTool({
       id: 'read_forward', name: '展开合并转发', category: 'query',
       description: '展开合并转发聊天记录的全文。',
-      params: { type: 'object', properties: { messageId: { type: ['number', 'string'], description: '消息 id（#数字）' } }, required: ['messageId'] },
+      params: { type: 'object', properties: { messageId: { type: ['number', 'string'], description: '消息 id：聊天记录里该行 # 后面的数字（可能带负号），不是 [行N] 的行号' } }, required: ['messageId'] },
       scopes: [],
       execute: async (args, c) => {
         const mid = Number(args.messageId);
         const m = findByMid(c.chatKey, mid, c.session);
-        if (!m) return { ok: false, error: `当前会话找不到消息 ${args.messageId}。${midHint(c.chatKey)}` };
+        if (!m) return { ok: false, error: `当前会话找不到消息 ${args.messageId}。${rowHint(args.messageId)}${midHint(c.chatKey)}` };
         const archivedResult = (message, note) => ({ ok: true, result: {
           messageId: message.mid ?? mid,
           text: String(message.text ?? ''),
@@ -160,11 +163,11 @@ export default {
     ctx.registerTool({
       id: 'get_message_detail', name: '查消息详情', category: 'query',
       description: '按消息 id 查一条消息的完整内容（含媒体与引用）。',
-      params: { type: 'object', properties: { messageId: { type: ['number', 'string'], description: '消息 id' } }, required: ['messageId'] },
+      params: { type: 'object', properties: { messageId: { type: ['number', 'string'], description: '消息 id：聊天记录里该行 # 后面的数字（可能带负号），不是 [行N] 的行号' } }, required: ['messageId'] },
       scopes: [],
       execute: async (args, c) => {
         const m = findByMid(c.chatKey, Number(args.messageId), c.session);
-        if (!m) return { ok: false, error: `当前会话找不到消息 ${args.messageId}。${midHint(c.chatKey)}` };
+        if (!m) return { ok: false, error: `当前会话找不到消息 ${args.messageId}。${rowHint(args.messageId)}${midHint(c.chatKey)}` };
         return { ok: true, result: m };
       },
     });
@@ -173,11 +176,11 @@ export default {
     ctx.registerTool({
       id: 'get_message_images', name: '看图', category: 'query', requiresVision: true,
       description: '查看消息里的图片内容（你能直接看懂）。',
-      params: { type: 'object', properties: { messageId: { type: ['number', 'string'], description: '消息 id' } }, required: ['messageId'] },
+      params: { type: 'object', properties: { messageId: { type: ['number', 'string'], description: '消息 id：聊天记录里该行 # 后面的数字（可能带负号），不是 [行N] 的行号' } }, required: ['messageId'] },
       scopes: [],
       execute: async (args, c) => {
         const m = findByMid(c.chatKey, Number(args.messageId), c.session);
-        if (!m) return { ok: false, error: `当前会话找不到消息 ${args.messageId}。${midHint(c.chatKey)}` };
+        if (!m) return { ok: false, error: `当前会话找不到消息 ${args.messageId}。${rowHint(args.messageId)}${midHint(c.chatKey)}` };
         const images = (m.media ?? []).filter((x) => x.kind === 'image');
         if (images.length === 0) return { ok: true, result: '这条消息里没有图片', mediaParts: [] };
         const reader = typeof K.mediaReader === 'function' ? K.mediaReader() : K.mediaReader;
@@ -218,7 +221,7 @@ export default {
       scopes: [],
       execute: async (args, c) => {
         const m = findByMid(c.chatKey, Number(args.messageId), c.session);
-        if (!m) return { ok: false, error: `当前会话找不到消息 ${args.messageId}。${midHint(c.chatKey)}` };
+        if (!m) return { ok: false, error: `当前会话找不到消息 ${args.messageId}。${rowHint(args.messageId)}${midHint(c.chatKey)}` };
         const videos = (m.media ?? []).filter((x) => x.kind === 'video');
         if (videos.length === 0) return { ok: false, error: '该消息没有视频（媒体里没有 video 段）' };
         const reader = typeof K.mediaReader === 'function' ? K.mediaReader() : K.mediaReader;

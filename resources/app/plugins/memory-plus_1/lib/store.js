@@ -22,11 +22,11 @@ import { DATA_DIR } from '../../../src/config.js';
 //   <storeDir>/group_2000000000/_会话.json       ← 本会话的短期记忆 / 标签 / 长期元数据
 //   <storeDir>/group_2000000000/长期记忆.json    ← 核心长期印象的**只读快照**
 //
-// storeDir 默认 D:\QQAgent\data\记忆，可用插件设置项 storeDir 改。
+// storeDir 默认 <工作目录>\记忆，可用插件设置项 storeDir 改。
 // 为什么长期记忆只做快照：长期记忆的正文归核心 MemoryStore 独占
 // （<DATA_DIR>/memory/<会话>/<QQ>.json），它带内存缓存，绕过它直接写会被
 // 下一次写入"复活"。所以文件夹里的长期记忆只是给人看的导出副本，改它不生效。
-const DEFAULT_STORE_DIR = 'E:\\Desktop\\QQAgent\\记忆';
+const DEFAULT_STORE_DIR = '<工作目录>\\<工作目录>\\记忆';
 const CHAT_FILE = '_会话.json';
 const LONG_SNAPSHOT = '长期记忆.json';
 // 老版本的单文件存储（v2.5.0 及以前），首次启动时自动拆分成上面的结构

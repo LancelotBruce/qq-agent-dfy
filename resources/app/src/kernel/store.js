@@ -242,7 +242,9 @@ export function createChatStore({ dataDir, log = console, maxMessagesPerChat = (
   function findByMid(chatKey, mid, { forContext = false, contextSessionId = null } = {}) {
     const st = ensure(chatKey);
     const target = protocolMid(mid);
-    const entry = target === null ? null : messageIndex(st).byMid.get(target) ?? null;
+    // mid 优先；找不到时兼容模型误传的「[行N] 记录序号」（本地 id，仅正整数）。
+  const entry = target === null ? null
+    : (messageIndex(st).byMid.get(target) ?? st.messages.find((m) => m.id === target) ?? null);
     if (forContext && entry && !entry.recalled) captureContext(contextSessionId, chatKey, [entry]);
     return forContext ? entry && !entry.recalled ? project(chatKey, entry, true) : null : entry;
   }

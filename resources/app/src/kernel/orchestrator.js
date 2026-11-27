@@ -66,7 +66,7 @@ export function createOrchestrator({
   // 模型失败时回一句人话（原始报错只进日志，同类限流）
   const notifyModelError = components?.['core.reply.errorNotice'] ?? createReplyErrorNotice({ send, log, now });
   const transport = transportArg ?? onebotArg ?? null; // 兼容键：存量调用方仍传 onebot
-  const pendingWake = new Map();  // chatKey -> { timer, sessionId, proactive }
+  const pendingWake = new Map();  // chatKey -> { timer, sessionId, proactive, dueAt }
   const capacityWaiting = new Map(); // Ready batches, in arrival order; no repeated fake countdown.
   let capacityGeneration = 0, capacityDrainScheduled = false;
   const wakeTimers = new Set();   // 全部排程定时器（重排/等待，stop 时全清）
@@ -257,19 +257,22 @@ export function createOrchestrator({
     const list = loader?.hooksOf?.('before-incoming') ?? [];
     if (!list.length) return false;
     const owners = ownerIdsOf(cfg()).map(String);
+    let skipped = false;
     for (const { fn, ownerId, recordError } of list) {
       try {
         const verdict = await fn({ chatKey, entry, isPrivate, ownerIds: owners });
         if (verdict?.skip === true) {
-          log.info?.(`[orch] 入站否决（${ownerId}）：${verdict.reason ?? ''}`);
-          return true;
+          // 否决仍然生效，但不能在这里提前 return：group-pacing 这类观察者
+          // 需要在 chatter-guard 免回的消息上继续统计人数，否则忙时会少人。
+          if (!skipped) log.info?.(`[orch] 入站否决（${ownerId}）：${verdict.reason ?? ''}`);
+          skipped = true;
         }
       } catch (error) {
         recordError?.(error);
         log.warn?.(`[orch] before-incoming（${ownerId}）：${error?.message ?? error}`);
       }
     }
-    return false;
+    return skipped;
   }
 
   async function onIncoming(chatKey, entry) {
@@ -306,7 +309,10 @@ export function createOrchestrator({
       return;
     }
     if (!cfg().api?.model) return;         // 模型未设置：不判定（消息留未读，配好后自动补处理）
-    if (pendingWake.has(chatKey) || capacityWaiting.has(chatKey)) return;  // 等待/排队中只入库，不重置或重复建批。
+    if (pendingWake.has(chatKey) || capacityWaiting.has(chatKey)) {  // 等待/排队中只入库，不重置或重复建批。
+      if (pendingWake.has(chatKey)) maybeShortenPendingWake(chatKey, isPrivate);
+      return;
+    }
     if (activeFor(chatKey)) { // 活跃期必响应
       scheduleWake(chatKey, null, { verified: false, proactive: false });
       return;
@@ -341,16 +347,25 @@ export function createOrchestrator({
   }
 
   // ---------- 等待倒计时（固定不重置）----------
-  // 私聊/群聊分档等待（大胖鱼改）：0.4 的 wakeDelayMsPrivate 在 0.5 内核里没有消费者，
+  // 私聊/群聊分档等待（本机改）：0.4 的 wakeDelayMsPrivate 在 0.5 内核里没有消费者，
   // 这里按会话前缀分流补回来。群聊走 wakeDelayMs，私聊走 wakeDelayMsPrivate（<=0 时回落群聊值）。
   function wakeBaseDelay(chatKey) {
     const privateMs = Number(cfg().wakeDelayMsPrivate);
     if (String(chatKey ?? '').startsWith('private:') && privateMs > 0) return privateMs;
     return Number(cfg().wakeDelayMs) || 2000;
   }
+  // 扩展点：group-pacing 等插件按 60 秒窗口返回本群期望的等待时长。
+  // 插件不在时返回 null，完整回落到 wakeDelayMs / wakeDelayMsPrivate。
+  function pacedWakeDelay(chatKey, isPrivate) {
+    try {
+      const hint = capability?.claim?.('wake.delay', { chatKey, isPrivate, now: now() })?.result;
+      const ms = Number(hint?.delayMs);
+      return Number.isFinite(ms) && ms > 0 ? Math.max(200, ms) : null;
+    } catch { return null; }
+  }
   function scheduleWake(chatKey, delayOverride = null, { verified = false, proactive = false, proactiveGuard = null, sessionId = null, reuse = false } = {}) {
     if (pendingWake.has(chatKey)) return pendingWake.get(chatKey).sessionId;
-    const delay = delayOverride ?? Math.max(200, wakeBaseDelay(chatKey));
+    const delay = delayOverride ?? Math.max(200, pacedWakeDelay(chatKey, String(chatKey ?? '').startsWith('private:')) ?? wakeBaseDelay(chatKey));
     let sid = sessionId;
     if (!sid && !reuse) {
       const unread = unreadForWake(chatKey);
@@ -368,9 +383,38 @@ export function createOrchestrator({
       });
     }, delay);
     wakeTimers.add(timer);
-    pendingWake.set(chatKey, { timer, sessionId: sid, proactive, proactiveGuard, verified });
+    pendingWake.set(chatKey, { timer, sessionId: sid, proactive, proactiveGuard, verified, dueAt: now() + delay });
     bus?.emit('session.update', sessions.peek(sid) ?? {});
     return sid;
+  }
+
+  // 只缩短、不延长：插件判定进入爆发档时，把已经排好的等待提前。
+  // 不重置计时、不重复建会话，避免讨论中把回复无限往后拖。
+  function maybeShortenPendingWake(chatKey, isPrivate) {
+    const pending = pendingWake.get(chatKey);
+    if (!pending) return;
+    const delay = pacedWakeDelay(chatKey, isPrivate);
+    if (delay == null) return;
+    const oldDueAt = Number(pending.dueAt) || 0;
+    const dueAt = now() + Math.max(200, delay);
+    if (oldDueAt > 0 && dueAt >= oldDueAt - 100) return;
+    clearTimeout(pending.timer);
+    wakeTimers.delete(pending.timer);
+    const timer = setTimeout(() => {
+      pendingWake.delete(chatKey);
+      wakeTimers.delete(timer);
+      wake(chatKey, { waitingSessionId: pending.sessionId, verified: pending.verified, proactive: pending.proactive, proactiveGuard: pending.proactiveGuard }).catch((err) => {
+        log.error?.(`[orch] wake(${chatKey}) 异常：${err?.stack || err}`);
+      });
+    }, Math.max(0, dueAt - now()));
+    wakeTimers.add(timer);
+    pending.timer = timer;
+    pending.dueAt = dueAt;
+    pendingWake.set(chatKey, pending);
+    const waiting = pending.sessionId ? sessions.peek(pending.sessionId) : null;
+    if (waiting?.status === 'waiting') sessions.update(waiting, { waitUntil: dueAt });
+    bus?.emit('session.update', sessions.peek(pending.sessionId) ?? {});
+    log.info?.(`[orch] ${chatKey} 等待缩短 ${Math.max(0, oldDueAt - dueAt)}ms（${delay}ms 档）`);
   }
 
   // ---------- 自己被禁言查询（§6.5.3；判据必须"到期时刻在未来"）----------

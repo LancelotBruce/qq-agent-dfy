@@ -163,7 +163,7 @@ async function startConsolidate(key,userIds,create=false){
   }catch(e){if(tasks.get(key)===task){tasks.delete(key);++taskVersion;taskStatus(key,`整理失败：${e.message}`);}throw e;}
   finally{syncTaskButtons();void load();}
 }
-// 大胖鱼改：记忆面板批量操作。每条印象前置复选框，批量操作收进成员卡片标题栏，
+// 本机改：记忆面板批量操作。每条印象前置复选框，批量操作收进成员卡片标题栏，
 // 不再给每条印象挂按钮（逐条删除按钮在长列表里太吵，也容易误点）。
 function impressionBoxes(entry){return [...entry.notes.querySelectorAll('.impression-check')];}
 function selectedImpressions(entry){return impressionBoxes(entry).filter(box=>box.checked).map(box=>box.closest('li')?.querySelector('.impression-text')?.textContent??'').filter(Boolean);}

@@ -5,7 +5,7 @@
   "apiVersion": 1,
   "category": "utility",
   "author": "本地自建",
-  "description": "查询 DeepSeek API 账户余额与当日用量，只有一个工具 deepseek_balance_query：\n· 主人问余额 / 话费 / 余额 / 还剩多少钱 → 报余额；\n· 主人问当日用量 / 今天花了多少 / 用了多少 token → 报当天花费、token、调用次数、缓存命中。\n意图按触发消息原文自动分流，查完直接发到当前会话。非主人一律不返回数据。\nAPI Key 留空时自动读核心 config.json 的 api.apiKey；余额带 10 分钟缓存。\n本机唯一的余额入口。v1.4.0 合并了 api-beggar，v1.5.0 把它的乞讨行为也并进来：只在「有人主动查余额」那一刻判定一次，余额低于 lowThreshold 就让机器人用自己的人设卖惨求充值（默认语气已调成低声下气、委屈发软，可用 beggarTone 改；带 beggarCooldownMin 冷却，没有巡查、没有钩子、没有每轮开销）。",
+  "description": "查询 DeepSeek API 账户余额与当日用量，只有一个工具 deepseek_balance_query：\n· 主人问余额 / 话费 / 鲸币 / 还剩多少钱 → 报余额；\n· 主人问当日用量 / 今天花了多少 / 用了多少 token → 报当天花费、token、调用次数、缓存命中。\n意图按触发消息原文自动分流，查完直接发到当前会话。非主人一律不返回数据。\nAPI Key 留空时自动读核心 config.json 的 api.apiKey；余额带 10 分钟缓存。\n本机唯一的余额入口。v1.4.0 合并了 api-beggar，v1.5.0 把它的乞讨行为也并进来：只在「有人主动查余额」那一刻判定一次，余额低于 lowThreshold 就让机器人用自己的人设卖惨求充值（默认语气已调成低声下气、委屈发软，可用 beggarTone 改；带 beggarCooldownMin 冷却，没有巡查、没有钩子、没有每轮开销）。",
   "enabledByDefault": true,
   "permissions": ["qq.send", "data.sessions.read"],
   "capabilities": [],
@@ -59,7 +59,7 @@
     {
       "id": "deepseek_balance_query",
       "name": "DeepSeek余额/用量",
-      "description": "查 DeepSeek 余额（人民币，充值+赠送）或当日用量（花费、token、次数、缓存命中）。有人问「余额 / 话费 / 余额 / 还剩多少钱 / 用量 / 今天花了多少 / 用了多少 token」就直接调用，不要自己判断对方是不是主人——工具内部按 QQ 号判定并直接发送结果。成功不要重发、不要改数字；被拒就按工具返回的原话回。"
+      "description": "查 DeepSeek 余额（人民币，充值+赠送）或当日用量（花费、token、次数、缓存命中）。有人问「余额 / 话费 / 鲸币 / 还剩多少钱 / 用量 / 今天花了多少 / 用了多少 token」就直接调用，不要自己判断对方是不是主人——工具内部按 QQ 号判定并直接发送结果。成功不要重发、不要改数字；被拒就按工具返回的原话回。"
     }
   ],
   "commandRoute": [

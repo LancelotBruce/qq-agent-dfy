@@ -235,7 +235,7 @@ const lastSpoke = new Map();             // chatKey -> ts
 const BATCH_TTL_MS = 10 * 60 * 1000;
 
 function rememberBatch(ctx = {}) {
-  const sid = String(ctx?.sessionId || '');
+  const sid = String(ctx?.sessionId || ctx?.session?.id || '');
   if (!sid) return null;
   const entries = (Array.isArray(ctx?.triggerEntries) ? ctx.triggerEntries : [])
     .filter((e) => e && !e.self)
@@ -303,7 +303,7 @@ export const hooks = {
       const messages = ctx?.messages;
       if (!Array.isArray(messages) || !messages.length) return;
       const chatKey = String(ctx?.chatKey || '');
-      const sid = String(ctx?.sessionId || '');
+      const sid = String(ctx?.sessionId || ctx?.session?.id || '');
       const rec = sid ? batches.get(sid) : null;
       const entries = rec?.entries || [];
       if (!entries.length) return;

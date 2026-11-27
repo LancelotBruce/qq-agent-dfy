@@ -24,7 +24,7 @@ import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 // 0.5 的兼容垫片把 src/config.js 投影成"数据根 + DATA_DIR"，0.4 里它也在同一位置。
-// 原来这里写死 D:\QQAgent\data\logs，等于把 0.5 的日志往旧版数据目录里塞。
+// 原来这里写死 <安装目录>\data\logs，等于把 0.5 的日志往旧版数据目录里塞。
 import { DATA_DIR } from '../../src/config.js';
 import {
   isBiliLink, pickBiliLink, pickBareVideoToken, resolveLink, fetchVideoInfo,
