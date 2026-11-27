@@ -605,8 +605,8 @@ export function mergeFragments(state, { maxMsgs = 8, gapMin = 90 } = {}) {
       if (!cur.finalizedAt) continue;
       if (cur.status === 'open' || prev.status === 'open') continue;
       if (cur.status === 'frozen' || prev.status === 'frozen') continue;
-      // 手动收尾是用户划的句号，别再当碎片并回上一条。
-      if (cur.splitReason === 'manual' || prev.splitReason === 'manual') continue;
+      // 手动收尾/手动合并是用户划的句号，别再当碎片并回上一条。
+      if (cur.splitReason === 'manual' || prev.splitReason === 'manual' || cur.splitReason === 'manual-merge' || prev.splitReason === 'manual-merge') continue;
       // 续接链：到上限被迫分出来的下一段，内容本来是一件事，间隔 10 分钟内直接并回去。
       const isCont = Boolean(cur.continuedFrom && String(cur.continuedFrom) === String(prev.id));
       if (isCont) {
@@ -649,6 +649,83 @@ export function mergeFragments(state, { maxMsgs = 8, gapMin = 90 } = {}) {
     }
   }
   return merged;
+}
+
+/**
+ * 手动合并两条相邻链：只允许同一会话、同一时间序列里紧挨着的两条。
+ * 合并后保留较早那条的 id，后一条进 mergedChains；closed 的合成一条「已合并、待补精修」的 closed 链。
+ */
+export function mergeChains(state, { ids = [], now = Date.now() } = {}) {
+  const wanted = [...new Set((Array.isArray(ids) ? ids : []).map((x) => String(x || '')).filter(Boolean))];
+  if (wanted.length !== 2) return { ok: false, error: '要选正好两条链' };
+  const picked = wanted.map((id) => state.chains.find((c) => String(c.id) === id));
+  if (picked.some((c) => !c)) return { ok: false, error: '有链已经不在当前账期了' };
+  const [a, b] = (Number(picked[0].startTs) <= Number(picked[1].startTs) && (Number(picked[0].startTs) !== Number(picked[1].startTs) || (Number(picked[0].seq) || 0) <= (Number(picked[1].seq) || 0)))
+    ? picked : [picked[1], picked[0]];
+  if (a.chatKey !== b.chatKey) return { ok: false, error: '只能合并同一会话的两条链' };
+  if (a.status === 'frozen' || b.status === 'frozen') return { ok: false, error: '已封版的链不能合并' };
+  if (a.memoryWritten || b.memoryWritten) return { ok: false, error: '已写进长期记忆的链不能合并' };
+
+  const sameChat = state.chains
+    .filter((c) => c.chatKey === a.chatKey)
+    .sort((x, y) => (Number(x.startTs) - Number(y.startTs)) || ((Number(x.seq) || 0) - (Number(y.seq) || 0)));
+  const ia = sameChat.findIndex((c) => String(c.id) === String(a.id));
+  const ib = sameChat.findIndex((c) => String(c.id) === String(b.id));
+  if (ia < 0 || ib < 0 || Math.abs(ia - ib) !== 1) return { ok: false, error: '只能合并紧挨着的两条链（中间不能隔着别的链）' };
+
+  const seen = new Set();
+  const msgs = [...(a.msgs || []), ...(b.msgs || [])]
+    .sort((x, y) => Number(x.ts) - Number(y.ts))
+    .filter((m) => {
+      const key = m?.mid ? `m:${m.mid}` : `t:${m?.ts}|${m?.uid || ''}|${m?.text || ''}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(-200);
+  const mids = [...new Set([...(a.mids || []), ...(b.mids || [])].map(String))].slice(-2000);
+  const bTitle = chainTitle(b);
+  const status = a.status === 'open' || b.status === 'open' ? 'open' : 'closed';
+  const lastTs = Math.max(Number(a.lastTs) || 0, Number(b.lastTs) || 0);
+  const startTs = Math.min(Number(a.startTs) || 0, Number(b.startTs) || 0);
+
+  a.title = tidyText(a.title || b.title || '').slice(0, 16);
+  a.status = status;
+  a.startTs = startTs;
+  a.lastTs = lastTs;
+  a.count = (Number(a.count) || 0) + (Number(b.count) || 0);
+  a.msgs = msgs;
+  a.mids = mids;
+  a.facts = unionList(a.facts, b.facts, 12).map(tidyText);
+  a.decided = unionList(a.decided, (b.decided || []).map((x) => `[${bTitle}] ${x}`), 10).map(tidyText);
+  a.pending = unionList(a.pending, b.pending, 8).map(tidyText);
+  a.promises = unionList(a.promises, b.promises, 8).map(tidyText);
+  a.quotes = unionQuotes(a.quotes, b.quotes, 10);
+  a.changes = [...(a.changes || []), ...(b.changes || [])].sort((x, y) => Number(x.at) - Number(y.at)).slice(-16);
+  a.counterparts = pairSummary(msgs, { privateChat: a.kind === 'private' });
+  a.mood = [a.mood, b.mood].filter(Boolean).join('；').slice(0, 60);
+  a.mergedTitles = [...new Set([...(a.mergedTitles || []), bTitle, ...(b.mergedTitles || [])])];
+  a.draftedAt = now;
+  a.draftedCount = a.count;
+  a.draftAttempts = 0;
+  a.updatedAt = now;
+  a.lastError = '';
+  a.tailNote = '';
+  a.memoryWritten = false;
+  a.refineRequested = false;
+  a.refineRequestedAt = 0;
+  a.splitReason = 'manual-merge';
+  a.manualClosedAt = now;
+  a.closedAt = status === 'closed' ? lastTs : 0;
+  a.finalizedAt = status === 'closed' ? now : 0;
+  a.finalizeMode = status === 'closed' ? 'merged' : '';
+
+  b.mergedInto = a.id;
+  if (!Array.isArray(state.mergedChains)) state.mergedChains = [];
+  state.mergedChains.push(b);
+  const at = state.chains.indexOf(b);
+  if (at >= 0) state.chains.splice(at, 1);
+  return { ok: true, chain: a, removed: b };
 }
 
 export function chatMarkdown(state, chatKey) {

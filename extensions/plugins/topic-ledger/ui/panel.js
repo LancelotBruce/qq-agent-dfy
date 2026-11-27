@@ -8,6 +8,7 @@ installMotion();
 const TOOL_DATA = 'topic-ledger__panel_data';
 const TOOL_SCAN = 'topic-ledger__scan_now';
 const TOOL_CLOSE = 'topic-ledger__force_close';
+const TOOL_MERGE = 'topic-ledger__merge_chains';
 
 const $label = document.querySelector('#label');
 const $sub = document.querySelector('#sub');
@@ -16,6 +17,8 @@ const $empty = document.querySelector('#empty');
 const $refresh = document.querySelector('#refresh');
 const $closeAll = document.querySelector('#close-all');
 const $refineAll = document.querySelector('#refine-all');
+const $merge = document.querySelector('#merge-selected');
+const $edit = document.querySelector('#edit');
 const $tabs = document.querySelector('#tabs');
 
 let filter = 'all';
@@ -23,6 +26,8 @@ let payload = null;
 let allArmed = false;
 let refineArmed = false;
 let pollTimer = 0;
+let editMode = false;
+const selectedIds = new Set();
 
 function el(tag, cls, text) {
   const node = document.createElement(tag);
@@ -62,6 +67,7 @@ function renderDetail(chain) {
   add('原话', chain.quotes.map((q) => `${q.who} ${q.at}「${q.text}」`).join('\n'));
   add('情绪', chain.mood);
   if (chain.splitReason === 'manual') add('收尾', '手动强制收尾');
+  if (chain.splitReason === 'manual-merge') add('合并', (chain.mergedTitles || []).length ? `手动合并（含：${chain.mergedTitles.join('、')}）` : '手动合并');
   add('变更', chain.changes.map((c) => `${c.at} ${c.note}`).join('\n'));
   add('消息', `${chain.count} 条${chain.memoryWritten ? '｜已写进长期记忆' : ''}${chain.error ? '｜上次整理失败：' + chain.error : ''}`);
   add('尾段', chain.tailNote);
@@ -71,7 +77,18 @@ function renderDetail(chain) {
 
 function renderCard(chain) {
   const card = el('article', `card ${chain.status === 'open' ? 'open' : 'closed'}`);
+  const isSelected = selectedIds.has(chain.id);
+  if (isSelected) card.classList.add('is-selected');
   const row = el('div', 'row');
+  if (editMode) {
+    const check = el('input', 'card-check');
+    check.type = 'checkbox';
+    check.checked = isSelected;
+    check.disabled = chain.status === 'frozen' || chain.memoryWritten;
+    check.title = check.disabled ? '已封版或已写长期记忆，不能合并' : '选中这条，凑两条相邻的一起合并';
+    check.addEventListener('change', () => selectChain(chain.id, check.checked, check));
+    row.append(check);
+  }
   row.append(el('span', 'seq', `T${chain.seq}`), el('span', 'title', chain.title));
   row.append(chip(chain.statusText, chain.status === 'open' ? 'open' : ''));
   if (chain.memoryWritten) row.append(chip('入记忆', 'mem'));
@@ -86,7 +103,9 @@ function renderCard(chain) {
     else if (chain.finalizeMode === 'fast') metaText += '｜已秒收';
     else if (chain.finalizeMode === 'refine-failed') metaText += '｜精修失败';
     else if (chain.finalizeMode === 'local-budget') metaText += '｜预算不足，未精修';
+    else if (chain.finalizeMode === 'merged') metaText += '｜已合并，待补精修';
   }
+  if (chain.splitReason === 'manual-merge' && chain.status !== 'closed') metaText += '｜已合并';
   if (chain.tailNote) metaText += '｜尾段未整理';
   const meta = el('div', 'chat', metaText);
   card.append(meta);
@@ -112,7 +131,7 @@ function renderCard(chain) {
   // 进行中的链给「精修 / 强制」；已经秒收的链再给一个「补精修」。
   const isOpen = chain.status === 'open';
   const canRefine = isOpen || (chain.status === 'closed' && chain.finalized && !chain.memoryWritten
-    && (chain.finalizeMode === 'fast' || chain.finalizeMode === 'refine-failed' || chain.finalizeMode === 'local-budget'
+    && (chain.finalizeMode === 'fast' || chain.finalizeMode === 'merged' || chain.finalizeMode === 'refine-failed' || chain.finalizeMode === 'local-budget'
       || (chain.splitReason === 'manual' && !chain.finalizeMode)));
   if (canRefine) {
     const label = isOpen ? '精修收尾' : '补精修';
@@ -120,7 +139,7 @@ function renderCard(chain) {
     refine.type = 'button';
     refine.title = isOpen
       ? '封链后让模型把已有条目和整条链再收一遍终稿，慢一点、会消耗调用次数'
-      : '这条是秒收的，让模型再补一版终稿（未封版、未写长期记忆才可补）';
+      : (chain.finalizeMode === 'merged' ? '这条是手动合并的，让模型把合并后的整条链重写一版终稿' : '这条是秒收的，让模型再补一版终稿（未封版、未写长期记忆才可补）');
     let refineTimer = 0;
     const disarmRefine = () => {
       delete refine.dataset.armed;
@@ -196,19 +215,98 @@ function renderCard(chain) {
 }
 
 function render() {
-  if (!payload || !Array.isArray(payload.chains)) return;
+  if (!payload || !Array.isArray(payload.chains)) { updateEditUI(); return; }
   $label.textContent = `今日台账 · ${payload.label}`;
   const open = payload.chains.filter((c) => c.status === 'open').length;
   $sub.textContent = `账期从 ${new Date(payload.windowStart).toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' })} 起｜事件链 ${payload.chains.length} 条（进行中 ${open}）｜今日整理调用 ${payload.budget?.calls ?? 0} 次`;
-  $closeAll.hidden = open === 0;
+  $closeAll.hidden = editMode || open === 0;
   if (!allArmed) $closeAll.textContent = `全部收尾（${open}）`;
-  $refineAll.hidden = open === 0;
+  $refineAll.hidden = editMode || open === 0;
   if (!refineArmed) $refineAll.textContent = `全部精修（${open}）`;
 
   const rows = payload.chains.filter((c) => filter === 'all' || c.status === filter);
   $list.replaceChildren(...rows.map(renderCard));
   $empty.hidden = rows.length > 0;
   $empty.textContent = payload.chains.length ? '这个筛选下没有条目。' : '今天还没有记下任何事。';
+  updateEditUI();
+}
+
+function selectedPair() {
+  const ids = [...selectedIds];
+  if (ids.length !== 2) return { ready: false, hint: `已选 ${ids.length}/2 条` };
+  const a = payload?.chains?.find((c) => c.id === ids[0]);
+  const b = payload?.chains?.find((c) => c.id === ids[1]);
+  if (!a || !b) return { ready: false, hint: '选中的链已经不在了' };
+  if (a.chatKey !== b.chatKey) return { ready: false, hint: '只能合并同一会话的两条链' };
+  const list = payload.chains.filter((c) => c.chatKey === a.chatKey).sort((x, y) => (x.startTs - y.startTs) || (x.seq - y.seq));
+  const ia = list.findIndex((c) => c.id === a.id);
+  const ib = list.findIndex((c) => c.id === b.id);
+  if (ia < 0 || ib < 0 || Math.abs(ia - ib) !== 1) return { ready: false, hint: '只能合并紧挨着的两条，中间不能隔着别的链' };
+  return { ready: true, hint: '两条相邻链已选好，点「合并所选」' };
+}
+
+let editHint = '';
+
+function updateEditUI() {
+  $edit.textContent = editMode ? '退出编辑' : '编辑';
+  $edit.classList.toggle('is-on', editMode);
+  $merge.hidden = !editMode;
+  const st = selectedPair();
+  $merge.disabled = !st.ready;
+  $merge.textContent = editMode ? `合并所选（${selectedIds.size}/2）` : '合并所选';
+  if (editMode && editHint) $sub.textContent = editHint;
+}
+
+function selectChain(id, checked, checkbox) {
+  if (!checked) {
+    selectedIds.delete(id);
+    editHint = '';
+    render();
+    return;
+  }
+  if (selectedIds.size >= 2) {
+    checkbox.checked = false;
+    editHint = '一次只能选两条，先取消一条';
+    updateEditUI();
+    return;
+  }
+  selectedIds.add(id);
+  const st = selectedPair();
+  editHint = st.hint;
+  render();
+}
+
+function toggleEdit() {
+  editMode = !editMode;
+  selectedIds.clear();
+  editHint = '';
+  render();
+}
+
+async function mergeSelected() {
+  const st = selectedPair();
+  if (!st.ready) {
+    editHint = st.hint;
+    updateEditUI();
+    return;
+  }
+  const ids = [...selectedIds];
+  $merge.disabled = true;
+  $merge.textContent = '合并中…';
+  try {
+    const raw = await ctx.call(TOOL_MERGE, { ids });
+    const data = parseToolContent(raw);
+    if (!data || data.error || data.ok === false) throw new Error(data?.error || '合并失败');
+    editMode = false;
+    selectedIds.clear();
+    editHint = '';
+    await load(false);
+    $sub.textContent = `已合并：${data.title}（${data.count} 条消息），要精修就点卡片上的「补精修」`;
+  } catch (error) {
+    $merge.disabled = false;
+    updateEditUI();
+    $sub.textContent = `合并失败：${error?.message ?? error}`;
+  }
 }
 
 async function load(scan = false) {
@@ -220,7 +318,13 @@ async function load(scan = false) {
     const raw = await ctx.call(TOOL_DATA, {});
     const data = parseToolContent(raw);
     if (data && data.error) { $sub.textContent = `读取失败：${data.error}`; return; }
-    if (data && !data.error) payload = data;
+    if (data && !data.error) {
+      payload = data;
+      if (editMode) {
+        const valid = new Set(payload.chains.map((c) => c.id));
+        for (const id of selectedIds) if (!valid.has(id)) selectedIds.delete(id);
+      }
+    }
   } catch (error) {
     $sub.textContent = `读取失败：${error?.message ?? error}`;
   } finally {
@@ -233,9 +337,16 @@ $tabs.addEventListener('click', (event) => {
   const btn = event.target.closest('button[data-filter]');
   if (!btn) return;
   filter = btn.dataset.filter;
+  if (editMode) {
+    selectedIds.clear();
+    editHint = '';
+  }
   for (const tab of $tabs.querySelectorAll('button')) tab.classList.toggle('is-on', tab === btn);
   render();
 });
+
+$edit.addEventListener('click', toggleEdit);
+$merge.addEventListener('click', mergeSelected);
 
 $refresh.addEventListener('click', () => load(true));
 

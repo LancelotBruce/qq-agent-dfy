@@ -545,6 +545,7 @@ function panelPayload() {
         pairText: S.pairLineRaw(c),
         memoryWritten: c.memoryWritten,
         splitReason: c.splitReason || '',
+        mergedTitles: Array.isArray(c.mergedTitles) ? c.mergedTitles : [],
         manualClosedAt: c.manualClosedAt || 0,
         midsCount: Array.isArray(c.mids) ? c.mids.length : 0,
         drafted: Boolean(c.draftedAt),
@@ -696,6 +697,44 @@ function registerTools(a) {
   });
 
   a.registerTool({
+    id: 'merge_chains',
+    name: '合并相邻链',
+    description: '把同一会话、时间上紧挨着的两条事件链合成一条。只用于用户明确说「这两条点错了，合并一下」；传 ids 数组，必须正好两条。合并后保留较早那条，另一条进合并记录，卡片上会留「补精修」让模型重写一版终稿。跨会话、中间隔着别的链、已封版或已写长期记忆的链都不能合并。',
+    category: 'memory',
+    parameters: {
+      type: 'object',
+      properties: {
+        ids: {
+          type: 'array',
+          items: { type: 'string' },
+          description: '要合并的两条链 id，必须同一会话且相邻'
+        }
+      },
+      required: ['ids']
+    },
+    async execute(_ctx, args) {
+      try {
+        const ids = Array.isArray(args?.ids) ? args.ids : [];
+        const st = ensureState();
+        const r = S.mergeChains(st, { ids, now: Date.now() });
+        if (!r.ok) return { content: r.error, isError: true };
+        persist();
+        S.writeChatMarkdown(st, r.chain.chatKey);
+        return { content: JSON.stringify({
+          ok: true,
+          id: r.chain.id,
+          title: S.chainTitle(r.chain),
+          status: r.chain.status,
+          count: r.chain.count,
+          removedId: r.removed?.id || ''
+        }) };
+      } catch (error) {
+        return { content: `合并失败：${error?.message ?? error}`, isError: true };
+      }
+    }
+  });
+
+  a.registerTool({
     id: 'force_close',
     name: '强制收尾',
     description: '把进行中的事件链封掉。refine=false（默认）秒收：用现有初稿当场封存、不调模型，适合关机前；refine=true 精修：封链后让模型把已有条目和整条链再收一遍终稿，慢一点、会消耗调用次数；已经秒收且未封版/未写长期记忆的链，传 id + refine=true 可以补精修。传 id 收一条，传 chatKey 收这个会话全部进行中的，传 all=true 收全账期。只在用户明确说「这条收尾」「这个话题结束」「全部收尾」「要关机了」「精修一下」时用。',
@@ -723,7 +762,7 @@ function registerTools(a) {
         // 补精修：已经秒收、还没封版/没写长期记忆的链，允许再补一版终稿。
         if (refine && !closed.length && id) {
           const old = st.chains.find((c) => String(c.id) === id);
-          const fast = old && old.status === 'closed' && !old.memoryWritten && (old.finalizeMode === 'fast' || old.finalizeMode === 'refine-failed' || old.finalizeMode === 'local-budget' || (!old.finalizeMode && old.splitReason === 'manual'));
+          const fast = old && old.status === 'closed' && !old.memoryWritten && (old.finalizeMode === 'fast' || old.finalizeMode === 'merged' || old.finalizeMode === 'refine-failed' || old.finalizeMode === 'local-budget' || (!old.finalizeMode && old.splitReason === 'manual'));
           if (fast) {
             old.finalizedAt = 0;
             old.refineRequested = true;
