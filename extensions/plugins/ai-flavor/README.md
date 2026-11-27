@@ -31,6 +31,6 @@
 - 单跑改写不启机器人：
 
 ```powershell
-cd D:\QQAgent\extensions\plugins\ai-flavor_1
+cd <解包目录>/QQAgent-0.5/extensions/plugins/ai-flavor_1
 node --input-type=module -e "import('./index.js').then(m=>{const c=m.internals.buildCorpus({});console.log(m.internals.rewriteText('我记下了，声音没抖',c.rows,c.bannedOnly))})"
 ```

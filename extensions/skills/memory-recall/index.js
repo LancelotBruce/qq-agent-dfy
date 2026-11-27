@@ -86,7 +86,7 @@ function dataDirs() {
     }
   } catch { /* 拿不到 app 根目录时只剩 env 一条路 */ }
   // 扁平/便携布局兜底：技能在 <根>\resources\app\skills\...，而运行时数据在 <根>\data
-  // （如 D:\QQAgent\data）。此时 APP_ROOT 推不到数据目录，向上逐级找 <dir>/data。
+  // （如 <数据目录>）。此时 APP_ROOT 推不到数据目录，向上逐级找 <dir>/data。
   let base = APP_ROOT;
   for (let i = 0; i < 3; i += 1) {
     base = path.resolve(base, '..');
