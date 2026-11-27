@@ -36,7 +36,7 @@ const {
   getLongMeta, setLongMeta, bumpLongMeta, load: loadState, save: saveState,
   listChats, dataDir, chatState, longMetaMap, touchMemberSeen, membersWithoutMemory,
   getLabelQueue, setLabelQueue, shiftLabelQueue, clearLabelQueue, chatsWithLabelQueue,
-  chatDirOf, writeLongSnapshot, setStoreDir, coreMemoryRoot, sameImpression
+  chatDirOf, writeLongSnapshot, setStoreDir, coreMemoryRoot, memRoot, sameImpression
 } = storeMod;
 
 const {
@@ -72,14 +72,13 @@ function ttlOf(c) {
   };
 }
 
-/** 档案目录：显式配置 > storeDir/profiles > 插件默认。 */
+/** 档案目录：显式配置 > storeDir/profiles > 记忆根/profiles（跟着宿主数据目录走，不写死机器路径）。 */
 function profileDirResolved(c) {
   const explicit = String(c?.profileDir || '').trim();
   if (explicit) return explicit;
   const store = String(c?.storeDir || '').trim();
   if (store) return path.join(store, 'profiles');
-  // 兜底跟宿主数据目录走，不写死某台机器的路径（旧版会落回 D:\QQAgent\记忆\profiles）。
-  return path.join(dataDirRoot(), '记忆', 'profiles');
+  return path.join(memRoot(), 'profiles');
 };
 const blockCache = new Map();       // sessionId -> { text, at }
 const timers = [];
@@ -3508,7 +3507,7 @@ function stopTimers() {
 export function setup(api) {
   apiRef = api;
   cfg = api.config;
-  // 记忆根目录：默认 D:\QQAgent\data\记忆，可在插件设置 storeDir 里改。
+  // 记忆根目录：默认 <数据目录>/记忆（跟着宿主数据目录走），可在插件设置 storeDir 里改。
   // 必须在任何 store 读写之前设置好，否则第一次 load 会落到默认路径。
   try { setStoreDir(cfg()?.storeDir); } catch { setStoreDir(''); }
   try {

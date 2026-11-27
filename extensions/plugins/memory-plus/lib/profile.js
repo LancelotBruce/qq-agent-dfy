@@ -16,7 +16,7 @@ const MAX_CACHE = 400;
 /**
  * 档案默认目录。
  * 跟着宿主数据目录走（QQ_AGENT_DATA_DIR）；拿不到才回落到进程目录。
- * 旧版直接写死 'D:\\QQAgent\\记忆\\profiles'，换机后 storeDir 一旦为空就会静默写到旧机路径。
+ * 旧版直接写死某一台机器的路径，换机后 storeDir 一旦为空就会静默写到旧机路径。
  */
 export function defaultDir() {
   const root = String(process.env.QQ_AGENT_DATA_DIR || '').trim();
