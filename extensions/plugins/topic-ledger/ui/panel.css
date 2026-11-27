@@ -74,7 +74,7 @@ main { padding: 16px 18px 28px; }
 .detail dd { margin: 0; white-space: pre-wrap; }
 
 .more {
-  margin-top: 6px;
+  margin-top: 0;
   border: 0;
   background: none;
   color: var(--accent);
@@ -82,5 +82,28 @@ main { padding: 16px 18px 28px; }
   cursor: pointer;
   padding: 0;
 }
+
+.card-actions { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
+
+.btn.force {
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.btn.force:hover { color: var(--bad, #c0392b); border-color: var(--bad, #c0392b); }
+.btn.force.is-armed { color: var(--bad, #c0392b); border-color: var(--bad, #c0392b); background: color-mix(in srgb, var(--bad, #c0392b) 8%, transparent); }
+
+.btn.refine {
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: transparent;
+}
+.btn.refine:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.btn.refine.is-armed { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+
+.btn.head-force { padding: 6px 12px; }
+.btn.head-refine { padding: 6px 12px; }
 
 .empty { color: var(--muted); font-size: 13px; padding: 24px 0; text-align: center; }

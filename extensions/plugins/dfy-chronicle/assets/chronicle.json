@@ -1,0 +1,627 @@
+{
+  "id": "dfy-chronicle",
+  "title": "本机调试编年史",
+  "subtitle": "人设自修订能力从零建起，一天内走完 1.0.0 → 1.4.3。这条线后来并进 0.5 的全局角色卡，成为 11-19 “人设所有会话共用一份”的前身。",
+  "span": "2026-10-27 → 2026-11-27",
+  "days": 32,
+  "versions": 8,
+  "incidentCount": 10,
+  "extensionCount": 17,
+  "stats": [
+    {
+      "num": "32 天",
+      "unit": "",
+      "label": "连续调试跨度"
+    },
+    {
+      "num": "8 版",
+      "unit": "",
+      "label": "0.4 → dfy.6 → 0.5.1"
+    },
+    {
+      "num": "10 起",
+      "unit": "",
+      "label": "有档案的事故"
+    },
+    {
+      "num": "17 个",
+      "unit": "",
+      "label": "插件与技能"
+    },
+    {
+      "num": "31 条",
+      "unit": "",
+      "label": "编年史入档条目"
+    },
+    {
+      "num": "4 类",
+      "unit": "",
+      "label": "文档/日志/备份/报表"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P1",
+      "date": "10-27",
+      "ver": "v1.0.0 → 1.4.3",
+      "tag": "起点",
+      "title": "先让她能改自己",
+      "lede": "人设自修订能力从零建起，一天内走完 1.0.0 → 1.4.3。这条线后来并进 0.5 的全局角色卡，成为 11-19 “人设所有会话共用一份”的前身。",
+      "items": [
+        "人设可自改，写入全局角色卡 · persona.roleText",
+        "后续拍板： personaUnified = true ，自修订只能写全局那份"
+      ],
+      "metrics": [],
+      "source": "QQA-迭代历史-2026年11月.md 阶段 0"
+    },
+    {
+      "id": "P2",
+      "date": "11-05 → 11-07",
+      "ver": "0.4.0",
+      "tag": "成本",
+      "title": "把每轮固定成本压下来",
+      "lede": "起点账本： cost = 调用次数 × 每次固定 ≈ 14,500 tokens （system 3,712 + tools 10,800），缓存命中不足 50%。三天里只做一件事：把“每轮都变”的段从 system 里挪走。",
+      "items": [
+        "表情候选段挪出 system，修 priority （sticker-steal 98→1），命中率出现 18.9%，但候选段仍是断点",
+        "B 方案： cache-stability 把动态段切到 user —— 已搬段 48 会话加权 69.8% ，未搬 7 会话仅 19.7%",
+        "合批窗口 wakeDelayMs 2000 → 8000 → 20000 ，更省，体感更像人打字",
+        "11-07 复盘：全天 197 次调用、命中 75.3% （晚高峰 81.1%）；结论是“动态段的种类与频次”才是真变量，不是切割次数"
+      ],
+      "metrics": [
+        "缓存命中 48% → 75.3%",
+        "探针 1,353 行 / 177 次 CUT",
+        "wakeDelay 20s"
+      ],
+      "source": "01-主线-0.4到0.5.1.md §1 · 报表\\缓存命中率对照报表-20261105至08.html"
+    },
+    {
+      "id": "P3",
+      "date": "11-08",
+      "ver": "0.4.0",
+      "tag": "三处大修",
+      "title": "看图修好、上下文放宽、协议端换代",
+      "lede": "当天三处大修全部“改前备份 → 改后验证 → 留回滚点”。也是事故最密的一天：日志风暴的善后、堆损坏崩溃、令牌轮换死锁，全挤在 24 小时里。",
+      "items": [
+        "看图三个根因必须同时解决 ：旧模型名 glm-4v-flash 已变收费 → 429（智谱 1113 欠费），全库换 glm-4.6v-flash ； maxTokens 60 被思考链吃光 → 提到 320 并关思考；裸 catch 吞日志 → 失败写 WARN。直调真图 5/5",
+        "超时 ：首轮后仍 73.1% 失败，14 次失败耗时全在 12,313–13,047 ms，紧贴 12,000 上限 → 抬到 20,000 ms + 429 重试一次；全天 65 次识图，成功 42，成功中位 4,270 ms",
+        "上下文“聊外” ：真因是 store.historyCount 被配成 20 → 改 40 ，轮数 5 → 12（不是思考强度档位的问题）",
+        "协议端 SnowLuma 1.14.19 → 2.4.2 ； bili-video 1.0.2 加 sendMediaWithRetry / serializeShare ，原生发送、零 token"
+      ],
+      "metrics": [
+        "识图失败率 73.1% → 0",
+        "超时 12s → 20s",
+        "历史 20 → 40 条"
+      ],
+      "source": "01-主线 §2 · 03-事故与修复.md §2.2 / §2.3 · 备份归档\\记录原件\\优化调试记录-2026-11-08.md （696 行）"
+    },
+    {
+      "id": "P4",
+      "date": "11-09",
+      "ver": "0.4.1-dfy.1",
+      "tag": "安全与口径",
+      "title": "把“能被伪造的系统段”堵上",
+      "lede": "上游 sanitizeUntrustedText 暴露了同一个洞：本机系统段用全角【…】+换行，一条群消息就能伪造。当天立起版本号，也第一次把群黑话收进人设细节库。",
+      "items": [
+        "提示注入加固 ： sanitizeUserText 三道处理（全角【】降半角、压平 U+2028/2029 与零宽/双向字符、群名片与引用同样净化），8 条用例 8/8",
+        "时间视图 ：消息只带 MM-DD HH:MM ，弱模型算不出新旧 → 新增 describeAge （Nm前 / Nh前 / Nd前），单测 13/13",
+        "黑话入库 ：群 636383189 的 12,392 条语料离线挖掘，12 条进 store.json 「群内黑话」分类；常驻段 13 条压到 1 条（1,042 B）",
+        "版本号 定为 0.4.1-dfy.1 ，读 compareSemver 确认 -dfy 不会触发内建更新检查；脱敏包按 .zcodeignore 手写 8 目录 + 6 文件，复扫又抓出 19 个 *.bak-*"
+      ],
+      "metrics": [
+        "注入用例 8/8",
+        "时间用例 13/13",
+        "常驻黑话 13 → 1 条"
+      ],
+      "source": "01-主线 §3 · QQA-迭代历史 阶段 3"
+    },
+    {
+      "id": "P5",
+      "date": "11-10",
+      "ver": "dfy.2 → dfy.6",
+      "tag": "一天五版",
+      "title": "一天五个版本，把“感觉快”落成数字",
+      "lede": "这一天定下了后面一直沿用的流程：先出「审查单」（问题实测 → 方案 → 动哪些文件 → 风险回滚 → 验证口径 → 待拍板），批了才动代码。",
+      "items": [
+        "dfy.2 时区： process.env.TZ='Asia/Shanghai' 写在所有 import 之前；每 60s 问 get_status ，把连接态与账号态分开",
+        "dfy.3 健康探针三条线，诊断两级 → 四级，UI 加 dot-degraded 第四态 + ⚠️ 横幅；真机 14 次采样心跳精确 30s",
+        "dfy.4 控制台卡顿：QQ 进程查询缓存 3s→60s、用量统计双层缓存 —— /api/status 从 6.6s 降到 0.035s （110 次 0 慢）",
+        "dfy.5 识图失败不再静默：失败分支补“我没看清图，别猜”，治 11-09 的 234 次失败 / 112 次“降级后照聊”",
+        "dfy.6 按需工具加载：新增 src\\tool-search.js ，常驻 10 + 延迟 30；tools 57→11 ，promptTokens 17,697→10,191（−42.4%）"
+      ],
+      "metrics": [
+        "status 6.6s → 0.035s",
+        "tokens −42.4%",
+        "单次 $0.0092 → $0.0038"
+      ],
+      "source": "01-主线 §4 · 各版 src\\*.bak-* 回滚点"
+    },
+    {
+      "id": "P6",
+      "date": "11-13",
+      "ver": "dfy.6",
+      "tag": "排查方法",
+      "title": "“你不准记账”，她为什么还在记",
+      "lede": "主人下过禁令，她仍说“我脑子里有本账”。三层逐层排除后，发现不是后台在写盘，也不是标签错挂，而是人设里的禁令太抽象。",
+      "items": [
+        "三层排除：后台插件在写盘？→ 素材在流动但不解释她的话；记忆标签归属是 别人 （示例用户）；人设只有一行「-禁止说话记账」",
+        "修法：把抽象禁令改成 可判定的原句 （ roleText 726→780 字）；顺手修 ownerIds 类型 bug（返回 Set 却调 .map ）",
+        "留下 四步取证法 ：① 捞原话（筛 senderId==='self' ）② 排后台（比 mtime）③ 看人设/提示词 ④ 改完必须重启（ getConfig() 有内存缓存）"
+      ],
+      "metrics": [],
+      "source": "01-主线 §5 · QQA-迭代历史 阶段 5"
+    },
+    {
+      "id": "P7",
+      "date": "11-14",
+      "ver": "0.5.1",
+      "tag": "整机迁移",
+      "title": "不是升级，是换了一台发动机",
+      "lede": "0.5.1 不是 0.4 的补丁：薄内核 + 20 个可开关扩展，全部从零写。本机 11 插件 + 6 技能没有一条能直搬，全靠 compat-04 兼容垫片接管。",
+      "items": [
+        "迁移踩的两处：恢复私聊/群聊分档等待（ wakeDelayMsPrivate 8s / 15s）； memory-plus 的 permissions: [] 没声明 data.sessions.read → Electron 未捕获异常 → app.exit(1)",
+        "persona-detail 管理面板 ：0.5 不给插件自注册路由 → 走组合层 overrides\\<层>\\composition.json 的 routes 贡献，13 条 /api/persona-detail/* 与 admin.html 全部 200， 内核一行未改",
+        "运行失败弹窗： installFatalHandlers 把任何插件后台尾巴判死 → unhandledRejection 改 白名单",
+        "没搬完三件：UI 11 个自制文件、bili-video 转发链路、sticker-steal 的 recent.filter"
+      ],
+      "metrics": [
+        "20 个内置扩展",
+        "10 个面板",
+        "13 条路由 200"
+      ],
+      "source": "01-主线 §6 · docs\\v04-extension-parity.md （25 KB 逐项对照）· 03-事故 §2.6"
+    },
+    {
+      "id": "P8",
+      "date": "11-15 → 11-19",
+      "ver": "0.5.1",
+      "tag": "补丁与收口",
+      "title": "先把功能补齐，再把结构收口",
+      "lede": "这是“从能跑到不打架”的一段：余额入口打通、记忆面板改造、表情族收口、断线治理落地，也发生了最贵的一次事故。",
+      "items": [
+        "deepseek-balance 配置打通： baseOrigin / balanceUrl / balancePath ；记忆面板保留 0.5 自带页，只加“条目前置复选框 + 晋升删除 + 三类分区”",
+        "11-19 拍板五条 ：记忆做功能融合但两步走；撞功能要“ 收口 ”不是“收纳”；垃圾先出清单； hello / voice-to-text / affinity 保持 disabled；双模型兜底不得以“简化”为由砍掉",
+        "表情族收口 ：停 sticker-tools ，移出 4 个工具，保留 sticker-steal； /api/skills 收到 36 total / 31 active / 5 disabled / 0 broken",
+        "断线治理 A→C→B ： client.js 补 stageSince/attempts/lastReadyAt/degraded ；连续 6 次失败进降级（30s→2min， 不停止重连 ）； transport-notice 私聊告警 ≥60s 才报",
+        "最贵事故 ：11:48 运行中删约 330 个 extension-cache → 插件代码指纹失效 → 程序自毁、清空 resources\\app ；用 970 文件基线 + 608 文件最新快照拼回；防复发靠运行守卫 + 停机才清缓存",
+        "巡检三处加剧自重启的逻辑：19 个 .stale-* 锁从不清、WMI 一次查空就重启、 Start-Main 无差别 Stop-Process → 全部修掉，并补上开机自启链"
+      ],
+      "metrics": [
+        "扩展 36 → 31 active / 5 disabled",
+        "7 个重复工具移出",
+        "降级 ≠ 放弃"
+      ],
+      "source": "01-主线 §7–§8 · 03-事故 §2.5 / §2.8 · 文件清理分类清单-20261119.md"
+    },
+    {
+      "id": "P9",
+      "date": "11-20 → 11-22",
+      "ver": "0.5.1",
+      "tag": "插件回填",
+      "title": "插件回填：从“能发”到“发得对”",
+      "lede": "迁移期丢掉的能力，在这三天逐条补回。每条都在真机上验过，不是“代码写完就算”。",
+      "items": [
+        "xhh-post 1.0.1 → 1.0.11 ： /bbs/app/link/tree/v2 抓正文、 /bbs/app/link/tree 抓评论，每请求 hkey 签名；短文直发原文+图，长文压缩总结+评论话题；纯图/视频帖、最多 4 张看图整理、评论按方向分类",
+        "bili-video 1.0.4 ：发送者白名单 allowSenders ，白名单外直接跳过； impression-audit 1.0.2 退役 ，记忆审计并入 memory-plus； ai-flavor 1.0.1 把风格指令从 system 尾部改挂 user 末尾，system 逐字节固定吃满前缀缓存",
+        "affinity 1.6.0 ：主人口令打赏记账，金额档位自动加好感度，档位/分值/单日封顶可调； topic-ledger 1.0.0 首版：白名单事件链记账、静默收尾归档",
+        "11-22 把 0.5.1 本体打成“无个人数据”完整包：195 MB / 1,153 项，SHA256 5A044211…7103 ，排除 data-v05 、协议端 config、日志、 _patch-kit 与全部 *.bak"
+      ],
+      "metrics": [
+        "xhh-post 11 个版本",
+        "插件 17 个",
+        "脱敏包 195 MB"
+      ],
+      "source": "QQA-迭代历史 阶段 8 · 记录\\2026-11-20-小黑盒转发插件.md"
+    },
+    {
+      "id": "P10",
+      "date": "11-23 → 11-24",
+      "ver": "0.5.1",
+      "tag": "重构与重定",
+      "title": "一天十个版本：记忆、台账、好感度同时重构",
+      "lede": "这段的关键不是“加功能”，而是把三套会互相打架的机制重新定了口径。好感度一天走了五轮“缩了又回滚”，是反复最多的一条线。",
+      "items": [
+        "memory-plus 2.8.0 → 2.9.3 ：改成按 QQ 号一人一份档案（ lib/profile.js ：画像/个性标签/长期/事件/候选/审计），旧库 257 条长期去重合并；后台收成三层，短期变纯原料池（不进提示词），候选攒够 3 次才转正",
+        "关键点提取 ：先按生活事实信号词筛“没人接的那句话”，允许收本人自述的就医/家里事/钱/工作/日程；再加第一人称门槛，互怼/扮演句全拦；候选再过问句过滤，“我的”不算自述，筛不到整段跳过（实测 1,500 条 → 0 句 → 跳过）",
+        "topic-ledger 1.0.1 → 1.2.8 ：解析失败重试三次、台账页取数解包、补录“变更”栏、静默收尾 10→5→8 分钟、引用回复回绑、事件链标“谁 → 谁”、碎片归并、“未决/约定”改成“还没结果/答应过还没办”治“幻觉自己干过”",
+        "affinity 1.6.1 → 1.7.0 ：负面刷分冷却 → 窗口累计 → 抗性改护盾 → 分数缩 20 倍 → 回滚 → 缩到 200 满 → 护盾恢复 20→120 分钟 → 陌生人取消护甲 → 情绪分值回到“每次只动一点”（3,1,0,-1,-2）",
+        "sticker-steal 5.5.4 → 5.5.8 ：只用 QQ 收藏表情、文案与工具实况对齐、与宿主【表情包策略】彻底去重，时机与频率交宿主",
+        "OneBot 两次掉线 ：11-23 ECONNREFUSED 64888 ，根因 .qq-agent-runtime.lock 残留（PID 全死、 uncertainTree:true ）→ 删锁重启，45s 恢复；11-24 connected=False 52754 ，日志停在 awaiting EULA/PRIVACY consent 、 acceptedAt 为 null → 补时间戳仍不通，真因是 QQ 客户端进程不存在 （协议端靠 hook 注入）→ 启动 QQ 后 10s 恢复"
+      ],
+      "metrics": [
+        "memory 2.8.0 → 2.9.3",
+        "台账 20 版",
+        "好感度 五轮",
+        "OneBot 掉线 2 次"
+      ],
+      "source": "QQA-迭代历史 阶段 9 · 各插件 CHANGELOG.md 与 plugin.json 更新记录"
+    },
+    {
+      "id": "P11",
+      "date": "11-25 → 11-26",
+      "ver": "0.5.1 · 现役",
+      "tag": "收尾",
+      "title": "锁、身份，和一条 21 秒的启动线",
+      "lede": "最后两天没有再堆功能，而是把“开机连不上”这条最影响体感的链路，从“白等一两分钟 + 人工删锁”压到“21 秒全自动”。",
+      "items": [
+        "11-25 记忆继续收 ：memory-plus 2.9.3 一路推到 2.12.0 ； index.mjs （176 KB）/ profile.mjs （24 KB）当天做语法核查与快照，留在 备份归档\\_syntax",
+        "11-26 面板“未连接”三层根因 ：表层是宿主没启动 OneBot 传输（ everConnected=false ，日志无 [onebot] 连接 WS ）；中层是主账号被写进 removedAccounts 、 wanted=false ；底层是关机残留 .qq-agent-runtime.lock （ uncertainTree:true ），宿主判定“上次没停干净”直接拒绝启动 SnowLuma",
+        "根治 ： dafeiyu-watchdog.ps1 新增 Clear-StaleProtocolLock —— 有 SnowLuma node 进程就保留锁；没有则读 ownerPid/childPid ，都退出才删，并清 *.stale-* ；调用点两个（开机预检、 Start-Main 前）。重启连上 77s → 21s",
+        "下午四个校验补丁 ： Test-ConnectionIdentity 五项全过才算健康（stage / identityBound / selfId / 注入 PID = QQ 主进程 PID / get_login_info 账号）、注入 PID 比对、 Repair-RemovedAccount 仅在误删本机号时兜底、健康时只写一行决策日志",
+        "踩到的坑 ：Windows PowerShell 5.1 的 ConvertFrom-Json 解析宿主 config.json 抛错，异常文本把整段 JSON 灌进 watchdog.log ；第一版因此误判并触发一次重拉。修法：脚本内不解析整份 config，改用正则只取 onebot 段；测试必须用 powershell.exe 5.1，不能只用 pwsh 7",
+        "现役版本 ：memory-plus 2.12.0 · topic-ledger 1.2.9 · affinity 1.7.1 · sticker-steal 5.5.8 · xhh-post 1.0.11 · deepseek-balance 1.9.1"
+      ],
+      "metrics": [
+        "启动恢复 77s → 21s",
+        "memory-plus 2.12.0",
+        "校验 5 项"
+      ],
+      "source": "记录\\2026-11-26-OneBot未连接排障.md （今日 15:28）· 备份归档\\_syntax"
+    },
+    {
+      "id": "P12",
+      "date": "11-26→27",
+      "ver": "0.5.1 · 元",
+      "tag": "入档",
+      "title": "编年史自己进了档案",
+      "lede": "把前 31 天压成可查的条目，而不是每轮往提示词里灌 400 字。第一版装了注入，被主人当场否掉；第二版删钩子，改走按需档案。",
+      "items": [
+        "1.0.0 → 1.0.1 ： dfy-chronicle 先做 4 个工具 + /编年史 ，每轮向 system 尾贴约 400 字索引；主人判“无意义消耗”，1.0.1 把 before-llm-messages 钩子整段删除，日志写明“只读检索，不注入提示词”。",
+        "入档 ：31 条要点写进 store.json 的「调试档案」分类（#52–#82，总 73/100 条），每条 ≤124 字；原档先备份 store-backup-20261126-172355-before-chronicle.json ；HTML 与长图另存 记录\\档案\\本机调试编年史_2026-11-26.* 。",
+        "查询实测 ： query_persona_detail 按需命中——OneBot 掉线→I8/I9/I10；缓存→P2（48→75.3%）；dfy.6→P5（tokens −42.4%）；resources app→I7/P8。 /编年史 与发长图保留，只在主动用时触发。",
+        "代价 ：档案 73/100，余 27 槽；四个工具声明仍在工具列表，但不再有每轮提示词开销。",
+        "同批补档 ： bili-video 1.0.5 完成 0.5 适配——发送走 sender.sendMedia （视频独占一条、文案另发）， sendVideoBody=true 、 qn=64 ，11-26 12:49 实测 720P《这野人魔了》15.8MB 转发成功；G1 准入护栏落在记忆写入： fact/relation 遇「扮演/玩梗/自称/串戏」等词自动降级为 general ， preference/appointment 不动，tool/auto/rule 三条路径统一过 addShort 。",
+        "同批补档（UI） ： topic-ledger 1.3.1 台账页——进行中的链两击「强制收尾」，页头「全部收尾（N）」一次收当前全部，详情标「手动强制收尾」；底层 force_close 配套。"
+      ],
+      "metrics": [
+        "注入 400 字/轮 → 0",
+        "档案 31 条",
+        "查询命中 4/4"
+      ],
+      "source": "store.json #52–#82 · extensions\\plugins\\dfy-chronicle 1.0.1→1.0.4 · 2026-11-27 复核"
+    }
+  ],
+  "incidents": [
+    {
+      "id": "I1",
+      "time": "11-05 23:29",
+      "name": "SnowLuma 日志风暴",
+      "flag": "",
+      "cause": "孤儿进程 EPIPE 被 “kept alive” 无限重写",
+      "fix": "20 分钟产出 21 个 50MB 分片 → 清到 1.83 MB + 加轮转"
+    },
+    {
+      "id": "I2",
+      "time": "11-06 18:34",
+      "name": "SnowLuma 堆损坏",
+      "flag": "静默 19 分钟",
+      "cause": "B 站视频真实上传路径上的原生堆损坏（ 0xC0000374 ）",
+      "fix": "加崩溃自愈 + 退出码落盘 + SNOW-EXIT 告警；内存改 5 进程合计口径"
+    },
+    {
+      "id": "I3",
+      "time": "11-08 上午",
+      "name": "令牌轮换死锁",
+      "flag": "卡 18 分钟",
+      "cause": "只认字符串 \"401\" ，SnowLuma 实际报 rejected unauthorized ，恢复钩子永不触发",
+      "fix": "正则放宽为 /401|403|unauthori[sz]ed/i + 轮换冷却 60s"
+    },
+    {
+      "id": "I4",
+      "time": "11-08 17:22",
+      "name": "看图全失败",
+      "flag": "",
+      "cause": "旧模型名变收费 429 + maxTokens 60 被思考链吃光 + 裸 catch 无日志",
+      "fix": "换模型 + 320 token + 失败留痕；真图 5/5"
+    },
+    {
+      "id": "I5",
+      "time": "11-09",
+      "name": "store.json 静默失败",
+      "flag": "",
+      "cause": "手改多一个逗号 → JSON.parse 抛错被 catch 成空档案",
+      "fix": "42 条全查不到且无报错 → 定规矩：改完必须验一遍 JSON"
+    },
+    {
+      "id": "I6",
+      "time": "11-14 20:48",
+      "name": "运行失败弹窗",
+      "flag": "",
+      "cause": "installFatalHandlers 把任何插件后台尾巴都判死",
+      "fix": "unhandledRejection 改白名单；顺带修 recentMessages() 适配"
+    },
+    {
+      "id": "I7",
+      "time": "11-19 11:48",
+      "name": "resources\\app 被清空",
+      "flag": "最贵",
+      "cause": "运行中删 extension-cache → 插件代码指纹失效 → 程序自毁",
+      "fix": "970 + 608 文件快照拼回； trim-logs.ps1 加运行守卫；停机才清缓存"
+    },
+    {
+      "id": "I8",
+      "time": "11-23",
+      "name": "OneBot 掉线 ①",
+      "flag": "",
+      "cause": ".qq-agent-runtime.lock 残留，PID 全死、 uncertainTree:true",
+      "fix": "删锁重启，45s 后 connected=True"
+    },
+    {
+      "id": "I9",
+      "time": "11-24",
+      "name": "OneBot 掉线 ②",
+      "flag": "",
+      "cause": "awaiting EULA + QQ 进程不存在 （协议端无注入目标）",
+      "fix": "补 acceptedAt + 启动 QQ，10s 恢复"
+    },
+    {
+      "id": "I10",
+      "time": "11-26 12:51",
+      "name": "开面板“未连接”",
+      "flag": "",
+      "cause": "宿主未启动传输 + 主账号被标 removed + 关机锁残留",
+      "fix": "Clear-StaleProtocolLock + 账号兜底；77s → 21s 全自动"
+    }
+  ],
+  "incidentNote": "注：11-09 的“重启风暴”与 11-19 00:20 的“高频自重启”后来都定案为人为调试，不作为故障计入；只保留“watch 误报”与“锁残留”这两个真问题。",
+  "numbers": [
+    {
+      "id": "N1",
+      "metric": "每轮 promptTokens",
+      "before": "17,697",
+      "after": "10,191"
+    },
+    {
+      "id": "N2",
+      "metric": "每轮下发工具数",
+      "before": "57（0.4 全量）",
+      "after": "15 + 延迟池 18"
+    },
+    {
+      "id": "N3",
+      "metric": "缓存命中率",
+      "before": "≈48%",
+      "after": "75.3%"
+    },
+    {
+      "id": "N4",
+      "metric": "单次调用成本",
+      "before": "$0.0092",
+      "after": "$0.0038"
+    },
+    {
+      "id": "N5",
+      "metric": "/api/status 最慢",
+      "before": "6.6 s",
+      "after": "0.035 s"
+    },
+    {
+      "id": "N6",
+      "metric": "扩展状态",
+      "before": "36 total",
+      "after": "31 active / 5 disabled"
+    },
+    {
+      "id": "N7",
+      "metric": "识图失败率",
+      "before": "73.1%",
+      "after": "0（真图 5/5）"
+    },
+    {
+      "id": "N8",
+      "metric": "OneBot 开机恢复",
+      "before": "77 s（需人工删锁）",
+      "after": "21 s（全自动）"
+    }
+  ],
+  "numberNote": "口径来源：11-07 全天 197 次调用统计；dfy.6 改造前后同口径对比；11-26 改前/改后各一次真实重启实测。",
+  "evidence": [
+    {
+      "id": "E1",
+      "title": "成文复盘",
+      "kind": "DOC",
+      "hint": "在 <工作目录>\\记录 与 <工作目录> ，按卷合并。",
+      "items": [
+        {
+          "size": "15.9 KB",
+          "file": "01-主线-0.4到0.5.1.md",
+          "note": "<工作目录>\\记录\\ · 11-19 14:59"
+        },
+        {
+          "size": "13.1 KB",
+          "file": "02-方案与解析.md",
+          "note": "<工作目录>\\记录\\ · 上游取舍"
+        },
+        {
+          "size": "12.0 KB",
+          "file": "03-事故与修复.md",
+          "note": "<工作目录>\\记录\\ · 事故 + 排错手册"
+        },
+        {
+          "size": "19.9 KB",
+          "file": "QQA-迭代历史-2026年11月.md",
+          "note": "<工作目录>\\ · 11-24 21:11"
+        },
+        {
+          "size": "8.1 KB",
+          "file": "2026-11-26-OneBot未连接排障.md",
+          "note": "<工作目录>\\记录\\ · 今天 15:28"
+        },
+        {
+          "size": "19.1 KB",
+          "file": "2026-11-20-小黑盒转发插件.md",
+          "note": "<工作目录>\\记录\\ · 11-21 21:25"
+        },
+        {
+          "size": "9.9 KB",
+          "file": "记忆审计插件-设计交接-20261119.md",
+          "note": "<工作目录>\\记录\\"
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "title": "运行日志",
+      "kind": "LOG",
+      "hint": "机器写的原始证据；崩溃、断线、token 轮换都先落在这里。",
+      "items": [
+        {
+          "size": "22 个 · 3.98 MB",
+          "file": "data-v05\\logs\\YYYY-MM-DD.log",
+          "note": "<工作目录>\\QQAgent-0.5\\ · 11-19 → 11-26"
+        },
+        {
+          "size": "0.43 MB",
+          "file": "data-v05\\boot-diag.log",
+          "note": "启动诊断，含 fatal 与 startup-failed"
+        },
+        {
+          "size": "0.16 MB",
+          "file": "logs\\watchdog.log",
+          "note": "守护判定、重拉、清锁记录"
+        },
+        {
+          "size": "71.8 KB",
+          "file": "cache-probe-20261106.log",
+          "note": "<工作目录>\\记录\\日志\\ · 1,353 行 / 177 次 CUT"
+        },
+        {
+          "size": "2.7 KB",
+          "file": "snowluma-2026-11-05-EPIPE日志样本.txt",
+          "note": "日志风暴原件"
+        },
+        {
+          "size": "5 份",
+          "file": "日志\\临时输出\\",
+          "note": "debug_tail / all_short / merged_mem / route_test / 当晚数据"
+        },
+        {
+          "size": "存档",
+          "file": "data-v05\\sessions\\",
+          "note": "每轮 systemPrompt / userPrompt / 结束原因"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "title": "版本与数据",
+      "kind": "BACKUP",
+      "hint": "能回滚、能量化，才算把经验固化成资产。",
+      "items": [
+        {
+          "size": "11-19 / 11-22 / 11-24",
+          "file": "备份归档\\本体与插件 · 坏掉-20261119-1715 · 记忆重构前_20261124",
+          "note": "<工作目录>\\备份归档\\"
+        },
+        {
+          "size": "11-25",
+          "file": "备份归档\\_syntax\\",
+          "note": "memory-plus index.mjs / profile.mjs 语法快照"
+        },
+        {
+          "size": "544.6 KB",
+          "file": "本机-插件集-稳定版-20261122.zip",
+          "note": "<工作目录>\\备份\\"
+        },
+        {
+          "size": "481.7 KB",
+          "file": "缓存命中基线-全量合并.csv",
+          "note": "<工作目录>\\报表\\数据\\ · 10-28 → 11-24 单日"
+        },
+        {
+          "size": "31 KB",
+          "file": "缓存命中率对照报表-20261105至08.html",
+          "note": "可交互对照页"
+        },
+        {
+          "size": "19.4 / 7.3 KB",
+          "file": "历史台账总览.md · 台账指标测试报告.md",
+          "note": "<工作目录>\\"
+        },
+        {
+          "size": "18 份",
+          "file": "data-v05\\extension-cache 各插件快照",
+          "note": "含 2.6.x → 2.12.0 的 memory-plus 全部代际"
+        }
+      ]
+    }
+  ],
+  "gap": "已知缺口 ：11-05 之前的调试没有成文，只剩零星临时输出；11-07 的逐次调用明细在报表里，不在文档里；11-08 全天最细的账在 备份归档\\记录原件\\优化调试记录-2026-11-08.md （696 行），尚未并入三卷本。",
+  "rules": [
+    {
+      "id": "R1",
+      "text": "同族并存必然选错。 同一动作前面摆 4 个名字，模型就会选错；表情族 120 次 vs 319 次是证据。撞功能要“收口”，不是“收纳”。"
+    },
+    {
+      "id": "R2",
+      "text": "能重建的别留多份，装不回来的才配多份备份。 删东西先出清单；三项全满足才删：有第二份可用副本、运行不读取、可重建。"
+    },
+    {
+      "id": "R3",
+      "text": "静态常驻段每轮都付费。 只有“每轮都可能被误读的极短结论”才进常驻，其余进按需库；同一事实只允许一个权威来源。"
+    },
+    {
+      "id": "R4",
+      "text": "先量化再改。 所有“感觉快了”都要落成可复现的数字；改前备份、改后验证、留回滚点，三步缺一不可。"
+    },
+    {
+      "id": "R5",
+      "text": "改完必须验 JSON / 语法 + 重启。 src\\ 不走热重载， getConfig() 有内存缓存； catch {} 是排查的头号敌人。"
+    },
+    {
+      "id": "R6",
+      "text": "脚本三铁律。 .ps1 一律 UTF-8 带 BOM； .bat 一律 CRLF 且不写中文；bat 引用同目录资源用绝对路径，别依赖 %~dp0 。"
+    },
+    {
+      "id": "R7",
+      "text": "降级 ≠ 放弃。 断线只做“停主动发言 + 日志降噪 + 状态标记”，重连永不停止；通知是尽力而为，最终靠 [TRANSPORT-ALERT] 日志兜底。"
+    }
+  ],
+  "open": [
+    {
+      "id": "O1",
+      "what": "bili-video 重写",
+      "why": "0.5 适配已落地：发送走 sender.sendMedia （视频独占一条、文案另发）， sendVideoBody=true 、 qn=64 ；11-26 12:49 实测 720P《这野人魔了》15.8MB 转发成功。旧的 execution.send 限制不再是阻塞。",
+      "status": "已闭环"
+    },
+    {
+      "id": "O2",
+      "what": "UI 11 个自制文件",
+      "why": "0.5 用 ui.uikit + sharedAppearance ， src/ui 会被自动更新整体替换；只能按新体系重做，或走 overrides\\ui.assets / ui.panels 。",
+      "status": "待重做"
+    },
+    {
+      "id": "O3",
+      "what": "记忆准入护栏",
+      "why": "写入前确定性降级： fact/relation 遇「扮演/玩梗/自称/串戏」等词改 general ；tool/auto/rule 三条路径统一过 addShort 。",
+      "status": "已闭环"
+    },
+    {
+      "id": "O4",
+      "what": "协议端开机自启",
+      "why": "QQ 需随机自启，否则协议端没有注入目标，表现就是“OneBot 掉线”。当前靠人记得先开 QQ。",
+      "status": "运维约定"
+    },
+    {
+      "id": "O5",
+      "what": "黑话统计预筛",
+      "why": "Node 无中文分词，暂缓；目前靠离线挖掘 + 人工入库，不自动学习。",
+      "status": "暂缓"
+    },
+    {
+      "id": "O6",
+      "what": "OneBot 开机锁预检",
+      "why": "11-26 已落地 Clear-StaleProtocolLock + 五项身份校验，实测 21 秒自动恢复——这条已从“缺口”移出，列入已闭环。",
+      "status": "已闭环"
+    }
+  ],
+  "sources": {
+    "html": "<工作目录>\\调试编年史.html",
+    "image": "<工作目录>\\调试编年史-长图.png",
+    "mainline": "<工作目录>\\记录\\01-主线-0.4到0.5.1.md",
+    "plans": "<工作目录>\\记录\\02-方案与解析.md",
+    "incidents": "<工作目录>\\记录\\03-事故与修复.md",
+    "monthly": "<工作目录>\\QQA-迭代历史-2026年11月.md",
+    "latest": "<工作目录>\\记录\\2026-11-26-OneBot未连接排障.md"
+  },
+  "builtAt": "2026-11-27T01:39:19"
+}

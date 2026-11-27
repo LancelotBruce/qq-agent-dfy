@@ -311,6 +311,28 @@ export function closeIdleChains(state, { silenceMin = 10, now = Date.now() } = {
   return closed;
 }
 
+/**
+ * 手动强制收尾：把指定的进行中链立即封掉，下一轮 tick 会补终稿。
+ * 收尾时间仍记在最后一条消息上（closedAt），另记 manualClosedAt 方便排查是谁手动关的。
+ */
+export function forceCloseChains(state, { id = '', chatKey = '', all = false, now = Date.now() } = {}) {
+  const closed = [];
+  for (const c of state.chains) {
+    if (c.status !== 'open') continue;
+    if (id && String(c.id) !== String(id)) continue;
+    if (!id && !all && String(c.chatKey) !== String(chatKey)) continue;
+    if (!id && !all && !chatKey) continue;
+    c.status = 'closed';
+    c.closedAt = Number(c.lastTs) || Number(now);
+    c.splitReason = 'manual';
+    c.manualClosedAt = Number(now);
+    c.finalizedAt = 0;
+    c.lastError = '';
+    closed.push(c);
+  }
+  return closed;
+}
+
 export function infoScore(chain) {
   const len = (arr) => (Array.isArray(arr) ? arr.reduce((s, x) => s + String(x).length, 0) : 0);
   return len(chain.promises) * 3.2
@@ -366,6 +388,34 @@ export function applyEntry(chain, entry, now = Date.now()) {
   return chain;
 }
 
+/** 精修终稿：用模型收口后的一版整体替换旧条目，避免已经解决的未决还挂着。 */
+export function applyFinalEntry(chain, entry, now = Date.now()) {
+  const clean = (v, max) => [...new Set((Array.isArray(v) ? v : []).map((x) => tidyText(x)).filter(Boolean))].slice(0, max);
+  chain.title = tidyText(entry?.title || chain.title || '').slice(0, 16);
+  const facts = clean(entry?.facts, 8);
+  const decided = clean(entry?.decided, 6);
+  chain.facts = facts.length ? facts : (chain.facts || []);
+  chain.decided = decided.length ? decided : (chain.decided || []);
+  // 未决只关模型明确点名的；没点名的宁可留着，不能因为漏写而误删。
+  const close = clean(entry?.pendingClose, 8);
+  const hitClose = (x) => close.some((c) => c && (x === c || x.includes(c) || c.includes(x)));
+  const keepPending = (chain.pending || []).filter((x) => !hitClose(x));
+  for (const x of clean(entry?.pending, 6)) {
+    if (!hitClose(x) && !keepPending.includes(x)) keepPending.push(x);
+  }
+  chain.pending = keepPending.slice(0, 6);
+  chain.promises = unionList(chain.promises, entry?.promises, 5).map(tidyText);
+  if (Array.isArray(entry?.quotes) && entry.quotes.length) chain.quotes = entry.quotes;
+  if (entry?.mood) chain.mood = tidyText(entry.mood).slice(0, 60);
+  chain.lastError = '';
+  chain.tailNote = '';
+  chain.draftAttempts = 0;
+  chain.draftedAt = now;
+  chain.updatedAt = now;
+  chain.draftedCount = chain.count;
+  return chain;
+}
+
 /** 增量补丁落到链上。 */
 export function applyPatch(chain, patch, now = Date.now()) {
   chain.lastError = '';
@@ -395,7 +445,7 @@ export function realChanges(chain) {
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 /** 机器人自己的马甲：正文里一律说「我」，不占字母。 */
-const SELF_NAMES = ['机器人', '某用户', '机器人', '小助手', '示例用户—扮演版', '小助手（未开智）', '？！哦鲸鲸！？'];
+const SELF_NAMES = ['某机器人', '某群友', '无鲸', '小皇子', '示例用户—鲸鱼版', '小助手（未开智）', '？！哦鲸鲸！？'];
 
 /** 人物别名：抬头列 A/B/C 是谁，正文只用字母。 */
 export function nameAliases(chain) {
@@ -420,7 +470,7 @@ export function nameAliases(chain) {
   for (const q of chain?.quotes || []) add(q.who, '');
   // 机器人自己的马甲：只有在链里不是正经成员时才折成「我」
   for (const n of SELF_NAMES) if (!byName.has(n)) byName.set(n, '我');
-  // 「示例用户—扮演版」这类带后缀的名字，允许用短名替换（短名不是别人的全名时才加）
+  // 「示例用户—鲸鱼版」这类带后缀的名字，允许用短名替换（短名不是别人的全名时才加）
   for (const r of roster.slice()) {
     const short = r.name.split(/[—\-·]/)[0].trim();
     if (short && short !== r.name && !byName.has(short)) byName.set(short, r.alias);
@@ -432,7 +482,7 @@ export function nameAliases(chain) {
     s = s.replace(/[(（]QQ[:：]\s*\d+[)）]/gi, '');
     for (const n of names) {
       if (n === '我') continue;
-      if (byName.get(n) === '我') continue; // 机器人自己的马甲不折成「我」，免得「我是机器人」变成「我是我」
+      if (byName.get(n) === '我') continue; // 机器人自己的马甲不折成「我」，免得「我是某机器人」变成「我是我」
       s = s.split(n).join(byName.get(n));
     }
     return s;
@@ -447,7 +497,7 @@ export function nameAliases(chain) {
   return { byName, byUid, rosterText, text, who };
 }
 
-/** 把 @ 目标（可能是「某用户(QQ:1000000001)」）换成别名。 */
+/** 把 @ 目标（可能是「某群友(QQ:1000000001)」）换成别名。 */
 export function aliasTarget(target, aliases) {
   const raw = String(target || '').trim();
   const m = /(\d{5,})/.exec(raw);
@@ -555,6 +605,8 @@ export function mergeFragments(state, { maxMsgs = 8, gapMin = 90 } = {}) {
       if (!cur.finalizedAt) continue;
       if (cur.status === 'open' || prev.status === 'open') continue;
       if (cur.status === 'frozen' || prev.status === 'frozen') continue;
+      // 手动收尾是用户划的句号，别再当碎片并回上一条。
+      if (cur.splitReason === 'manual' || prev.splitReason === 'manual') continue;
       // 续接链：到上限被迫分出来的下一段，内容本来是一件事，间隔 10 分钟内直接并回去。
       const isCont = Boolean(cur.continuedFrom && String(cur.continuedFrom) === String(prev.id));
       if (isCont) {

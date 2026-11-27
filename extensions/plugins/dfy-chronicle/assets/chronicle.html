@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本机调试编年史 · 2026</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+  :root{
+    --paper:#F7F4EC;
+    --paper-2:#F1ECDF;
+    --ink:#1B1A17;
+    --ink-2:#3D3A32;
+    --muted:#736C5C;
+    --rule:#D8D0BE;
+    --rule-2:#C3B9A2;
+    --red:#A63B2A;
+    --red-soft:#C9654F;
+    --teal:#2F6B63;
+    --gold:#A8853F;
+    --card:#FBF8F1;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:16px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* 纸面纹理：纯 CSS，无外部图片 */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 18% 8%, rgba(168,133,63,.06), transparent 42%),
+      radial-gradient(circle at 86% 32%, rgba(47,107,99,.05), transparent 46%),
+      repeating-linear-gradient(0deg, rgba(27,26,23,.022) 0 1px, transparent 1px 4px);
+    z-index:0;
+  }
+  .wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 56px}
+
+  /* ===== 封面 ===== */
+  header.cover{padding:78px 0 0}
+  .topline{display:flex;align-items:center;justify-content:space-between;gap:24px;border-bottom:1px solid var(--ink);padding-bottom:14px}
+  .kicker{
+    font-family:"Noto Serif SC",serif;font-size:13px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--muted)
+  }
+  .topline .no{font-family:"Noto Serif SC",serif;font-size:13px;letter-spacing:.12em;color:var(--muted)}
+  .hero{display:grid;grid-template-columns:1fr 168px;gap:40px;align-items:end;padding:46px 0 40px}
+  .title{
+    font-family:"Noto Serif SC",serif;font-weight:900;
+    font-size:92px;line-height:1.06;letter-spacing:.02em;margin:0;
+  }
+  .title em{font-style:normal;color:var(--red)}
+  .sub{
+    margin:22px 0 0;font-size:18px;line-height:1.8;color:var(--ink-2);max-width:760px;
+  }
+  .sub b{font-weight:700;border-bottom:2px solid var(--gold);padding-bottom:1px}
+  .seal{
+    width:150px;height:150px;background:var(--red);color:#FBF4E6;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Noto Serif SC",serif;font-weight:700;
+    letter-spacing:.14em;font-size:36px;line-height:1.32;
+    box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 0 0 6px var(--paper), 0 0 0 7px var(--red);
+    transform:rotate(-2deg);
+  }
+  .seal{flex-direction:column;gap:2px;text-align:center}
+  .seal span{display:block}
+  .meta{
+    display:flex;flex-wrap:wrap;gap:10px 26px;font-size:13.5px;color:var(--muted);
+    border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+    padding:12px 0;margin-top:6px;font-variant-numeric:tabular-nums;
+  }
+  .meta span::before{content:"·";margin-right:8px;color:var(--red-soft)}
+
+  /* 统计条 */
+  .stats{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid var(--ink);border-top:none;margin-bottom:64px}
+  .stat{padding:24px 20px 20px;border-right:1px solid var(--rule)}
+  .stat:last-child{border-right:none}
+  .stat .n{font-family:"Noto Serif SC",serif;font-weight:900;font-size:46px;line-height:1;letter-spacing:-.01em}
+  .stat .n small{font-size:16px;font-weight:600;margin-left:4px;color:var(--muted)}
+  .stat .l{font-size:12.5px;letter-spacing:.14em;color:var(--muted);margin-top:10px}
+
+  /* ===== 导航 ===== */
+  nav.toc{
+    position:sticky;top:0;z-index:5;background:rgba(247,244,236,.92);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);
+    margin:0 -56px 0;padding:0 56px;
+  }
+  nav.toc ul{display:flex;flex-wrap:wrap;gap:6px 26px;margin:0;padding:12px 0;list-style:none}
+  nav.toc a{color:var(--ink-2);text-decoration:none;font-size:13px;letter-spacing:.06em}
+  nav.toc a:hover{color:var(--red)}
+  nav.toc .idx{color:var(--rule-2);margin-right:6px;font-family:"Noto Serif SC",serif}
+
+  /* ===== 区标题 ===== */
+  section{padding-top:76px}
+  .sec-head{display:grid;grid-template-columns:96px 1fr;gap:24px;align-items:start;border-top:2px solid var(--ink);padding-top:18px;margin-bottom:36px}
+  .sec-no{font-family:"Noto Serif SC",serif;font-weight:900;font-size:56px;line-height:1;color:var(--red)}
+  .sec-title{font-family:"Noto Serif SC",serif;font-weight:700;font-size:34px;line-height:1.3;margin:0}
+  .sec-desc{margin:8px 0 0;color:var(--muted);font-size:14.5px;max-width:840px}
+
+  /* ===== 时间轴 ===== */
+  .timeline{position:relative;padding-left:206px}
+  .timeline::before{
+    content:"";position:absolute;left:166px;top:10px;bottom:40px;width:1px;background:var(--rule-2);
+  }
+  .phase{position:relative;margin-bottom:46px;break-inside:avoid}
+  .phase .when{
+    position:absolute;left:-206px;top:2px;width:150px;text-align:right;
+  }
+  .phase .range{
+    font-family:"Noto Serif SC",serif;font-weight:700;font-size:22px;line-height:1.2;
+    font-variant-numeric:tabular-nums;letter-spacing:.01em
+  }
+  .phase .ver{
+    display:inline-block;margin-top:8px;font-size:11.5px;letter-spacing:.06em;
+    color:var(--teal);border:1px solid rgba(47,107,99,.4);padding:2px 7px;border-radius:2px;
+    background:rgba(47,107,99,.05);font-variant-numeric:tabular-nums
+  }
+  .phase .tag{
+    display:block;margin-top:10px;font-size:11px;letter-spacing:.18em;color:var(--muted)
+  }
+  .phase .node{
+    position:absolute;left:-44px;top:7px;width:11px;height:11px;border-radius:50%;
+    background:var(--paper);border:2px solid var(--red);
+  }
+  .phase .node::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--red)}
+  .card{
+    background:var(--card);border:1px solid var(--rule);
+    border-left:3px solid var(--red);
+    padding:24px 28px 20px;
+    box-shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 10px 26px -22px rgba(27,26,23,.55);
+  }
+  .card h3{
+    font-family:"Noto Serif SC",serif;font-weight:700;font-size:24px;line-height:1.35;
+    margin:0 0 8px;
+  }
+  .lede{margin:0 0 14px;color:var(--ink-2);font-size:15px}
+  .card ul{margin:0;padding-left:0;list-style:none}
+  .card li{
+    position:relative;padding-left:18px;margin:7px 0;font-size:14.6px;line-height:1.72;color:var(--ink-2)
+  }
+  .card li::before{content:"";position:absolute;left:0;top:11px;width:6px;height:1px;background:var(--red-soft)}
+  .card li b{color:var(--ink);font-weight:700}
+  .card li code,.src code,.ev code{
+    font-family:"Cascadia Mono",Consolas,"SF Mono",monospace;font-size:12.3px;
+    background:rgba(27,26,23,.055);padding:1px 5px;border-radius:2px;color:#33302A;
+    word-break:normal;overflow-wrap:anywhere;
+  }
+  .metrics{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+  .metric{
+    font-size:12.5px;line-height:1.5;padding:4px 10px;border:1px solid var(--rule-2);
+    background:var(--paper-2);color:var(--ink-2);font-variant-numeric:tabular-nums
+  }
+  .metric b{color:var(--red);font-weight:700}
+  .src{margin-top:14px;padding-top:10px;border-top:1px dashed var(--rule);font-size:12px;color:var(--muted)}
+  .src::before{content:"证据 ";color:var(--gold);letter-spacing:.12em;font-weight:700}
+
+  /* ===== 事故表 ===== */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{
+    text-align:left;font-family:"Noto Serif SC",serif;font-weight:700;font-size:13px;
+    letter-spacing:.1em;color:var(--muted);border-bottom:1.5px solid var(--ink);padding:0 12px 10px
+  }
+  tbody td{border-bottom:1px solid var(--rule);padding:13px 12px;vertical-align:top;line-height:1.65}
+  tbody td:first-child{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+  tbody td .name{font-weight:700;color:var(--ink)}
+  tbody td .bad{display:inline-block;margin-left:8px;font-size:10.5px;letter-spacing:.1em;color:#fff;background:var(--red);padding:1px 6px;border-radius:2px;vertical-align:1px}
+  tbody tr:hover{background:rgba(168,133,63,.05)}
+  .tbl-note{margin-top:12px;font-size:12.5px;color:var(--muted)}
+
+  /* ===== 数字演进 ===== */
+  .num-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0 44px}
+  .numrow{display:grid;grid-template-columns:1.1fr .8fr .9fr;gap:12px;align-items:baseline;border-bottom:1px solid var(--rule);padding:13px 0}
+  .numrow .k{font-size:14px;color:var(--ink-2)}
+  .numrow .a{font-family:"Cascadia Mono",Consolas,monospace;font-size:15px;color:var(--muted);text-align:right}
+  .numrow .b{font-family:"Cascadia Mono",Consolas,monospace;font-size:15.5px;font-weight:700;color:var(--teal);text-align:right}
+  .num-head{display:grid;grid-template-columns:1.1fr .8fr .9fr;gap:12px;border-bottom:1.5px solid var(--ink);padding-bottom:8px;margin-bottom:4px}
+  .num-head span{font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+  .num-head span:nth-child(2),.num-head span:nth-child(3){text-align:right}
+
+  /* ===== 证据地图 ===== */
+  .ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .ev{background:var(--card);border:1px solid var(--rule);padding:22px 22px 16px;position:relative}
+  .ev h4{
+    font-family:"Noto Serif SC",serif;font-size:19px;margin:0 0 4px;
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px
+  }
+  .ev h4 span{font-family:"Noto Sans SC",sans-serif;font-size:11px;letter-spacing:.12em;color:var(--muted)}
+  .ev .hint{font-size:12.5px;color:var(--muted);margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+  .ev ul{list-style:none;margin:0;padding:0}
+  .ev li{padding:9px 0;border-bottom:1px dotted var(--rule);font-size:13.2px;line-height:1.6}
+  .ev li:last-child{border-bottom:none}
+  .ev li .f{display:block;color:var(--ink);font-weight:500}
+  .ev li .p{display:block;color:var(--muted);font-size:11.3px;word-break:break-all;margin-top:2px}
+  .ev li .s{float:right;color:var(--gold);font-size:11.5px;font-variant-numeric:tabular-nums;margin-left:8px}
+
+  /* ===== 口径 ===== */
+  .rules{counter-reset:r;display:grid;grid-template-columns:repeat(2,1fr);gap:0 40px}
+  .rule{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--rule);align-items:start}
+  .rule .rn{
+    counter-increment:r;font-family:"Noto Serif SC",serif;font-weight:900;
+    font-size:28px;line-height:1;color:var(--red);opacity:.85
+  }
+  .rule .rn::before{content:counter(r,decimal-leading-zero)}
+  .rule p{margin:0;font-size:14.6px;line-height:1.7;color:var(--ink-2)}
+  .rule p b{color:var(--ink)}
+
+  /* ===== 挂着 ===== */
+  .open-list{border-top:1px solid var(--ink)}
+  .open-item{display:grid;grid-template-columns:180px 1fr auto;gap:24px;padding:18px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+  .open-item .what{font-family:"Noto Serif SC",serif;font-weight:700;font-size:17px}
+  .open-item .why{font-size:13.8px;color:var(--ink-2);line-height:1.7}
+  .open-item .st{font-size:11px;letter-spacing:.1em;padding:3px 8px;border:1px solid var(--rule-2);color:var(--muted);white-space:nowrap}
+  .open-item .st.hot{color:var(--red);border-color:rgba(166,59,42,.45);background:rgba(166,59,42,.05)}
+
+  /* ===== 尾 ===== */
+  footer{margin-top:82px;border-top:2px solid var(--ink);padding:26px 0 54px;display:flex;justify-content:space-between;gap:30px;align-items:flex-start}
+  .foot-l{max-width:760px}
+  .foot-l .mark{font-family:"Noto Serif SC",serif;font-weight:900;font-size:22px;letter-spacing:.05em}
+  .foot-l p{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.8}
+  .foot-r{text-align:right;font-family:"Noto Serif SC",serif;font-size:12px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+  .foot-r strong{display:block;font-size:28px;color:var(--ink);font-weight:900;letter-spacing:0;margin-bottom:4px}
+
+  /* 分章提示条 */
+  .interval{display:flex;align-items:center;gap:18px;margin:64px 0 0;color:var(--muted)}
+  .interval::before,.interval::after{content:"";height:1px;background:var(--rule);flex:1}
+  .interval span{font-family:"Noto Serif SC",serif;font-size:12px;letter-spacing:.3em}
+
+  @media (max-width:980px){
+    .wrap{padding:0 26px}
+    nav.toc{margin:0 -26px;padding:0 26px}
+    .hero{grid-template-columns:1fr;gap:26px}
+    .seal{width:110px;height:110px;font-size:22px;order:-1}
+    .title{font-size:58px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .stat{border-bottom:1px solid var(--rule)}
+    .timeline{padding-left:0}
+    .timeline::before{display:none}
+    .phase .when{position:static;text-align:left;width:auto;margin-bottom:10px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+    .phase .tag{display:inline-block;margin-top:0}
+    .phase .node{display:none}
+    .ev-grid{grid-template-columns:1fr}
+    .num-grid,.rules{grid-template-columns:1fr}
+    .open-item{grid-template-columns:1fr;gap:6px}
+    .sec-head{grid-template-columns:64px 1fr}
+    .sec-no{font-size:40px}
+    .sec-title{font-size:26px}
+    .title{font-size:46px}
+  }
+  @media print{
+    body{background:#fff}
+    nav.toc{display:none}
+    .card,.ev{box-shadow:none}
+    .phase{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ 封面 ============ -->
+  <header class="cover">
+    <div class="topline">
+      <div class="kicker">QQA · DFY / 二开档案</div>
+      <div class="no">卷 一 · 索引长卷</div>
+    </div>
+
+    <div class="hero">
+      <div>
+        <h1 class="title">本机<em>调试编年史</em></h1>
+        <p class="sub">
+          从上游 <b>0.4.0</b> 到本机 <b>0.5.1</b>，从“每轮 14,500 tokens”到“按需发 11 个工具”。<br>
+          这里不重复正文，只把散落在两处 <b>记录\</b>、<b>报表\</b> 与 <b>备份归档\</b> 里的过程，按时间重新串成一条可读的线。
+        </p>
+      </div>
+      <div class="seal"><span>本機</span><span>日志</span></div>
+    </div>
+
+    <div class="meta">
+      <span>时间跨度 2026-10-27 → 11-27</span>
+      <span>32 天</span>
+      <span>2 代内核</span>
+      <span>8 个版本号</span>
+      <span>17 个插件 / 技能</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">32<small>天</small></div><div class="l">连续调试跨度</div></div>
+      <div class="stat"><div class="n">8<small>版</small></div><div class="l">0.4 → dfy.6 → 0.5.1</div></div>
+      <div class="stat"><div class="n">10<small>起</small></div><div class="l">有档案的事故</div></div>
+      <div class="stat"><div class="n">17<small>个</small></div><div class="l">插件与技能</div></div>
+      <div class="stat"><div class="n">31<small>条</small></div><div class="l">编年史入档条目</div></div>
+      <div class="stat"><div class="n">4<small>类</small></div><div class="l">文档/日志/备份/报表</div></div>
+    </div>
+  </header>
+
+  <!-- ============ 导航 ============ -->
+  <nav class="toc">
+    <ul>
+      <li><a href="#timeline"><span class="idx">01</span>编年</a></li>
+      <li><a href="#incidents"><span class="idx">02</span>事故谱</a></li>
+      <li><a href="#numbers"><span class="idx">03</span>数字演进</a></li>
+      <li><a href="#evidence"><span class="idx">04</span>证据地图</a></li>
+      <li><a href="#rules"><span class="idx">05</span>定型口径</a></li>
+      <li><a href="#open"><span class="idx">06</span>还挂着的</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============ 01 编年 ============ -->
+  <section id="timeline">
+    <div class="sec-head">
+      <div class="sec-no">01</div>
+      <div>
+        <h2 class="sec-title">编年：十二段，一条主线</h2>
+        <p class="sec-desc">每一段只回答三个问题：改了什么、为什么改、验成了没有。左侧日期即归档文件名里的时间，右侧“证据”指向可复核的原档。</p>
+      </div>
+    </div>
+
+    <div class="timeline">
+
+      <article class="phase">
+        <div class="when"><div class="range">10-27</div><div class="ver">v1.0.0 → 1.4.3</div><div class="tag">起点</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>先让她能改自己</h3>
+          <p class="lede">人设自修订能力从零建起，一天内走完 1.0.0 → 1.4.3。这条线后来并进 0.5 的全局角色卡，成为 11-19 “人设所有会话共用一份”的前身。</p>
+          <ul>
+            <li>人设可自改，写入全局角色卡 · <code>persona.roleText</code></li>
+            <li>后续拍板：<b>personaUnified = true</b>，自修订只能写全局那份</li>
+          </ul>
+          <div class="src"><code>QQA-迭代历史-2026年11月.md</code> 阶段 0</div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-05 → 11-07</div><div class="ver">0.4.0</div><div class="tag">成本</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>把每轮固定成本压下来</h3>
+          <p class="lede">起点账本：<b>cost = 调用次数 × 每次固定 ≈ 14,500 tokens</b>（system 3,712 + tools 10,800），缓存命中不足 50%。三天里只做一件事：把“每轮都变”的段从 system 里挪走。</p>
+          <ul>
+            <li>表情候选段挪出 system，修 <code>priority</code>（sticker-steal 98→1），命中率出现 18.9%，但候选段仍是断点</li>
+            <li>B 方案：<code>cache-stability</code> 把动态段切到 user —— 已搬段 48 会话加权 <b>69.8%</b>，未搬 7 会话仅 19.7%</li>
+            <li>合批窗口 <code>wakeDelayMs</code> 2000 → 8000 → <b>20000</b>，更省，体感更像人打字</li>
+            <li>11-07 复盘：全天 197 次调用、命中 <b>75.3%</b>（晚高峰 81.1%）；结论是“动态段的种类与频次”才是真变量，不是切割次数</li>
+          </ul>
+          <div class="metrics"><span class="metric">缓存命中 <b>48% → 75.3%</b></span><span class="metric">探针 1,353 行 / 177 次 CUT</span><span class="metric">wakeDelay <b>20s</b></span></div>
+          <div class="src"><code>01-主线-0.4到0.5.1.md</code> §1 · <code>报表\缓存命中率对照报表-20261105至08.html</code></div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-08</div><div class="ver">0.4.0</div><div class="tag">三处大修</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>看图修好、上下文放宽、协议端换代</h3>
+          <p class="lede">当天三处大修全部“改前备份 → 改后验证 → 留回滚点”。也是事故最密的一天：日志风暴的善后、堆损坏崩溃、令牌轮换死锁，全挤在 24 小时里。</p>
+          <ul>
+            <li><b>看图三个根因必须同时解决</b>：旧模型名 <code>glm-4v-flash</code> 已变收费 → 429（智谱 1113 欠费），全库换 <code>glm-4.6v-flash</code>；<code>maxTokens 60</code> 被思考链吃光 → 提到 <b>320</b> 并关思考；裸 <code>catch</code> 吞日志 → 失败写 WARN。直调真图 <b>5/5</b></li>
+            <li><b>超时</b>：首轮后仍 73.1% 失败，14 次失败耗时全在 12,313–13,047 ms，紧贴 12,000 上限 → 抬到 <b>20,000 ms</b> + 429 重试一次；全天 65 次识图，成功 42，成功中位 4,270 ms</li>
+            <li><b>上下文“聊外”</b>：真因是 <code>store.historyCount</code> 被配成 20 → 改 <b>40</b>，轮数 5 → 12（不是思考强度档位的问题）</li>
+            <li>协议端 SnowLuma <b>1.14.19 → 2.4.2</b>；<code>bili-video 1.0.2</code> 加 <code>sendMediaWithRetry</code> / <code>serializeShare</code>，原生发送、零 token</li>
+          </ul>
+          <div class="metrics"><span class="metric">识图失败率 <b>73.1% → 0</b></span><span class="metric">超时 <b>12s → 20s</b></span><span class="metric">历史 20 → 40 条</span></div>
+          <div class="src"><code>01-主线</code> §2 · <code>03-事故与修复.md</code> §2.2 / §2.3 · <code>备份归档\记录原件\优化调试记录-2026-11-08.md</code>（696 行）</div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-09</div><div class="ver">0.4.1-dfy.1</div><div class="tag">安全与口径</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>把“能被伪造的系统段”堵上</h3>
+          <p class="lede">上游 <code>sanitizeUntrustedText</code> 暴露了同一个洞：本机系统段用全角【…】+换行，一条群消息就能伪造。当天立起版本号，也第一次把群黑话收进人设细节库。</p>
+          <ul>
+            <li><b>提示注入加固</b>：<code>sanitizeUserText</code> 三道处理（全角【】降半角、压平 U+2028/2029 与零宽/双向字符、群名片与引用同样净化），8 条用例 <b>8/8</b></li>
+            <li><b>时间视图</b>：消息只带 <code>MM-DD HH:MM</code>，弱模型算不出新旧 → 新增 <code>describeAge</code>（Nm前 / Nh前 / Nd前），单测 <b>13/13</b></li>
+            <li><b>黑话入库</b>：群 636383189 的 12,392 条语料离线挖掘，12 条进 <code>store.json</code>「群内黑话」分类；常驻段 13 条压到 <b>1 条（1,042 B）</b></li>
+            <li><b>版本号</b>定为 <code>0.4.1-dfy.1</code>，读 <code>compareSemver</code> 确认 <code>-dfy</code> 不会触发内建更新检查；脱敏包按 <code>.zcodeignore</code> 手写 8 目录 + 6 文件，复扫又抓出 19 个 <code>*.bak-*</code></li>
+          </ul>
+          <div class="metrics"><span class="metric">注入用例 <b>8/8</b></span><span class="metric">时间用例 <b>13/13</b></span><span class="metric">常驻黑话 13 → <b>1 条</b></span></div>
+          <div class="src"><code>01-主线</code> §3 · <code>QQA-迭代历史</code> 阶段 3</div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-10</div><div class="ver">dfy.2 → dfy.6</div><div class="tag">一天五版</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>一天五个版本，把“感觉快”落成数字</h3>
+          <p class="lede">这一天定下了后面一直沿用的流程：先出「审查单」（问题实测 → 方案 → 动哪些文件 → 风险回滚 → 验证口径 → 待拍板），批了才动代码。</p>
+          <ul>
+            <li><b>dfy.2</b> 时区：<code>process.env.TZ='Asia/Shanghai'</code> 写在所有 import 之前；每 60s 问 <code>get_status</code>，把连接态与账号态分开</li>
+            <li><b>dfy.3</b> 健康探针三条线，诊断两级 → 四级，UI 加 <code>dot-degraded</code> 第四态 + ⚠️ 横幅；真机 14 次采样心跳精确 30s</li>
+            <li><b>dfy.4</b> 控制台卡顿：QQ 进程查询缓存 3s→60s、用量统计双层缓存 —— <code>/api/status</code> 从 6.6s 降到 <b>0.035s</b>（110 次 0 慢）</li>
+            <li><b>dfy.5</b> 识图失败不再静默：失败分支补“我没看清图，别猜”，治 11-09 的 234 次失败 / 112 次“降级后照聊”</li>
+            <li><b>dfy.6</b> 按需工具加载：新增 <code>src\tool-search.js</code>，常驻 10 + 延迟 30；tools <b>57→11</b>，promptTokens <b>17,697→10,191（−42.4%）</b></li>
+          </ul>
+          <div class="metrics"><span class="metric">status <b>6.6s → 0.035s</b></span><span class="metric">tokens <b>−42.4%</b></span><span class="metric">单次 <b>$0.0092 → $0.0038</b></span></div>
+          <div class="src"><code>01-主线</code> §4 · 各版 <code>src\*.bak-*</code> 回滚点</div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-13</div><div class="ver">dfy.6</div><div class="tag">排查方法</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>“你不准记账”，她为什么还在记</h3>
+          <p class="lede">主人下过禁令，她仍说“我脑子里有本账”。三层逐层排除后，发现不是后台在写盘，也不是标签错挂，而是人设里的禁令太抽象。</p>
+          <ul>
+            <li>三层排除：后台插件在写盘？→ 素材在流动但不解释她的话；记忆标签归属是<b>别人</b>（示例用户）；人设只有一行「-禁止说话记账」</li>
+            <li>修法：把抽象禁令改成<b>可判定的原句</b>（<code>roleText</code> 726→780 字）；顺手修 <code>ownerIds</code> 类型 bug（返回 <code>Set</code> 却调 <code>.map</code>）</li>
+            <li>留下<b>四步取证法</b>：① 捞原话（筛 <code>senderId==='self'</code>）② 排后台（比 mtime）③ 看人设/提示词 ④ 改完必须重启（<code>getConfig()</code> 有内存缓存）</li>
+          </ul>
+          <div class="src"><code>01-主线</code> §5 · <code>QQA-迭代历史</code> 阶段 5</div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-14</div><div class="ver">0.5.1</div><div class="tag">整机迁移</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>不是升级，是换了一台发动机</h3>
+          <p class="lede">0.5.1 不是 0.4 的补丁：薄内核 + 20 个可开关扩展，全部从零写。本机 11 插件 + 6 技能没有一条能直搬，全靠 <code>compat-04</code> 兼容垫片接管。</p>
+          <ul>
+            <li>迁移踩的两处：恢复私聊/群聊分档等待（<code>wakeDelayMsPrivate</code> 8s / 15s）；<code>memory-plus</code> 的 <code>permissions: []</code> 没声明 <code>data.sessions.read</code> → Electron 未捕获异常 → <code>app.exit(1)</code></li>
+            <li><b>persona-detail 管理面板</b>：0.5 不给插件自注册路由 → 走组合层 <code>overrides\&lt;层&gt;\composition.json</code> 的 <code>routes</code> 贡献，13 条 <code>/api/persona-detail/*</code> 与 <code>admin.html</code> 全部 200，<b>内核一行未改</b></li>
+            <li>运行失败弹窗：<code>installFatalHandlers</code> 把任何插件后台尾巴判死 → <code>unhandledRejection</code> 改<b>白名单</b></li>
+            <li>没搬完三件：UI 11 个自制文件、bili-video 转发链路、sticker-steal 的 <code>recent.filter</code></li>
+          </ul>
+          <div class="metrics"><span class="metric">20 个内置扩展</span><span class="metric">10 个面板</span><span class="metric">13 条路由 <b>200</b></span></div>
+          <div class="src"><code>01-主线</code> §6 · <code>docs\v04-extension-parity.md</code>（25 KB 逐项对照）· <code>03-事故</code> §2.6</div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-15 → 11-19</div><div class="ver">0.5.1</div><div class="tag">补丁与收口</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>先把功能补齐，再把结构收口</h3>
+          <p class="lede">这是“从能跑到不打架”的一段：余额入口打通、记忆面板改造、表情族收口、断线治理落地，也发生了最贵的一次事故。</p>
+          <ul>
+            <li><b>deepseek-balance</b> 配置打通：<code>baseOrigin</code> / <code>balanceUrl</code> / <code>balancePath</code>；记忆面板保留 0.5 自带页，只加“条目前置复选框 + 晋升删除 + 三类分区”</li>
+            <li><b>11-19 拍板五条</b>：记忆做功能融合但两步走；撞功能要“<b>收口</b>”不是“收纳”；垃圾先出清单；<code>hello</code> / <code>voice-to-text</code> / <code>affinity</code> 保持 disabled；双模型兜底不得以“简化”为由砍掉</li>
+            <li><b>表情族收口</b>：停 <code>sticker-tools</code>，移出 4 个工具，保留 sticker-steal；<code>/api/skills</code> 收到 <b>36 total / 31 active / 5 disabled / 0 broken</b></li>
+            <li><b>断线治理 A→C→B</b>：<code>client.js</code> 补 <code>stageSince/attempts/lastReadyAt/degraded</code>；连续 6 次失败进降级（30s→2min，<b>不停止重连</b>）；<code>transport-notice</code> 私聊告警 ≥60s 才报</li>
+            <li><b>最贵事故</b>：11:48 运行中删约 330 个 <code>extension-cache</code> → 插件代码指纹失效 → 程序自毁、清空 <code>resources\app</code>；用 970 文件基线 + 608 文件最新快照拼回；防复发靠运行守卫 + 停机才清缓存</li>
+            <li>巡检三处加剧自重启的逻辑：19 个 <code>.stale-*</code> 锁从不清、WMI 一次查空就重启、<code>Start-Main</code> 无差别 <code>Stop-Process</code> → 全部修掉，并补上开机自启链</li>
+          </ul>
+          <div class="metrics"><span class="metric">扩展 <b>36 → 31 active / 5 disabled</b></span><span class="metric">7 个重复工具移出</span><span class="metric">降级 ≠ 放弃</span></div>
+          <div class="src"><code>01-主线</code> §7–§8 · <code>03-事故</code> §2.5 / §2.8 · <code>文件清理分类清单-20261119.md</code></div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-20 → 11-22</div><div class="ver">0.5.1</div><div class="tag">插件回填</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>插件回填：从“能发”到“发得对”</h3>
+          <p class="lede">迁移期丢掉的能力，在这三天逐条补回。每条都在真机上验过，不是“代码写完就算”。</p>
+          <ul>
+            <li><b>xhh-post 1.0.1 → 1.0.11</b>：<code>/bbs/app/link/tree/v2</code> 抓正文、<code>/bbs/app/link/tree</code> 抓评论，每请求 hkey 签名；短文直发原文+图，长文压缩总结+评论话题；纯图/视频帖、最多 4 张看图整理、评论按方向分类</li>
+            <li><b>bili-video 1.0.4</b>：发送者白名单 <code>allowSenders</code>，白名单外直接跳过；<b>impression-audit 1.0.2 退役</b>，记忆审计并入 memory-plus；<b>ai-flavor 1.0.1</b> 把风格指令从 system 尾部改挂 user 末尾，system 逐字节固定吃满前缀缓存</li>
+            <li><b>affinity 1.6.0</b>：主人口令打赏记账，金额档位自动加好感度，档位/分值/单日封顶可调；<b>topic-ledger 1.0.0</b> 首版：白名单事件链记账、静默收尾归档</li>
+            <li>11-22 把 0.5.1 本体打成“无个人数据”完整包：195 MB / 1,153 项，SHA256 <code>5A044211…7103</code>，排除 <code>data-v05</code>、协议端 config、日志、<code>_patch-kit</code> 与全部 <code>*.bak</code></li>
+          </ul>
+          <div class="metrics"><span class="metric">xhh-post <b>11 个版本</b></span><span class="metric">插件 17 个</span><span class="metric">脱敏包 195 MB</span></div>
+          <div class="src"><code>QQA-迭代历史</code> 阶段 8 · <code>记录\2026-11-20-小黑盒转发插件.md</code></div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-23 → 11-24</div><div class="ver">0.5.1</div><div class="tag">重构与重定</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>一天十个版本：记忆、台账、好感度同时重构</h3>
+          <p class="lede">这段的关键不是“加功能”，而是把三套会互相打架的机制重新定了口径。好感度一天走了五轮“缩了又回滚”，是反复最多的一条线。</p>
+          <ul>
+            <li><b>memory-plus 2.8.0 → 2.9.3</b>：改成按 QQ 号一人一份档案（<code>lib/profile.js</code>：画像/个性标签/长期/事件/候选/审计），旧库 257 条长期去重合并；后台收成三层，短期变纯原料池（不进提示词），候选攒够 3 次才转正</li>
+            <li><b>关键点提取</b>：先按生活事实信号词筛“没人接的那句话”，允许收本人自述的就医/家里事/钱/工作/日程；再加第一人称门槛，互怼/扮演句全拦；候选再过问句过滤，“我的”不算自述，筛不到整段跳过（实测 1,500 条 → 0 句 → 跳过）</li>
+            <li><b>topic-ledger 1.0.1 → 1.2.8</b>：解析失败重试三次、台账页取数解包、补录“变更”栏、静默收尾 10→5→8 分钟、引用回复回绑、事件链标“谁 → 谁”、碎片归并、“未决/约定”改成“还没结果/答应过还没办”治“幻觉自己干过”</li>
+            <li><b>affinity 1.6.1 → 1.7.0</b>：负面刷分冷却 → 窗口累计 → 抗性改护盾 → 分数缩 20 倍 → 回滚 → 缩到 200 满 → 护盾恢复 20→120 分钟 → 陌生人取消护甲 → 情绪分值回到“每次只动一点”（3,1,0,-1,-2）</li>
+            <li><b>sticker-steal 5.5.4 → 5.5.8</b>：只用 QQ 收藏表情、文案与工具实况对齐、与宿主【表情包策略】彻底去重，时机与频率交宿主</li>
+            <li><b>OneBot 两次掉线</b>：11-23 <code>ECONNREFUSED 64888</code>，根因 <code>.qq-agent-runtime.lock</code> 残留（PID 全死、<code>uncertainTree:true</code>）→ 删锁重启，45s 恢复；11-24 <code>connected=False 52754</code>，日志停在 <code>awaiting EULA/PRIVACY consent</code>、<code>acceptedAt</code> 为 null → 补时间戳仍不通，真因是 <b>QQ 客户端进程不存在</b>（协议端靠 hook 注入）→ 启动 QQ 后 10s 恢复</li>
+          </ul>
+          <div class="metrics"><span class="metric">memory <b>2.8.0 → 2.9.3</b></span><span class="metric">台账 <b>20 版</b></span><span class="metric">好感度 <b>五轮</b></span><span class="metric">OneBot 掉线 <b>2 次</b></span></div>
+          <div class="src"><code>QQA-迭代历史</code> 阶段 9 · 各插件 <code>CHANGELOG.md</code> 与 <code>plugin.json</code> 更新记录</div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-25 → 11-26</div><div class="ver">0.5.1 · 现役</div><div class="tag">收尾</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>锁、身份，和一条 21 秒的启动线</h3>
+          <p class="lede">最后两天没有再堆功能，而是把“开机连不上”这条最影响体感的链路，从“白等一两分钟 + 人工删锁”压到“21 秒全自动”。</p>
+          <ul>
+            <li><b>11-25 记忆继续收</b>：memory-plus 2.9.3 一路推到 <b>2.12.0</b>；<code>index.mjs</code>（176 KB）/ <code>profile.mjs</code>（24 KB）当天做语法核查与快照，留在 <code>备份归档\_syntax</code></li>
+            <li><b>11-26 面板“未连接”三层根因</b>：表层是宿主没启动 OneBot 传输（<code>everConnected=false</code>，日志无 <code>[onebot] 连接 WS</code>）；中层是主账号被写进 <code>removedAccounts</code>、<code>wanted=false</code>；底层是关机残留 <code>.qq-agent-runtime.lock</code>（<code>uncertainTree:true</code>），宿主判定“上次没停干净”直接拒绝启动 SnowLuma</li>
+            <li><b>根治</b>：<code>dafeiyu-watchdog.ps1</code> 新增 <code>Clear-StaleProtocolLock</code> —— 有 SnowLuma node 进程就保留锁；没有则读 <code>ownerPid/childPid</code>，都退出才删，并清 <code>*.stale-*</code>；调用点两个（开机预检、<code>Start-Main</code> 前）。重启连上 <b>77s → 21s</b></li>
+            <li><b>下午四个校验补丁</b>：<code>Test-ConnectionIdentity</code> 五项全过才算健康（stage / identityBound / selfId / 注入 PID = QQ 主进程 PID / <code>get_login_info</code> 账号）、注入 PID 比对、<code>Repair-RemovedAccount</code> 仅在误删本机号时兜底、健康时只写一行决策日志</li>
+            <li><b>踩到的坑</b>：Windows PowerShell 5.1 的 <code>ConvertFrom-Json</code> 解析宿主 <code>config.json</code> 抛错，异常文本把整段 JSON 灌进 <code>watchdog.log</code>；第一版因此误判并触发一次重拉。修法：脚本内不解析整份 config，改用正则只取 <code>onebot</code> 段；测试必须用 <code>powershell.exe</code> 5.1，不能只用 pwsh 7</li>
+            <li><b>现役版本</b>：memory-plus 2.12.0 · topic-ledger 1.2.9 · affinity 1.7.1 · sticker-steal 5.5.8 · xhh-post 1.0.11 · deepseek-balance 1.9.1</li>
+          </ul>
+          <div class="metrics"><span class="metric">启动恢复 <b>77s → 21s</b></span><span class="metric">memory-plus <b>2.12.0</b></span><span class="metric">校验 5 项</span></div>
+          <div class="src"><code>记录\2026-11-26-OneBot未连接排障.md</code>（今日 15:28）· <code>备份归档\_syntax</code></div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-26→27</div><div class="ver">0.5.1 · 元</div><div class="tag">入档</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>编年史自己进了档案</h3>
+          <p class="lede">把前 31 天压成可查的条目，而不是每轮往提示词里灌 400 字。第一版装了注入，被主人当场否掉；第二版删钩子，改走按需档案。</p>
+          <ul>
+            <li><b>1.0.0 → 1.0.1</b>：<code>dfy-chronicle</code> 先做 4 个工具 + <code>/编年史</code>，每轮向 system 尾贴约 400 字索引；主人判“无意义消耗”，1.0.1 把 <code>before-llm-messages</code> 钩子整段删除，日志写明“只读检索，不注入提示词”。</li>
+            <li><b>入档</b>：31 条要点写进 <code>store.json</code> 的「调试档案」分类（#52–#82，总 73/100 条），每条 ≤124 字；原档先备份 <code>store-backup-20261126-172355-before-chronicle.json</code>；HTML 与长图另存 <code>记录\档案\本机调试编年史_2026-11-26.*</code>。</li>
+            <li><b>查询实测</b>：<code>query_persona_detail</code> 按需命中——OneBot 掉线→I8/I9/I10；缓存→P2（48→75.3%）；dfy.6→P5（tokens −42.4%）；resources app→I7/P8。<code>/编年史</code> 与发长图保留，只在主动用时触发。</li>
+            <li><b>代价</b>：档案 73/100，余 27 槽；四个工具声明仍在工具列表，但不再有每轮提示词开销。</li>
+            <li><b>同批补档</b>：<code>bili-video</code> 1.0.5 完成 0.5 适配——发送走 <code>sender.sendMedia</code>（视频独占一条、文案另发），<code>sendVideoBody=true</code>、<code>qn=64</code>，11-26 12:49 实测 720P《这野人魔了》15.8MB 转发成功；G1 准入护栏落在记忆写入：<code>fact/relation</code> 遇「扮演/玩梗/自称/串戏」等词自动降级为 <code>general</code>，<code>preference/appointment</code> 不动，tool/auto/rule 三条路径统一过 <code>addShort</code>。</li>
+            <li><b>同批补档（UI）</b>：<code>topic-ledger</code> 1.3.1 台账页——进行中的链两击「强制收尾」，页头「全部收尾（N）」一次收当前全部，详情标「手动强制收尾」；底层 <code>force_close</code> 配套。</li>
+          </ul>
+          <div class="metrics"><span class="metric">注入 <b>400 字/轮 → 0</b></span><span class="metric">档案 <b>31 条</b></span><span class="metric">查询命中 <b>4/4</b></span></div>
+          <div class="src"><code>store.json</code> #52–#82 · <code>extensions\plugins\dfy-chronicle</code> 1.0.1→1.0.4 · 2026-11-27 复核</div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="interval"><span>以下为横切面</span></div>
+  </section>
+
+  <!-- ============ 02 事故谱 ============ -->
+  <section id="incidents">
+    <div class="sec-head">
+      <div class="sec-no">02</div>
+      <div>
+        <h2 class="sec-title">事故谱：十起有档案的坏法</h2>
+        <p class="sec-desc">按发生时间排序。右边“处置”只写真正落地的那一下；每条都能在 <code>03-事故与修复.md</code> 或当日记录里找到原始证据。</p>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th style="width:118px">时间</th><th style="width:26%">事故</th><th>一句话根因</th><th style="width:32%">处置 / 留下的规则</th></tr></thead>
+      <tbody>
+        <tr><td>11-05 23:29</td><td><span class="name">SnowLuma 日志风暴</span></td><td>孤儿进程 EPIPE 被 “kept alive” 无限重写</td><td>20 分钟产出 21 个 50MB 分片 → 清到 1.83 MB + 加轮转</td></tr>
+        <tr><td>11-06 18:34</td><td><span class="name">SnowLuma 堆损坏</span><span class="bad">静默 19 分钟</span></td><td>B 站视频真实上传路径上的原生堆损坏（<code>0xC0000374</code>）</td><td>加崩溃自愈 + 退出码落盘 + <code>SNOW-EXIT</code> 告警；内存改 5 进程合计口径</td></tr>
+        <tr><td>11-08 上午</td><td><span class="name">令牌轮换死锁</span><span class="bad">卡 18 分钟</span></td><td>只认字符串 <code>"401"</code>，SnowLuma 实际报 <code>rejected unauthorized</code>，恢复钩子永不触发</td><td>正则放宽为 <code>/401|403|unauthori[sz]ed/i</code> + 轮换冷却 60s</td></tr>
+        <tr><td>11-08 17:22</td><td><span class="name">看图全失败</span></td><td>旧模型名变收费 429 + <code>maxTokens 60</code> 被思考链吃光 + 裸 <code>catch</code> 无日志</td><td>换模型 + 320 token + 失败留痕；真图 5/5</td></tr>
+        <tr><td>11-09</td><td><span class="name">store.json 静默失败</span></td><td>手改多一个逗号 → <code>JSON.parse</code> 抛错被 catch 成空档案</td><td>42 条全查不到且无报错 → 定规矩：改完必须验一遍 JSON</td></tr>
+        <tr><td>11-14 20:48</td><td><span class="name">运行失败弹窗</span></td><td><code>installFatalHandlers</code> 把任何插件后台尾巴都判死</td><td><code>unhandledRejection</code> 改白名单；顺带修 <code>recentMessages()</code> 适配</td></tr>
+        <tr><td>11-19 11:48</td><td><span class="name">resources\app 被清空</span><span class="bad">最贵</span></td><td>运行中删 <code>extension-cache</code> → 插件代码指纹失效 → 程序自毁</td><td>970 + 608 文件快照拼回；<code>trim-logs.ps1</code> 加运行守卫；停机才清缓存</td></tr>
+        <tr><td>11-23</td><td><span class="name">OneBot 掉线 ①</span></td><td><code>.qq-agent-runtime.lock</code> 残留，PID 全死、<code>uncertainTree:true</code></td><td>删锁重启，45s 后 <code>connected=True</code></td></tr>
+        <tr><td>11-24</td><td><span class="name">OneBot 掉线 ②</span></td><td><code>awaiting EULA</code> + <b>QQ 进程不存在</b>（协议端无注入目标）</td><td>补 <code>acceptedAt</code> + 启动 QQ，10s 恢复</td></tr>
+        <tr><td>11-26 12:51</td><td><span class="name">开面板“未连接”</span></td><td>宿主未启动传输 + 主账号被标 removed + 关机锁残留</td><td><code>Clear-StaleProtocolLock</code> + 账号兜底；77s → 21s 全自动</td></tr>
+      </tbody>
+    </table>
+    <p class="tbl-note">注：11-09 的“重启风暴”与 11-19 00:20 的“高频自重启”后来都定案为人为调试，不作为故障计入；只保留“watch 误报”与“锁残留”这两个真问题。</p>
+  </section>
+
+  <!-- ============ 03 数字 ============ -->
+  <section id="numbers">
+    <div class="sec-head">
+      <div class="sec-no">03</div>
+      <div>
+        <h2 class="sec-title">数字演进：能被复核的“变好了”</h2>
+        <p class="sec-desc">所有“感觉快了”最后都落成可复现的数字。左边是起点，右边是当前口径；中间不复述过程。</p>
+      </div>
+    </div>
+
+    <div class="num-grid">
+      <div class="num-head"><span>指标</span><span>起点</span><span>现在</span></div>
+      <div class="num-head"><span>指标</span><span>起点</span><span>现在</span></div>
+
+      <div class="numrow"><div class="k">每轮 promptTokens</div><div class="a">17,697</div><div class="b">10,191</div></div>
+      <div class="numrow"><div class="k">每轮下发工具数</div><div class="a">57（0.4 全量）</div><div class="b">15 + 延迟池 18</div></div>
+
+      <div class="numrow"><div class="k">缓存命中率</div><div class="a">≈48%</div><div class="b">75.3%</div></div>
+      <div class="numrow"><div class="k">单次调用成本</div><div class="a">$0.0092</div><div class="b">$0.0038</div></div>
+
+      <div class="numrow"><div class="k">/api/status 最慢</div><div class="a">6.6 s</div><div class="b">0.035 s</div></div>
+      <div class="numrow"><div class="k">扩展状态</div><div class="a">36 total</div><div class="b">31 active / 5 disabled</div></div>
+
+      <div class="numrow"><div class="k">识图失败率</div><div class="a">73.1%</div><div class="b">0（真图 5/5）</div></div>
+      <div class="numrow"><div class="k">OneBot 开机恢复</div><div class="a">77 s（需人工删锁）</div><div class="b">21 s（全自动）</div></div>
+    </div>
+    <p class="tbl-note">口径来源：11-07 全天 197 次调用统计；dfy.6 改造前后同口径对比；11-26 改前/改后各一次真实重启实测。</p>
+  </section>
+
+  <!-- ============ 04 证据 ============ -->
+  <section id="evidence">
+    <div class="sec-head">
+      <div class="sec-no">04</div>
+      <div>
+        <h2 class="sec-title">证据地图：过程到底存在哪</h2>
+        <p class="sec-desc">同一段历史有三种证据：写给人看的复盘、机器自动写的日志、以及能回滚的版本快照。三者能互相对上，档案才算成立。</p>
+      </div>
+    </div>
+
+    <div class="ev-grid">
+      <div class="ev">
+        <h4>成文复盘 <span>DOC</span></h4>
+        <p class="hint">在 <code><工作目录>\记录</code> 与 <code><工作目录></code>，按卷合并。</p>
+        <ul>
+          <li><span class="s">15.9 KB</span><span class="f">01-主线-0.4到0.5.1.md</span><span class="p"><工作目录>\记录\ · 11-19 14:59</span></li>
+          <li><span class="s">13.1 KB</span><span class="f">02-方案与解析.md</span><span class="p"><工作目录>\记录\ · 上游取舍</span></li>
+          <li><span class="s">12.0 KB</span><span class="f">03-事故与修复.md</span><span class="p"><工作目录>\记录\ · 事故 + 排错手册</span></li>
+          <li><span class="s">19.9 KB</span><span class="f">QQA-迭代历史-2026年11月.md</span><span class="p"><工作目录>\ · 11-24 21:11</span></li>
+          <li><span class="s">8.1 KB</span><span class="f">2026-11-26-OneBot未连接排障.md</span><span class="p"><工作目录>\记录\ · 今天 15:28</span></li>
+          <li><span class="s">19.1 KB</span><span class="f">2026-11-20-小黑盒转发插件.md</span><span class="p"><工作目录>\记录\ · 11-21 21:25</span></li>
+          <li><span class="s">9.9 KB</span><span class="f">记忆审计插件-设计交接-20261119.md</span><span class="p"><工作目录>\记录\</span></li>
+        </ul>
+      </div>
+
+      <div class="ev">
+        <h4>运行日志 <span>LOG</span></h4>
+        <p class="hint">机器写的原始证据；崩溃、断线、token 轮换都先落在这里。</p>
+        <ul>
+          <li><span class="s">22 个 · 3.98 MB</span><span class="f">data-v05\logs\YYYY-MM-DD.log</span><span class="p"><工作目录>\QQAgent-0.5\ · 11-19 → 11-26</span></li>
+          <li><span class="s">0.43 MB</span><span class="f">data-v05\boot-diag.log</span><span class="p">启动诊断，含 fatal 与 startup-failed</span></li>
+          <li><span class="s">0.16 MB</span><span class="f">logs\watchdog.log</span><span class="p">守护判定、重拉、清锁记录</span></li>
+          <li><span class="s">71.8 KB</span><span class="f">cache-probe-20261106.log</span><span class="p"><工作目录>\记录\日志\ · 1,353 行 / 177 次 CUT</span></li>
+          <li><span class="s">2.7 KB</span><span class="f">snowluma-2026-11-05-EPIPE日志样本.txt</span><span class="p">日志风暴原件</span></li>
+          <li><span class="s">5 份</span><span class="f">日志\临时输出\</span><span class="p">debug_tail / all_short / merged_mem / route_test / 当晚数据</span></li>
+          <li><span class="s">存档</span><span class="f">data-v05\sessions\</span><span class="p">每轮 systemPrompt / userPrompt / 结束原因</span></li>
+        </ul>
+      </div>
+
+      <div class="ev">
+        <h4>版本与数据 <span>BACKUP</span></h4>
+        <p class="hint">能回滚、能量化，才算把经验固化成资产。</p>
+        <ul>
+          <li><span class="s">11-19 / 11-22 / 11-24</span><span class="f">备份归档\本体与插件 · 坏掉-20261119-1715 · 记忆重构前_20261124</span><span class="p"><工作目录>\备份归档\</span></li>
+          <li><span class="s">11-25</span><span class="f">备份归档\_syntax\</span><span class="p">memory-plus index.mjs / profile.mjs 语法快照</span></li>
+          <li><span class="s">544.6 KB</span><span class="f">本机-插件集-稳定版-20261122.zip</span><span class="p"><工作目录>\备份\</span></li>
+          <li><span class="s">481.7 KB</span><span class="f">缓存命中基线-全量合并.csv</span><span class="p"><工作目录>\报表\数据\ · 10-28 → 11-24 单日</span></li>
+          <li><span class="s">31 KB</span><span class="f">缓存命中率对照报表-20261105至08.html</span><span class="p">可交互对照页</span></li>
+          <li><span class="s">19.4 / 7.3 KB</span><span class="f">历史台账总览.md · 台账指标测试报告.md</span><span class="p"><工作目录>\</span></li>
+          <li><span class="s">18 份</span><span class="f">data-v05\extension-cache 各插件快照</span><span class="p">含 2.6.x → 2.12.0 的 memory-plus 全部代际</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="tbl-note"><b>已知缺口</b>：11-05 之前的调试没有成文，只剩零星临时输出；11-07 的逐次调用明细在报表里，不在文档里；11-08 全天最细的账在 <code>备份归档\记录原件\优化调试记录-2026-11-08.md</code>（696 行），尚未并入三卷本。</p>
+  </section>
+
+  <!-- ============ 05 口径 ============ -->
+  <section id="rules">
+    <div class="sec-head">
+      <div class="sec-no">05</div>
+      <div>
+        <h2 class="sec-title">定型口径：从事故里长出来的七条</h2>
+        <p class="sec-desc">这些不是“最佳实践”，是踩过一次、付过代价之后写进流程的硬约束。</p>
+      </div>
+    </div>
+
+    <div class="rules">
+      <div class="rule"><div class="rn"></div><p><b>同族并存必然选错。</b>同一动作前面摆 4 个名字，模型就会选错；表情族 120 次 vs 319 次是证据。撞功能要“收口”，不是“收纳”。</p></div>
+      <div class="rule"><div class="rn"></div><p><b>能重建的别留多份，装不回来的才配多份备份。</b>删东西先出清单；三项全满足才删：有第二份可用副本、运行不读取、可重建。</p></div>
+      <div class="rule"><div class="rn"></div><p><b>静态常驻段每轮都付费。</b>只有“每轮都可能被误读的极短结论”才进常驻，其余进按需库；同一事实只允许一个权威来源。</p></div>
+      <div class="rule"><div class="rn"></div><p><b>先量化再改。</b>所有“感觉快了”都要落成可复现的数字；改前备份、改后验证、留回滚点，三步缺一不可。</p></div>
+      <div class="rule"><div class="rn"></div><p><b>改完必须验 JSON / 语法 + 重启。</b><code>src\</code> 不走热重载，<code>getConfig()</code> 有内存缓存；<code>catch {}</code> 是排查的头号敌人。</p></div>
+      <div class="rule"><div class="rn"></div><p><b>脚本三铁律。</b><code>.ps1</code> 一律 UTF-8 带 BOM；<code>.bat</code> 一律 CRLF 且不写中文；bat 引用同目录资源用绝对路径，别依赖 <code>%~dp0</code>。</p></div>
+      <div class="rule"><div class="rn"></div><p><b>降级 ≠ 放弃。</b>断线只做“停主动发言 + 日志降噪 + 状态标记”，重连永不停止；通知是尽力而为，最终靠 <code>[TRANSPORT-ALERT]</code> 日志兜底。</p></div>
+    </div>
+  </section>
+
+  <!-- ============ 06 还挂着 ============ -->
+  <section id="open">
+    <div class="sec-head">
+      <div class="sec-no">06</div>
+      <div>
+        <h2 class="sec-title">还挂着的：两个没做完，四个已闭环/有约定</h2>
+        <p class="sec-desc">档案不只记“做成了什么”，也记“知道没做、先不做”的部分。以下按 11-27 运行态复核；已闭环的留在表里做对照，不再算缺口。</p>
+      </div>
+    </div>
+
+    <div class="open-list">
+      <div class="open-item">
+        <div class="what">bili-video 重写</div>
+        <div class="why">0.5 适配已落地：发送走 <code>sender.sendMedia</code>（视频独占一条、文案另发），<code>sendVideoBody=true</code>、<code>qn=64</code>；11-26 12:49 实测 720P《这野人魔了》15.8MB 转发成功。旧的 <code>execution.send</code> 限制不再是阻塞。</div>
+        <div class="st">已闭环</div>
+      </div>
+      <div class="open-item">
+        <div class="what">UI 11 个自制文件</div>
+        <div class="why">0.5 用 <code>ui.uikit + sharedAppearance</code>，<code>src/ui</code> 会被自动更新整体替换；只能按新体系重做，或走 <code>overrides\ui.assets / ui.panels</code>。</div>
+        <div class="st">待重做</div>
+      </div>
+      <div class="open-item">
+        <div class="what">记忆准入护栏</div>
+        <div class="why">写入前确定性降级：<code>fact/relation</code> 遇「扮演/玩梗/自称/串戏」等词改 <code>general</code>；tool/auto/rule 三条路径统一过 <code>addShort</code>。</div>
+        <div class="st">已闭环</div>
+      </div>
+      <div class="open-item">
+        <div class="what">协议端开机自启</div>
+        <div class="why">QQ 需随机自启，否则协议端没有注入目标，表现就是“OneBot 掉线”。当前靠人记得先开 QQ。</div>
+        <div class="st">运维约定</div>
+      </div>
+      <div class="open-item">
+        <div class="what">黑话统计预筛</div>
+        <div class="why">Node 无中文分词，暂缓；目前靠离线挖掘 + 人工入库，不自动学习。</div>
+        <div class="st">暂缓</div>
+      </div>
+      <div class="open-item">
+        <div class="what">OneBot 开机锁预检</div>
+        <div class="why">11-26 已落地 <code>Clear-StaleProtocolLock</code> + 五项身份校验，实测 21 秒自动恢复——这条已从“缺口”移出，列入已闭环。</div>
+        <div class="st" style="color:var(--teal);border-color:rgba(47,107,99,.45)">已闭环</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 尾 ============ -->
+  <footer>
+    <div class="foot-l">
+      <div class="mark">本机调试编年史</div>
+      <p>本页只做索引与串联，细节、原始日志与逐版 diff 仍以 <code>记录\</code> 三卷本、<code>2026-11-26-OneBot未连接排障.md</code> 与 <code>备份归档\</code> 为准。资料截至 2026-11-27 01:40；现役版本以运行态 <code>extension-cache</code> 的 <code>plugin.json</code> 为准。</p>
+    </div>
+    <div class="foot-r">
+      <strong>2026 · 11</strong>
+      QQA / DFY<br>
+      32 DAYS · 10 INCIDENTS
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

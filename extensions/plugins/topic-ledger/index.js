@@ -14,7 +14,7 @@ import path from 'node:path';
 import { loadWhitelist, chatKeysOfWhitelist, loadMessages, fileStamp, messageFile, chatKindOf, chatIdOf } from './lib/archive.js';
 import { MESSAGES_DIR, CONFIG_FILE, LEDGER_ROOT, STATE_FILE } from './lib/paths.js';
 import * as S from './lib/state.js';
-import { draftChain, patchChain, dbg } from './lib/model.js';
+import { draftChain, patchChain, refineChain, dbg } from './lib/model.js';
 import { writeMemory } from './lib/memory.js';
 import { runBackfill, backfillStatus } from './lib/backfill.js';
 
@@ -172,6 +172,26 @@ function finalizeLocal(chain, now) {
   S.writeChatMarkdown(state, chain.chatKey);
 }
 
+/**
+ * 强制收尾的秒收路径：不调模型，有初稿就直接封存，没初稿才用原话压一条。
+ * 关机前用，不能等下一轮扫描。
+ */
+function sealLocal(chain, now) {
+  chain.status = 'closed';
+  chain.closedAt = Number(chain.lastTs) || Number(now);
+  chain.lastError = '';
+  chain.finalizeMode = 'fast';
+  // 尾段不许塞进事实里污染账本；只留一个提示，想看原话去消息存档翻。
+  const undrafted = (chain.msgs || []).slice(Number(chain.draftedCount) || 0).filter((m) => !m.self);
+  chain.tailNote = chain.draftedAt && undrafted.length ? `秒收：还有 ${undrafted.length} 条尾段未入初稿` : '';
+  if (chain.draftedAt) {
+    chain.finalizedAt = Number(now);
+    S.writeChatMarkdown(state, chain.chatKey);
+    return;
+  }
+  finalizeLocal(chain, now);
+}
+
 async function runJobs() {
   const st = ensureState();
   const s = settings();
@@ -205,6 +225,35 @@ async function runJobs() {
 
     // 收尾：出终稿（没初稿的先补一次）
     if (chain.status === 'closed' && !chain.finalizedAt) {
+      // 手动「精修收尾」：不管有没有新消息，都让模型把已有条目和整条链再收一遍。
+      if (chain.refineRequested) {
+        chain.refineRequested = false;
+        if (!canModel) {
+          chain.finalizeMode = 'local-budget';
+          finalizeLocal(chain, now);
+          changed = true;
+          continue;
+        }
+        const r = await refineChain(chain, { maxInputChars: Math.min(3000, Math.max(maxChars, 2200)) });
+        calls += 1;
+        st.budget.calls += 1;
+        if (r.usage) {
+          st.budget.promptTokens += r.usage.promptTokens || 0;
+          st.budget.completionTokens += r.usage.completionTokens || 0;
+        }
+        if (r.ok) {
+          S.applyFinalEntry(chain, r.entry, Date.now());
+          chain.finalizeMode = 'refined';
+        } else {
+          chain.lastError = r.error || '';
+          chain.finalizeMode = 'refine-failed';
+        }
+        chain.finalizedAt = Date.now();
+        chain.status = 'closed';
+        S.writeChatMarkdown(st, chain.chatKey);
+        changed = true;
+        continue;
+      }
       if (!chain.draftedAt) {
         if (!canModel || (Number(chain.draftAttempts) || 0) >= 3) { finalizeLocal(chain, now); changed = true; continue; }
         const r = await draftChain(chain, { maxInputChars: maxChars });
@@ -227,7 +276,7 @@ async function runJobs() {
           changed = true;
           continue;
         }
-      } else if (chain.count > chain.draftedCount && canModel && now - chain.updatedAt >= 60000) {
+      } else if (chain.count > chain.draftedCount && canModel && (chain.splitReason === 'manual' || now - chain.updatedAt >= 60000)) {
         const r = await patchChain(chain, { maxInputChars: maxChars, sinceCount: chain.draftedCount });
         calls += 1;
         st.budget.calls += 1;
@@ -495,8 +544,14 @@ function panelPayload() {
         pairs: Array.isArray(c.counterparts) ? c.counterparts : [],
         pairText: S.pairLineRaw(c),
         memoryWritten: c.memoryWritten,
+        splitReason: c.splitReason || '',
+        manualClosedAt: c.manualClosedAt || 0,
         midsCount: Array.isArray(c.mids) ? c.mids.length : 0,
         drafted: Boolean(c.draftedAt),
+        finalized: Boolean(c.finalizedAt),
+        refining: Boolean(c.refineRequested),
+        finalizeMode: c.finalizeMode || '',
+        tailNote: c.tailNote || '',
         error: c.lastError || ''
       }))
   };
@@ -636,6 +691,75 @@ function registerTools(a) {
     async execute() {
       try { return { content: JSON.stringify(panelPayload()) }; } catch (error) {
         return { content: JSON.stringify({ error: String(error?.message ?? error) }), isError: true };
+      }
+    }
+  });
+
+  a.registerTool({
+    id: 'force_close',
+    name: '强制收尾',
+    description: '把进行中的事件链封掉。refine=false（默认）秒收：用现有初稿当场封存、不调模型，适合关机前；refine=true 精修：封链后让模型把已有条目和整条链再收一遍终稿，慢一点、会消耗调用次数；已经秒收且未封版/未写长期记忆的链，传 id + refine=true 可以补精修。传 id 收一条，传 chatKey 收这个会话全部进行中的，传 all=true 收全账期。只在用户明确说「这条收尾」「这个话题结束」「全部收尾」「要关机了」「精修一下」时用。',
+    category: 'memory',
+    parameters: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: '事件链 id（台账页每条右上角 T 编号对应的 id；面板会直接传）' },
+        chatKey: { type: 'string', description: '会话 key，如 group:123456；不传 id 时收这个会话的所有进行中链' },
+        all: { type: 'boolean', description: '收掉全账期所有进行中链，默认 false' },
+        refine: { type: 'boolean', description: 'true=精修终稿（调模型，慢）；默认 false=秒收（不调模型）' }
+      },
+      required: []
+    },
+    async execute(ctx, args) {
+      try {
+        const id = String(args?.id || '').trim();
+        const chatKey = String(args?.chatKey || '').trim();
+        const all = args?.all === true;
+        const refine = args?.refine === true;
+        if (!id && !chatKey && !all) return { content: '要收尾得指定 id、chatKey 或 all=true', isError: true };
+        const st = ensureState();
+        const now = Date.now();
+        let closed = S.forceCloseChains(st, { id, chatKey, all, now });
+        // 补精修：已经秒收、还没封版/没写长期记忆的链，允许再补一版终稿。
+        if (refine && !closed.length && id) {
+          const old = st.chains.find((c) => String(c.id) === id);
+          const fast = old && old.status === 'closed' && !old.memoryWritten && (old.finalizeMode === 'fast' || old.finalizeMode === 'refine-failed' || old.finalizeMode === 'local-budget' || (!old.finalizeMode && old.splitReason === 'manual'));
+          if (fast) {
+            old.finalizedAt = 0;
+            old.refineRequested = true;
+            old.refineRequestedAt = now;
+            old.finalizeMode = 'refine-queued';
+            closed = [old];
+          }
+        }
+        if (!closed.length) return { content: '没有找到可收尾的进行中链（可能已经收尾了）', isError: true };
+        if (refine) {
+          for (const chain of closed) {
+            chain.refineRequested = true;
+            chain.refineRequestedAt = now;
+          }
+          persist();
+          setTimeout(() => { tick('refine-close').catch((error) => dbg('refine-close tick failed ' + (error?.message ?? error))); }, 0);
+          return { content: JSON.stringify({
+            ok: true,
+            finalized: false,
+            refine: true,
+            queued: true,
+            count: closed.length,
+            items: closed.map((c) => ({ id: c.id, title: S.chainTitle(c), chatKey: c.chatKey, count: c.count }))
+          }) };
+        }
+        for (const chain of closed) sealLocal(chain, now);
+        persist();
+        return { content: JSON.stringify({
+          ok: true,
+          finalized: true,
+          refine: false,
+          count: closed.length,
+          items: closed.map((c) => ({ id: c.id, title: S.chainTitle(c), chatKey: c.chatKey, count: c.count }))
+        }) };
+      } catch (error) {
+        return { content: `强制收尾失败：${error?.message ?? error}`, isError: true };
       }
     }
   });
