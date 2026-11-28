@@ -1324,7 +1324,7 @@ function resolveItem(rawInput) {
       return { error: `「${raw}」能对上 ${textHits.length} 张表情：${ids}${textHits.length > 5 ? '…' : ''}。请用其中某个 #编号 再发。` };
     }
   }
-  // 模型常把【可用表情包】里 QQ 收藏表情的长编号（1000000001_0_0_0_XXX_0_0）当本库编号传进来。
+  // 模型常把【可用表情包】里 QQ 收藏表情的长编号（1000000002_0_0_0_XXX_0_0）当本库编号传进来。
   // 2026-11-07：先尝试映射到本库的 QQ 收藏副本（迁移时 key 里的 resId 被截断了尾部，所以用"前缀"比对）——
   // 能对上就直接发，真没有才报错让模型改用 send_sticker。
   if (/^\d{6,}_0_0_/.test(raw) || raw.split('_').length >= 5) {
@@ -3459,7 +3459,7 @@ function registerTools(api) {
     parameters: {
       type: 'object',
       properties: {
-        stickerId: { type: 'string', description: '要发出的表情包编号（10 位短编号），或直接填那张图的备注原文；给了就直接发，不给就只挑候选。⚠️ 别填 QQ 收藏那种 1000000001_0_0_0_XXX 长编号，那要走宿主的 send_sticker' },
+        stickerId: { type: 'string', description: '要发出的表情包编号（10 位短编号），或直接填那张图的备注原文；给了就直接发，不给就只挑候选。⚠️ 别填 QQ 收藏那种 1000000002_0_0_0_XXX 长编号，那要走宿主的 send_sticker' },
         wantSticker: { type: 'boolean', description: '**群友点名要图时填 true**（要表情/来个图/发点表情）—— 会跳过“值不值得发”的判定，保证一定发出去。自己主动配图时不要填' },
         replyToMessageId: { type: ['integer', 'string'], description: '要引用回复的消息 id（可选，一般不用）' },
         mood: { type: 'string', description: '想表达的情绪，挑候选时用' },

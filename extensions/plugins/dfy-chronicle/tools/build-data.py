@@ -10,8 +10,8 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 PLUGIN = Path(__file__).resolve().parent.parent
-SRC = Path(r"<工作目录>\调试编年史.html")
-IMG = Path(r"<工作目录>\调试编年史-长图.png")
+SRC = Path(r"E:\Desktop\大肥鱼专用\记录\档案\调试编年史.html")
+IMG = Path(r"E:\Desktop\大肥鱼专用\记录\档案\调试编年史-长图.png")
 DATA = PLUGIN / "assets" / "chronicle.json"
 ASSET = PLUGIN / "assets" / "chronicle.png"
 
@@ -80,7 +80,7 @@ def main():
 
     data = {
         "id": "dfy-chronicle",
-        "title": "本机调试编年史",
+        "title": "大肥鱼调试编年史",
         "subtitle": txt(soup.select_one(".lede")),
         "span": "2026-10-27 → 2026-11-27",
         "days": 32, "versions": 8, "incidentCount": len(incidents), "extensionCount": 17,
@@ -93,11 +93,11 @@ def main():
         "rules": rules, "open": open_items,
         "sources": {
             "html": str(SRC), "image": str(IMG),
-            "mainline": r"<工作目录>\记录\01-主线-0.4到0.5.1.md",
-            "plans": r"<工作目录>\记录\02-方案与解析.md",
-            "incidents": r"<工作目录>\记录\03-事故与修复.md",
-            "monthly": r"<工作目录>\QQA-迭代历史-2026年11月.md",
-            "latest": r"<工作目录>\记录\2026-11-26-OneBot未连接排障.md"
+            "mainline": r"D:\大肥鱼专用\记录\01-主线-0.4到0.5.1.md",
+            "plans": r"D:\大肥鱼专用\记录\02-方案与解析.md",
+            "incidents": r"D:\大肥鱼专用\记录\03-事故与修复.md",
+            "monthly": r"E:\Desktop\大肥鱼专用\记录\台账与编年史\QQA-迭代历史-2026年11月.md",
+            "latest": r"E:\Desktop\大肥鱼专用\记录\2026-11-26-OneBot未连接排障.md"
         },
         "builtAt": datetime.datetime.now().isoformat(timespec="seconds")
     }

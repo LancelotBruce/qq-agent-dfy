@@ -19,7 +19,7 @@ export function resolveMember(pdir, who) {
   if (!raw) return { ok: false, error: '没说是谁' };
   if (/^\d{5,12}$/u.test(raw)) return { ok: true, uid: raw, how: 'QQ 号' };
   const digits = raw.replace(/\D/g, '');
-  // 形如「1000000004(某用户)」也算给了号
+  // 形如「1000000005(某用户)」也算给了号
   if (digits.length >= 5 && digits.length <= 12 && raw.length - digits.length <= 6) {
     return { ok: true, uid: digits, how: 'QQ 号' };
   }

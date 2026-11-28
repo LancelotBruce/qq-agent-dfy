@@ -63,7 +63,7 @@ async function probeSelfId(log, warn) {
         const d = await r.json();
         const id = String(d?.onebot?.self?.userId || '');
         // 顺手把昵称一起取回来：/api/status 里本来就有 onebot.self.nickname，
-        // 以前只存了 QQ 号，导致锚点段只能写"你是一个群成员"，模型不知道自己是机器人。
+        // 以前只存了 QQ 号，导致锚点段只能写"你是一个群成员"，模型不知道自己是某机器人。
         const nick = String(d?.onebot?.self?.nickname || '').trim();
         if (nick) selfNick = nick;
         if (id) {
@@ -140,7 +140,7 @@ export const hooks = {
       const nick = String(selfNick || selfNickname || context.selfNickname || '').trim();
       const name = String(botName || context.botName || '').trim();
       // 名字优先级：宿主传进来的 botName > 宿主传的 selfNickname > 探测到的 QQ 昵称 > 兜底。
-      // 一律说"你的名字"，不用"昵称"——模型对"名字"的自我指认更强（人设里也叫她机器人）。
+      // 一律说"你的名字"，不用"昵称"——模型对"名字"的自我指认更强（人设里也叫她某机器人）。
       const who = name ? `你的名字是「${name}」` : (nick ? `你的名字是「${nick}」` : '你是一个群成员');
 
       const anchor = [

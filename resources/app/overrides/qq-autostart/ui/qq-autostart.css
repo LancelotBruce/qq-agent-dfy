@@ -1,0 +1,10 @@
+.qq-autostart{margin-bottom:16px}
+.qq-autostart .module-head{align-items:flex-start}
+.qq-autostart-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px}
+.qq-autostart-switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:600}
+.qq-autostart-switch input{width:18px;height:18px;accent-color:var(--accent, #7c3aed);cursor:pointer}
+.qq-autostart-delay{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted, #64748b)}
+.qq-autostart-delay input{width:84px;padding:6px 8px;border:1px solid var(--border, #d6d3d1);border-radius:8px;background:var(--surface, #fff);color:inherit;font:inherit}
+#qq-autostart-state.on{color:var(--success, #15803d);font-weight:600}
+.qq-autostart .field-hint{margin-top:10px;line-height:1.6;word-break:break-all}
+@media (max-width:640px){.qq-autostart-row{align-items:flex-start;flex-direction:column}.qq-autostart-delay input{width:72px}}

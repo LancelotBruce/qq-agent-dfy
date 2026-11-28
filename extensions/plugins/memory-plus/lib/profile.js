@@ -14,9 +14,9 @@ const SENSITIVE = ['黄油', '黄游', '小黄游', '成人游戏', '隆胸', '�
 const MAX_CACHE = 400;
 
 /**
- * 档案默认目录。
- * 跟着宿主数据目录走（QQ_AGENT_DATA_DIR）；拿不到才回落到进程目录。
- * 旧版直接写死某一台机器的路径，换机后 storeDir 一旦为空就会静默写到旧机路径。
+ * 档案默认目录（最后兜底）。
+ * 跟着宿主数据目录走：宿主启动时会把真实数据目录写进 QQ_AGENT_DATA_DIR，
+ * 拿不到才回落到进程目录。不再写死任何一台机器的路径，换机不用改代码。
  */
 export function defaultDir() {
   const root = String(process.env.QQ_AGENT_DATA_DIR || '').trim();

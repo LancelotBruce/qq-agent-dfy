@@ -17,7 +17,8 @@
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/token-management.css">
   <link rel="stylesheet" href="/account-switcher.css">
-<link rel="stylesheet" href="/panels/visual-refinements.css"></head>
+<link rel="stylesheet" href="/panels/visual-refinements.css">
+<link rel="stylesheet" href="/panels/destructive-action.css"></head>
 <body>
   <div class="app-shell">
     <aside class="rail" aria-label="QQ Agent 导航">
@@ -48,6 +49,7 @@
           <span id="runtime-state" role="status">读取运行状态…</span>
           <span id="cache-hit-rate" role="status" title="等待今日用量统计">今日缓存命中 —</span>
           <button id="pause-btn" type="button" aria-pressed="false" disabled>全局暂停</button>
+          <button id="quit-btn" type="button" hidden title="退出应用：停止机器人与协议端；本次守护不再自动拉起，下次开机或手动双击启动时恢复。">退出</button>
         </div>
       </header>
       <main id="panel-host" aria-live="polite"></main>

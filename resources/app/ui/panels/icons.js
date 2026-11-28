@@ -39,6 +39,7 @@ const GLYPHS = Object.freeze({
   trash:[line('shell','M4.5 6.5h15M9 6.5v-3h6v3M6.5 6.5l.7 13a1 1 0 0 0 1 1h7.6a1 1 0 0 0 1-1l.7-13'),line('slots','M10 10.5v6M14 10.5v6')],
   pause:[solid('bars','M6 5.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5zM14 5.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5z')],
   play:[solid('direction','M7 5.4a.8.8 0 0 1 1.2-.7l11 6.6a.8.8 0 0 1 0 1.4l-11 6.6a.8.8 0 0 1-1.2-.7z')],
+  power:[line('stem','M12 3.5v6'),line('arc','M7.2 6.4a7 7 0 1 0 9.6 0')],
   upload:[line('direction','M12 15.5v-11M7.5 9L12 4.5 16.5 9'),line('dock','M4.5 15.5V19a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-3.5')],
   folder:[line('shell','M4.5 5h5l2 2h8a1 1 0 0 1 1 1v10.5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z'),line('records','M7.5 11.5h9M7.5 15.5h6')],
   link:[line('chain','M9 7l2.5-2.5a5 5 0 0 1 7 7L16 14M8 10l-2.5 2.5a5 5 0 0 0 7 7L15 17'),line('join','M8.5 15.5l7-7')],

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "id": "qq-autostart",
+  "order": 30,
+  "enabled": true,
+  "routes": [
+    { "id": "qq-autostart", "module": "routes.mjs", "export": "register" }
+  ],
+  "ui": {
+    "assets": {
+      "panels/settings/index.html": "./ui/index.html",
+      "panels/settings/qq-autostart.js": "./ui/qq-autostart.js",
+      "panels/settings/qq-autostart.css": "./ui/qq-autostart.css"
+    }
+  }
+}

@@ -2,7 +2,7 @@
 //
 // 数据源：<app>/data/memory-v2/chunks/hour_*.json
 //   conversation-memory 插件每 10 分钟巩固一次，产出「每小时一个块」：
-//   { id, kind:'hour', chatKey:'group:2000000003', dayKey:'2026-10-17', hourKey:'16',
+//   { id, kind:'hour', chatKey:'group:2000000005', dayKey:'2026-10-17', hourKey:'16',
 //     title, summary, keywords:[...], snippets:[{when,ts,who,text}], msgCount }
 //
 // 平常不读盘、不进提示词；只有模型调用 memory_recall 时才扫一遍（几十块 ≈ 1.8 MB，几毫秒）。

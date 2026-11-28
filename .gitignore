@@ -1,25 +1,44 @@
-# 依赖与运行时
+# ===== 依赖与运行时产物 =====
 node_modules/
+**/node_modules/
+**/extension-cache/
+**/electron-user-data/
+**/Cache/
+**/*.lock
 *.exe
 *.dll
 *.pak
-*.dat
 *.bin
+*.dat
+*.asar
 *.7z
 *.zip
 *.msi
+resources.pak
+icudtl.dat
+vk_swiftshader_icd.json
+LICENSE.electron.txt
+LICENSES.chromium.html
+version
 
-# 运行期数据（绝不入库）
+# ===== 运行期数据（账号、密钥、token、cookie、记忆、会话、日志，绝不入库）=====
 /data/
 /data-v05/
 /logs/
 *.log
 /debug.log
+/resources/app/data/
 /config/local.json
 /config/consent.json
 /config/onebot_*.json
 *.qq-agent-install.json
 .qq-agent-runtime.lock
+
+# ===== 本地协议端运行时（SnowLuma 注入程序，非源码；勿写成 protocols/ 以免误伤 src/protocols）=====
+/protocols/
+/locales/
+
+# ===== 备份快照 =====
 *.bak
 *.bak-*
 备份/
@@ -30,7 +49,14 @@ node_modules/
 分发包/
 垃圾清理/
 
-# 凭据与本地设置
+# ===== 历史补丁包与旧备份归档 =====
+/_patch-kit/
+/_backup-cacheopt-20261122/
+
+# ===== 扩展运行管理态 =====
+extensions/.extension-management-v1/
+
+# ===== 凭据与本地设置 =====
 .env
 .env.*
 secrets.json
@@ -40,10 +66,10 @@ secrets.json
 *.pfx
 *.crt
 *.keystore
-# 上游更新签名的公钥（非私钥，需随源码保留）
+# 上游更新签名公钥（非私钥，需随源码保留）
 !resources/app/assets/update-public-key.pem
 
-# 编辑器与系统
+# ===== 编辑器与系统 =====
 .vscode/
 .idea/
 .DS_Store

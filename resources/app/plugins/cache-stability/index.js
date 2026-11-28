@@ -87,7 +87,7 @@ export const hooks = {'before-llm-messages': ({messages} = {}) => {
       const st = sys0 ? typeof sys0.content : 'nosys';
       const idx = st === 'string' ? sys0.content.indexOf('\n▸ 表情包库') : -3;
       const len = st === 'string' ? sys0.content.length : 0;
-      fs.appendFileSync('<安装目录>\\data\\cache-probe.log',
+      fs.appendFileSync('D:\\QQAgent\\data\\cache-probe.log',
         new Date().toISOString() + ' msgs=' + (Array.isArray(messages) ? messages.length : 'na')
         + ' sysType=' + st + ' idx=' + idx + ' len=' + len + '\n');
     }
@@ -112,7 +112,7 @@ export const hooks = {'before-llm-messages': ({messages} = {}) => {
   }
   if (user && typeof user.content==='string') user.content=reorderUser(user.content);
 }};
-const P = '<安装目录>\\data\\cache-probe.log';
+const P = 'D:\\QQAgent\\data\\cache-probe.log';
 function h32(s) {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;

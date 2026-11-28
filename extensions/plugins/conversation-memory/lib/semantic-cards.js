@@ -342,7 +342,7 @@ export class SemanticCardStore {
         const d = new Date(c.lastTs || now);
         const md = String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         const raw = c.title.replace(/\s+/g, ' ');
-        // 原来硬切 42 字，长标题会被拦腰截断成「…@机器人(QQ:31」这种半句，400 字预算里全是残句。
+        // 原来硬切 42 字，长标题会被拦腰截断成「…@无鲸(QQ:31」这种半句，400 字预算里全是残句。
         // 改成 80 字并在截断处补省略号：宁可少放几条，也不要放读不懂的半句。
         const title = raw.length > 80 ? raw.slice(0, 79) + '…' : raw;
         const line = '- ' + md + ' ' + title;

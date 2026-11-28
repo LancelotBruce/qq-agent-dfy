@@ -113,6 +113,8 @@ body[data-bg-media="video"]::before{display:none}
 #runtime-state.is-paused::before { background: var(--warn); }
 #cache-hit-rate { padding-left: var(--sp-3); border-left: 1px solid var(--line); font-family: var(--font-mono); }
 #pause-btn, #navigation-toggle { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: 32px; padding: 6px var(--sp-3); font-size: 11px; }
+#quit-btn { position: relative; display: inline-flex; align-items: center; gap: var(--sp-2); min-height: 32px; padding: 6px var(--sp-3); font-size: 11px; color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
+#quit-btn:hover { background: color-mix(in srgb, var(--bad) 8%, var(--surface-2)); }
 #pause-btn.is-paused { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, var(--line)); }
 #pause-btn.is-paused:not(:disabled) { color:var(--bad);border-color:var(--bad);animation:pause-reminder 4s ease-in-out infinite; }
 @keyframes pause-reminder {

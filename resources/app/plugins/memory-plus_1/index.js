@@ -1203,8 +1203,8 @@ async function extractFromArchive(ctx, { scan = 120, days = 0, settings = {}, fo
             : '')
           + `请挑出值得长期记住的**关于某个人的稳定信息**，最多 ${focus.length ? 5 : 3} 条：\n`
           + '- 适合记：稳定性格特点、说话习惯、明确偏好/雷点、身份关系、以及"约定/答应/待提醒"类的事。\n'
-          + '- 每条都要写清对象：写「示例用户称某群友为姐姐、自称孤」，不要写「称对方为姐姐」；'
-          + '写「无￥答应下完影之刃叫某机器人」，不要写「下完要叫他」。\n'
+          + '- 每条都要写清对象：写「示例用户称某用户为姐姐、自称孤」，不要写「称对方为姐姐」；'
+          + '写「无￥答应下完影之刃叫机器人」，不要写「下完要叫他」。\n'
           + '- **每条都必须带主语**：写「张三喜欢打游戏」，不要写「喜欢打游戏」；'
           + '写「李四和王五是夫妻」，不要写「和王五是夫妻」；写「张三打游戏只玩战地6」，'
           + '不要写「打游戏只玩战地6」。主语用记录里出现的那个昵称或 QQ 号。\n'
@@ -1429,7 +1429,7 @@ async function crossCheck(chatKey, { settings = {}, longMembers = null, apply = 
           role: 'system',
           content: '你是记忆核对模块。下面是同一个群里多个人的记忆档案。只做核对，绝不发明新事实、不推测。'
             + '输出严格 JSON，不要解释、不要 markdown 代码块。输出越短越好，否则会被截断。格式：'
-            + '{"issues":[{"type":"conflict","userId":"1000000002","content":"其中一条原句","otherContent":"另一条互相排斥的原句","confidence":90},{"type":"attribution","userId":"1000000002","content":"主语不对的那条原句","confidence":90}]}'
+            + '{"issues":[{"type":"conflict","userId":"1000000001","content":"其中一条原句","otherContent":"另一条互相排斥的原句","confidence":90},{"type":"attribution","userId":"1000000001","content":"主语不对的那条原句","confidence":90}]}'
         },
         {
           role: 'user',
@@ -2427,7 +2427,7 @@ function refreshLongSnapshot(chatKey, force = false) {
 
 /** 核心数据根（<应用>/data），长期记忆正文在它下面的 memory/。
  *  ⚠️ 不能用 dataDir() 往上退：dataDir() 现在是用户指定的记忆文件夹
- *  （默认 E 盘），退一级会指到 <工作目录>，长期记忆就读不到了。 */
+ *  （默认 E 盘），退一级会指到 E:\Desktop，长期记忆就读不到了。 */
 function dataDirRoot() {
   return path.dirname(coreMemoryRoot());
 }
@@ -2973,7 +2973,7 @@ function stopTimers() {
 export function setup(api) {
   apiRef = api;
   cfg = api.config;
-  // 记忆根目录：默认 <工作目录>\记忆，可在插件设置 storeDir 里改。
+  // 记忆根目录：默认 E:\Desktop\大肥鱼专用\记忆，可在插件设置 storeDir 里改。
   // 必须在任何 store 读写之前设置好，否则第一次 load 会落到默认路径。
   try { setStoreDir(cfg()?.storeDir); } catch { setStoreDir(''); }
   try {

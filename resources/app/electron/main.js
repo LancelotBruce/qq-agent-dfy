@@ -537,7 +537,8 @@ export async function startElectron(electronModule = null, options = {}) {
 async function startElectronInternal(electronModule = null, { createKernel: createKernelImpl } = {}) {
   const electron = electronModule ?? await import('electron');
   const { app, ipcMain } = electron;
-  const launch=updateLaunchState({installRoot:app.isPackaged?path.dirname(app.getPath('exe')):APP_ROOT,appRoot:APP_ROOT});
+  const installRoot = app.isPackaged ? path.dirname(app.getPath('exe')) : APP_ROOT;
+  const launch=updateLaunchState({installRoot,appRoot:APP_ROOT});
   if(!launch.allowed){electron.dialog?.showErrorBox?.('QQA 更新中',launch.reason);app.quit?.();return{acquired:false,updating:true};}
   appRef = app;
   dialogRef = electron.dialog ?? null;

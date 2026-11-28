@@ -347,7 +347,7 @@ export function createOrchestrator({
   }
 
   // ---------- 等待倒计时（固定不重置）----------
-  // 私聊/群聊分档等待（本机改）：0.4 的 wakeDelayMsPrivate 在 0.5 内核里没有消费者，
+  // 私聊/群聊分档等待（大肥鱼改）：0.4 的 wakeDelayMsPrivate 在 0.5 内核里没有消费者，
   // 这里按会话前缀分流补回来。群聊走 wakeDelayMs，私聊走 wakeDelayMsPrivate（<=0 时回落群聊值）。
   function wakeBaseDelay(chatKey) {
     const privateMs = Number(cfg().wakeDelayMsPrivate);

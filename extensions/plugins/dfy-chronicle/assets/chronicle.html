@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>本机调试编年史 · 2026</title>
+<title>大肥鱼调试编年史 · 2026</title>
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
 <style>
   :root{
@@ -274,13 +274,13 @@
 
     <div class="hero">
       <div>
-        <h1 class="title">本机<em>调试编年史</em></h1>
+        <h1 class="title">大肥鱼<em>调试编年史</em></h1>
         <p class="sub">
           从上游 <b>0.4.0</b> 到本机 <b>0.5.1</b>，从“每轮 14,500 tokens”到“按需发 11 个工具”。<br>
           这里不重复正文，只把散落在两处 <b>记录\</b>、<b>报表\</b> 与 <b>备份归档\</b> 里的过程，按时间重新串成一条可读的线。
         </p>
       </div>
-      <div class="seal"><span>本機</span><span>日志</span></div>
+      <div class="seal"><span>大肥魚</span><span>日誌</span></div>
     </div>
 
     <div class="meta">
@@ -296,7 +296,7 @@
       <div class="stat"><div class="n">8<small>版</small></div><div class="l">0.4 → dfy.6 → 0.5.1</div></div>
       <div class="stat"><div class="n">10<small>起</small></div><div class="l">有档案的事故</div></div>
       <div class="stat"><div class="n">17<small>个</small></div><div class="l">插件与技能</div></div>
-      <div class="stat"><div class="n">31<small>条</small></div><div class="l">编年史入档条目</div></div>
+      <div class="stat"><div class="n">32<small>条</small></div><div class="l">编年史入档条目</div></div>
       <div class="stat"><div class="n">4<small>类</small></div><div class="l">文档/日志/备份/报表</div></div>
     </div>
   </header>
@@ -318,7 +318,7 @@
     <div class="sec-head">
       <div class="sec-no">01</div>
       <div>
-        <h2 class="sec-title">编年：十二段，一条主线</h2>
+        <h2 class="sec-title">编年：十三段，一条主线</h2>
         <p class="sec-desc">每一段只回答三个问题：改了什么、为什么改、验成了没有。左侧日期即归档文件名里的时间，右侧“证据”指向可复核的原档。</p>
       </div>
     </div>
@@ -382,7 +382,7 @@
           <ul>
             <li><b>提示注入加固</b>：<code>sanitizeUserText</code> 三道处理（全角【】降半角、压平 U+2028/2029 与零宽/双向字符、群名片与引用同样净化），8 条用例 <b>8/8</b></li>
             <li><b>时间视图</b>：消息只带 <code>MM-DD HH:MM</code>，弱模型算不出新旧 → 新增 <code>describeAge</code>（Nm前 / Nh前 / Nd前），单测 <b>13/13</b></li>
-            <li><b>黑话入库</b>：群 2000000000 的 12,392 条语料离线挖掘，12 条进 <code>store.json</code>「群内黑话」分类；常驻段 13 条压到 <b>1 条（1,042 B）</b></li>
+            <li><b>黑话入库</b>：群 2000000003 的 12,392 条语料离线挖掘，12 条进 <code>store.json</code>「群内黑话」分类；常驻段 13 条压到 <b>1 条（1,042 B）</b></li>
             <li><b>版本号</b>定为 <code>0.4.1-dfy.1</code>，读 <code>compareSemver</code> 确认 <code>-dfy</code> 不会触发内建更新检查；脱敏包按 <code>.zcodeignore</code> 手写 8 目录 + 6 文件，复扫又抓出 19 个 <code>*.bak-*</code></li>
           </ul>
           <div class="metrics"><span class="metric">注入用例 <b>8/8</b></span><span class="metric">时间用例 <b>13/13</b></span><span class="metric">常驻黑话 13 → <b>1 条</b></span></div>
@@ -522,7 +522,7 @@
           <p class="lede">把前 31 天压成可查的条目，而不是每轮往提示词里灌 400 字。第一版装了注入，被主人当场否掉；第二版删钩子，改走按需档案。</p>
           <ul>
             <li><b>1.0.0 → 1.0.1</b>：<code>dfy-chronicle</code> 先做 4 个工具 + <code>/编年史</code>，每轮向 system 尾贴约 400 字索引；主人判“无意义消耗”，1.0.1 把 <code>before-llm-messages</code> 钩子整段删除，日志写明“只读检索，不注入提示词”。</li>
-            <li><b>入档</b>：31 条要点写进 <code>store.json</code> 的「调试档案」分类（#52–#82，总 73/100 条），每条 ≤124 字；原档先备份 <code>store-backup-20261126-172355-before-chronicle.json</code>；HTML 与长图另存 <code>记录\档案\本机调试编年史_2026-11-26.*</code>。</li>
+            <li><b>入档</b>：31 条要点写进 <code>store.json</code> 的「调试档案」分类（#52–#82，总 73/100 条），每条 ≤124 字；原档先备份 <code>store-backup-20261126-172355-before-chronicle.json</code>；HTML 与长图另存 <code>记录\档案\调试编年史.*</code>。</li>
             <li><b>查询实测</b>：<code>query_persona_detail</code> 按需命中——OneBot 掉线→I8/I9/I10；缓存→P2（48→75.3%）；dfy.6→P5（tokens −42.4%）；resources app→I7/P8。<code>/编年史</code> 与发长图保留，只在主动用时触发。</li>
             <li><b>代价</b>：档案 73/100，余 27 槽；四个工具声明仍在工具列表，但不再有每轮提示词开销。</li>
             <li><b>同批补档</b>：<code>bili-video</code> 1.0.5 完成 0.5 适配——发送走 <code>sender.sendMedia</code>（视频独占一条、文案另发），<code>sendVideoBody=true</code>、<code>qn=64</code>，11-26 12:49 实测 720P《这野人魔了》15.8MB 转发成功；G1 准入护栏落在记忆写入：<code>fact/relation</code> 遇「扮演/玩梗/自称/串戏」等词自动降级为 <code>general</code>，<code>preference/appointment</code> 不动，tool/auto/rule 三条路径统一过 <code>addShort</code>。</li>
@@ -530,6 +530,24 @@
           </ul>
           <div class="metrics"><span class="metric">注入 <b>400 字/轮 → 0</b></span><span class="metric">档案 <b>31 条</b></span><span class="metric">查询命中 <b>4/4</b></span></div>
           <div class="src"><code>store.json</code> #52–#82 · <code>extensions\plugins\dfy-chronicle</code> 1.0.1→1.0.4 · 2026-11-27 复核</div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="when"><div class="range">11-27</div><div class="ver">0.5.1 · 现役</div><div class="tag">自启</div></div>
+        <div class="node"></div>
+        <div class="card">
+          <h3>给 QQ 一个可选的开机键</h3>
+          <p class="lede">不做强制自启，只做一个默认关的独立开关：需要无人值守回线时才开，其余时间启动项保持干净。它只负责把 QQ 拉起来，不管登录。</p>
+          <ul>
+            <li><b>为什么单做一层</b>：<code>overrides</code> 组合层能执行系统命令、写注册表；普通插件没有这条权限。新层 <code>qq-autostart</code>，<code>order=30</code>，只注册 <code>/api/qq-autostart</code> 和设置页资源。</li>
+            <li><b>开启做什么</b>：写 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run\QQAgentQQAutoStart</code>，指向 <code>tools\start-qq.vbs</code>；脚本按设定延迟（5–300 秒，默认 45）用 <code>wscript</code> 拉起 <code>D:\PTencent\QQNT\QQ.exe</code>，窗口正常显示。</li>
+            <li><b>关闭做什么</b>：删启动值和 VBS；状态同时检查“启动项在 + 脚本在”，脚本丢了会提示重新保存，避免留一个指向空文件的死启动项。</li>
+            <li><b>边界</b>：不碰 <code>DaFeiYuWatchdog.lnk</code>/<code>start-watchdog.vbs</code>，不碰 SnowLuma 的 <code>autoStart</code>，不代填密码、不自动登录；QQ 本身没设自动登录时，开机后仍要扫码。</li>
+            <li><b>实测</b>：默认 <code>enabled=false</code>；开→关一次，Run 值和 VBS 都清干净；重启加载后接口 GET/POST 正常，设置页返回 200 且卡片已注入；OneBot 恢复 <code>ready</code>，<code>self=1000000002</code>。</li>
+          </ul>
+          <div class="metrics"><span class="metric">默认 <b>关</b></span><span class="metric">延迟 <b>45s</b>（5–300）</span><span class="metric">只写 <b>HKCU Run</b></span></div>
+          <div class="src"><code>resources\app\overrides\qq-autostart</code> · <code>GET/POST /api/qq-autostart</code> · 2026-11-27 22:20 实测</div>
         </div>
       </article>
 
@@ -608,15 +626,15 @@
     <div class="ev-grid">
       <div class="ev">
         <h4>成文复盘 <span>DOC</span></h4>
-        <p class="hint">在 <code><工作目录>\记录</code> 与 <code><工作目录></code>，按卷合并。</p>
+        <p class="hint">在 <code>D:\大肥鱼专用\记录</code> 与 <code>E:\Desktop\大肥鱼专用</code>，按卷合并。</p>
         <ul>
-          <li><span class="s">15.9 KB</span><span class="f">01-主线-0.4到0.5.1.md</span><span class="p"><工作目录>\记录\ · 11-19 14:59</span></li>
-          <li><span class="s">13.1 KB</span><span class="f">02-方案与解析.md</span><span class="p"><工作目录>\记录\ · 上游取舍</span></li>
-          <li><span class="s">12.0 KB</span><span class="f">03-事故与修复.md</span><span class="p"><工作目录>\记录\ · 事故 + 排错手册</span></li>
-          <li><span class="s">19.9 KB</span><span class="f">QQA-迭代历史-2026年11月.md</span><span class="p"><工作目录>\ · 11-24 21:11</span></li>
-          <li><span class="s">8.1 KB</span><span class="f">2026-11-26-OneBot未连接排障.md</span><span class="p"><工作目录>\记录\ · 今天 15:28</span></li>
-          <li><span class="s">19.1 KB</span><span class="f">2026-11-20-小黑盒转发插件.md</span><span class="p"><工作目录>\记录\ · 11-21 21:25</span></li>
-          <li><span class="s">9.9 KB</span><span class="f">记忆审计插件-设计交接-20261119.md</span><span class="p"><工作目录>\记录\</span></li>
+          <li><span class="s">15.9 KB</span><span class="f">01-主线-0.4到0.5.1.md</span><span class="p">D:\大肥鱼专用\记录\ · 11-19 14:59</span></li>
+          <li><span class="s">13.1 KB</span><span class="f">02-方案与解析.md</span><span class="p">D:\大肥鱼专用\记录\ · 上游取舍</span></li>
+          <li><span class="s">12.0 KB</span><span class="f">03-事故与修复.md</span><span class="p">D:\大肥鱼专用\记录\ · 事故 + 排错手册</span></li>
+          <li><span class="s">19.9 KB</span><span class="f">QQA-迭代历史-2026年11月.md</span><span class="p">E:\Desktop\大肥鱼专用\记录\台账与编年史\ · 11-24 21:11</span></li>
+          <li><span class="s">8.1 KB</span><span class="f">2026-11-26-OneBot未连接排障.md</span><span class="p">E:\Desktop\大肥鱼专用\记录\ · 今天 15:28</span></li>
+          <li><span class="s">19.1 KB</span><span class="f">2026-11-20-小黑盒转发插件.md</span><span class="p">E:\Desktop\大肥鱼专用\记录\ · 11-21 21:25</span></li>
+          <li><span class="s">9.9 KB</span><span class="f">记忆审计插件-设计交接-20261119.md</span><span class="p">D:\大肥鱼专用\记录\</span></li>
         </ul>
       </div>
 
@@ -624,10 +642,10 @@
         <h4>运行日志 <span>LOG</span></h4>
         <p class="hint">机器写的原始证据；崩溃、断线、token 轮换都先落在这里。</p>
         <ul>
-          <li><span class="s">22 个 · 3.98 MB</span><span class="f">data-v05\logs\YYYY-MM-DD.log</span><span class="p"><工作目录>\QQAgent-0.5\ · 11-19 → 11-26</span></li>
+          <li><span class="s">22 个 · 3.98 MB</span><span class="f">data-v05\logs\YYYY-MM-DD.log</span><span class="p">D:\大肥鱼专用\QQAgent-0.5\ · 11-19 → 11-26</span></li>
           <li><span class="s">0.43 MB</span><span class="f">data-v05\boot-diag.log</span><span class="p">启动诊断，含 fatal 与 startup-failed</span></li>
           <li><span class="s">0.16 MB</span><span class="f">logs\watchdog.log</span><span class="p">守护判定、重拉、清锁记录</span></li>
-          <li><span class="s">71.8 KB</span><span class="f">cache-probe-20261106.log</span><span class="p"><工作目录>\记录\日志\ · 1,353 行 / 177 次 CUT</span></li>
+          <li><span class="s">71.8 KB</span><span class="f">cache-probe-20261106.log</span><span class="p">D:\大肥鱼专用\记录\日志\ · 1,353 行 / 177 次 CUT</span></li>
           <li><span class="s">2.7 KB</span><span class="f">snowluma-2026-11-05-EPIPE日志样本.txt</span><span class="p">日志风暴原件</span></li>
           <li><span class="s">5 份</span><span class="f">日志\临时输出\</span><span class="p">debug_tail / all_short / merged_mem / route_test / 当晚数据</span></li>
           <li><span class="s">存档</span><span class="f">data-v05\sessions\</span><span class="p">每轮 systemPrompt / userPrompt / 结束原因</span></li>
@@ -638,12 +656,12 @@
         <h4>版本与数据 <span>BACKUP</span></h4>
         <p class="hint">能回滚、能量化，才算把经验固化成资产。</p>
         <ul>
-          <li><span class="s">11-19 / 11-22 / 11-24</span><span class="f">备份归档\本体与插件 · 坏掉-20261119-1715 · 记忆重构前_20261124</span><span class="p"><工作目录>\备份归档\</span></li>
+          <li><span class="s">11-19 / 11-22 / 11-24</span><span class="f">备份归档\本体与插件 · 坏掉-20261119-1715 · 记忆重构前_20261124</span><span class="p">D:\大肥鱼专用\备份归档\</span></li>
           <li><span class="s">11-25</span><span class="f">备份归档\_syntax\</span><span class="p">memory-plus index.mjs / profile.mjs 语法快照</span></li>
-          <li><span class="s">544.6 KB</span><span class="f">本机-插件集-稳定版-20261122.zip</span><span class="p"><工作目录>\备份\</span></li>
-          <li><span class="s">481.7 KB</span><span class="f">缓存命中基线-全量合并.csv</span><span class="p"><工作目录>\报表\数据\ · 10-28 → 11-24 单日</span></li>
+          <li><span class="s">544.6 KB</span><span class="f">大肥鱼-插件集-稳定版-20261122.zip</span><span class="p">E:\Desktop\大肥鱼专用\备份\</span></li>
+          <li><span class="s">481.7 KB</span><span class="f">缓存命中基线-全量合并.csv</span><span class="p">D:\大肥鱼专用\报表\数据\ · 10-28 → 11-24 单日</span></li>
           <li><span class="s">31 KB</span><span class="f">缓存命中率对照报表-20261105至08.html</span><span class="p">可交互对照页</span></li>
-          <li><span class="s">19.4 / 7.3 KB</span><span class="f">历史台账总览.md · 台账指标测试报告.md</span><span class="p"><工作目录>\</span></li>
+          <li><span class="s">19.4 / 7.3 KB</span><span class="f">历史台账总览.md · 台账指标测试报告.md</span><span class="p">E:\Desktop\大肥鱼专用\</span></li>
           <li><span class="s">18 份</span><span class="f">data-v05\extension-cache 各插件快照</span><span class="p">含 2.6.x → 2.12.0 的 memory-plus 全部代际</span></li>
         </ul>
       </div>
@@ -678,7 +696,7 @@
     <div class="sec-head">
       <div class="sec-no">06</div>
       <div>
-        <h2 class="sec-title">还挂着的：两个没做完，四个已闭环/有约定</h2>
+        <h2 class="sec-title">还挂着的：两个没做完，四个已闭环</h2>
         <p class="sec-desc">档案不只记“做成了什么”，也记“知道没做、先不做”的部分。以下按 11-27 运行态复核；已闭环的留在表里做对照，不再算缺口。</p>
       </div>
     </div>
@@ -700,9 +718,9 @@
         <div class="st">已闭环</div>
       </div>
       <div class="open-item">
-        <div class="what">协议端开机自启</div>
-        <div class="why">QQ 需随机自启，否则协议端没有注入目标，表现就是“OneBot 掉线”。当前靠人记得先开 QQ。</div>
-        <div class="st">运维约定</div>
+        <div class="what">QQ 开机自启</div>
+        <div class="why">11-27 新增 <code>qq-autostart</code> 组合层：设置页默认关开关，开启只写 <code>HKCU</code> Run + <code>tools\start-qq.vbs</code> 延迟拉起 QQ，关闭即删；不碰看门狗和 SnowLuma，不代填密码。只是给“断电后无人值守回线”一个可选动作。</div>
+        <div class="st" style="color:var(--teal);border-color:rgba(47,107,99,.45)">已闭环（默认关）</div>
       </div>
       <div class="open-item">
         <div class="what">黑话统计预筛</div>
@@ -720,8 +738,8 @@
   <!-- ============ 尾 ============ -->
   <footer>
     <div class="foot-l">
-      <div class="mark">本机调试编年史</div>
-      <p>本页只做索引与串联，细节、原始日志与逐版 diff 仍以 <code>记录\</code> 三卷本、<code>2026-11-26-OneBot未连接排障.md</code> 与 <code>备份归档\</code> 为准。资料截至 2026-11-27 01:40；现役版本以运行态 <code>extension-cache</code> 的 <code>plugin.json</code> 为准。</p>
+      <div class="mark">大肥鱼调试编年史</div>
+      <p>本页只做索引与串联，细节、原始日志与逐版 diff 仍以 <code>记录\</code> 三卷本、<code>2026-11-26-OneBot未连接排障.md</code> 与 <code>备份归档\</code> 为准。资料截至 2026-11-27 22:20；现役版本以运行态 <code>extension-cache</code> 的 <code>plugin.json</code> 为准。</p>
     </div>
     <div class="foot-r">
       <strong>2026 · 11</strong>

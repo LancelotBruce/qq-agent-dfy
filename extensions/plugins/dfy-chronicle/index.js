@@ -1,4 +1,4 @@
-// 本机调试编年史 · 让机器人查得到 2026-10-27 → 11-27 的调试过程
+// 大肥鱼调试编年史 · 让机器人查得到 2026-10-27 → 11-27 的调试过程
 // 数据由《调试编年史.html》解析而来，纯本地只读，不联网、不写用户数据。
 import fs from 'node:fs';
 import path from 'node:path';
@@ -53,7 +53,7 @@ function buildDocs() {
   const add = (doc) => docs.push(doc);
 
   add({
-    id: 'OVERVIEW', kind: '总览', title: '本机调试编年史总览',
+    id: 'OVERVIEW', kind: '总览', title: '大肥鱼调试编年史总览',
     date: data.span, text: [
       `时间跨度 ${data.span}，连续 ${data.days} 天，${data.versions} 个版本号，${data.incidents.length} 起有档案的事故，${data.extensionCount} 个插件与技能。`,
       `主线：${data.phases.map((p) => `${p.date} ${p.title}`).join('；')}。`,
@@ -189,7 +189,7 @@ function findDoc(id) {
 }
 
 function header() {
-  return `本机调试编年史｜${data.span}｜${data.days} 天｜${data.phases.length} 段主线｜${data.incidents.length} 起事故`;
+  return `大肥鱼调试编年史｜${data.span}｜${data.days} 天｜${data.phases.length} 段主线｜${data.incidents.length} 起事故`;
 }
 
 function overviewText() {
@@ -209,7 +209,7 @@ function overviewText() {
 }
 
 function detailText(doc) {
-  if (!doc) return '没有这个编号。可用 P1~P12、I1~I10、N1~N8、R1~R7、E1~E3、O1~O6，或 OVERVIEW。';
+  if (!doc) return '没有这个编号。可用 P1~P13、I1~I10、N1~N8、R1~R7、E1~E3、O1~O6，或 OVERVIEW。';
   const head = `[${doc.id}｜${doc.kind}] ${doc.title}${doc.date ? `｜${doc.date}` : ''}`;
   return `${head}\n${clip(doc.text, 1400)}`;
 }
@@ -218,7 +218,7 @@ function registerTools(a) {
   a.registerTool({
     id: 'chronicle_overview',
     name: '调试编年史总览',
-    description: '本机本机 2026-10-27→11-27 的调试编年史总览：32 天、8 个版本号、12 段主线、10 起事故、31 条入档。'
+    description: '本机大肥鱼 2026-10-27→11-27 的调试编年史总览：32 天、8 个版本号、13 段主线、10 起事故、32 条入档。'
       + '问「以前调试过什么」「总共出过哪些事故」「版本怎么演进」时先用它建立时间轴。',
     category: 'memory',
     icon: '📜',
@@ -258,7 +258,7 @@ function registerTools(a) {
   a.registerTool({
     id: 'chronicle_get',
     name: '调试编年史详情',
-    description: '按编号取编年史全文：P1~P12 主线段落、I1~I10 事故、N1~N8 数字、R1~R7 定型口径、E1~E3 证据地图、O1~O6 未决项、OVERVIEW 总览。'
+    description: '按编号取编年史全文：P1~P13 主线段落、I1~I10 事故、N1~N8 数字、R1~R7 定型口径、E1~E3 证据地图、O1~O6 未决项、OVERVIEW 总览。'
       + '先 chronicle_search 拿编号，再取全文；回答要带日期和证据出处。',
     category: 'memory',
     icon: '📖',
@@ -278,7 +278,7 @@ function registerTools(a) {
   a.registerTool({
     id: 'chronicle_send_image',
     name: '发调试编年史长图',
-    description: '把《本机调试编年史》整页长图发到当前会话。用户说「发编年史长图」「看看这张图」「把编年史发我」时用。',
+    description: '把《大肥鱼调试编年史》整页长图发到当前会话。用户说「发编年史长图」「看看这张图」「把编年史发我」时用。',
     category: 'media',
     icon: '🖼️',
     parameters: {
@@ -292,7 +292,7 @@ function registerTools(a) {
         if (!chatKey) return { content: '不知道发哪个会话：当前上下文没有 chatKey。', isError: true };
         if (!fs.existsSync(IMAGE_FILE)) return { content: '编年史长图文件不在，先重新生成。', isError: true };
         if (!ctx?.sender?.sendImage) return { content: '当前上下文不能发图。', isError: true };
-        await ctx.sender.sendImage(chatKey, { file: IMAGE_FILE }, { note: '本机调试编年史长图' });
+        await ctx.sender.sendImage(chatKey, { file: IMAGE_FILE }, { note: '大肥鱼调试编年史长图' });
         return { content: '编年史长图已发到当前会话。' };
       } catch (e) { return { content: `发长图失败：${e?.message ?? e}`, isError: true }; }
     }

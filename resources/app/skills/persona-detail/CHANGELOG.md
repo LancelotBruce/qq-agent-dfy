@@ -66,7 +66,7 @@
 
 ## v1.1.0（2026-11-09）
 
-- 存档目录可配（`settings.storeDir`，本机指向 `<工作目录>`）。
+- 存档目录可配（`settings.storeDir`，本机指向 `E:\Desktop\大肥鱼专用`）。
 - 检索按 title/category/text/keywords 加权打分，支持中文二元组近似匹配。
 - 新增 `manage_persona_detail`（管理员 QQ 校验），支持 list / add / replace / remove。
 - 写盘先留 `store.json.bak`，tmp + rename 原子落盘。

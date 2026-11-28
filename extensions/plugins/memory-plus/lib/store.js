@@ -19,8 +19,8 @@ import { DATA_DIR } from '../../../src/config.js';
 
 // ── 存储布局（v2.6.0 起：按群分文件夹）─────────────────────────────────
 //   <storeDir>/_全局.json                      ← 归档清扫记录 + 累计计数
-//   <storeDir>/group_2000000000/_会话.json       ← 本会话的短期记忆 / 标签 / 长期元数据
-//   <storeDir>/group_2000000000/长期记忆.json    ← 核心长期印象的**只读快照**
+//   <storeDir>/group_2000000003/_会话.json       ← 本会话的短期记忆 / 标签 / 长期元数据
+//   <storeDir>/group_2000000003/长期记忆.json    ← 核心长期印象的**只读快照**
 //
 // storeDir 默认 <DATA_DIR>/记忆（跟着宿主数据目录走，换机不用改），可用插件设置项 storeDir 改。
 // 为什么长期记忆只做快照：长期记忆的正文归核心 MemoryStore 独占
@@ -644,7 +644,7 @@ export function parseDueAt(content, base = Date.now()) {
   if (hour === null && /中午/.test(text)) hour = 12;
   if (hour !== null) {
     // 12 小时制修正看整句：中文里"今晚十一点半"的时段词常被拆在别处，只看紧邻前缀会漏。
-    // 注意不能把单字"夜"当晚间标志 —— 群里有人就叫"某用户"，会把三点判成十五点。
+    // 注意不能把单字"夜"当晚间标志 —— 群里有人就叫"夜修"，会把三点判成十五点。
     if (/(下午|傍晚|晚上|夜里|今晚|明晚|夜晚|夜间|半夜)/.test(text) && hour < 12) hour += 12;
     else if (/(凌晨|早上|早晨|上午)/.test(text) && hour === 12) hour = 0;
     if (hour > 23) hour = null;

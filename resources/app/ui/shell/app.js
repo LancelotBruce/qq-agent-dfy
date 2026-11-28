@@ -18,6 +18,7 @@ import {resolveScheme} from '../panels/theme.js';
 import {createIcon} from '../panels/icons.js';
 import {LOCAL_PROTOCOL_RELEASES,localProtocolLoginUrl} from '../panels/local-protocol-links.js';
 import {installMotion,observeInterfaceMotion} from '../panels/motion.js';
+import {bindDestructiveAction} from '../panels/destructive-action.js';
 import {createRefreshQueue} from './refresh-queue.js';
 import {createPanelRecovery} from './panel-recovery.js';
 import {createStartupNavigation} from './startup-navigation.js';
@@ -159,7 +160,7 @@ function renderRuntime(){
     const stage=String(onebot.stage||'');
     const connected=!!onebot.connected;
     const ready=connected&&(typeof onebot.transportReady==='boolean'?onebot.transportReady:true)&&(!stage||stage==='ready');
-    // 本机改（0.4.1-dfy.3 连接四态移植到 0.5）：连接在、但账号掉线 / 收不到消息 / 心跳停摆时
+    // 大肥鱼改（0.4.1-dfy.3 连接四态移植到 0.5）：连接在、但账号掉线 / 收不到消息 / 心跳停摆时
     // 不能再亮绿灯——绿点配坏消息自相矛盾。0.5 用 stage + diagnosis 表达，这里翻译成人话并单独判成 bad。
     const degradedStages={awaiting_login:'账号未登录或掉线，连接正常但消息发不出去',account_mismatch:'登录的账号与当前配置不符',http_unavailable:'HTTP 接口不可用，收发可能已断',http_unauthorized:'HTTP 令牌不匹配，收发会被协议端拒绝'};
     const degraded=connected&&!ready&&(degradedStages[stage]!==undefined||!!onebot.diagnosis);
@@ -192,6 +193,23 @@ function applyRuntimeStatus(patch){
 pauseControls=createPauseControls({api,button:pauseButton,getPaused:()=>runtimeStatus.orchestrator?.paused,
   onBusy:value=>{pauseBusy=value;renderRuntime();},commitStatus:applyRuntimeStatus,notify:toast,refresh:()=>pollStatus()});
 window.addEventListener('pagehide',event=>{if(!event.persisted)pauseControls.dispose();});
+const quitButton=document.querySelector('#quit-btn');
+if(quitButton){
+  if(typeof window.qqAgentShell?.quit==='function'){
+    quitButton.hidden=false;
+    quitButton.prepend(createIcon('power',{size:14}));
+    bindDestructiveAction(quitButton,{
+      clicks:4,
+      action:()=>window.qqAgentShell.quit(),
+      target:()=>quitButton,
+      key:'shell-quit',
+      layoutMotion:false,
+      impact:'退出 QQ Agent：停止机器人与协议端；本次守护不再拉起，手动双击或重启后恢复。',
+    });
+  }else{
+    quitButton.remove();
+  }
+}
 const externalLinks={
   'quote-btn':'https://kondius.cn/qq-agent/holyshits',
   'skill-market-btn':'https://www.kondius.cn/qq-agent/skill-market/',

@@ -2,7 +2,7 @@
 //
 // 数据源：<app>/data/memory-v2/chunks/hour_*.json
 //   conversation-memory 插件每 10 分钟巩固一次，产出「每小时一个块」：
-//   { id, kind:'hour', chatKey:'group:2000000003', dayKey:'2026-10-17', hourKey:'16',
+//   { id, kind:'hour', chatKey:'group:2000000005', dayKey:'2026-10-17', hourKey:'16',
 //     title, summary, keywords:[...], snippets:[{when,ts,who,text}], msgCount }
 //
 // 平常不读盘、不进提示词；只有模型调用 memory_recall 时才扫一遍（几十块 ≈ 1.8 MB，几毫秒）。
@@ -86,7 +86,7 @@ function dataDirs() {
     }
   } catch { /* 拿不到 app 根目录时只剩 env 一条路 */ }
   // 扁平/便携布局兜底：技能在 <根>\resources\app\skills\...，而运行时数据在 <根>\data
-  // （如 <安装目录>\data）。此时 APP_ROOT 推不到数据目录，向上逐级找 <dir>/data。
+  // （如 D:\QQAgent\data）。此时 APP_ROOT 推不到数据目录，向上逐级找 <dir>/data。
   let base = APP_ROOT;
   for (let i = 0; i < 3; i += 1) {
     base = path.resolve(base, '..');

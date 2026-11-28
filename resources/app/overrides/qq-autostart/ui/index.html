@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>设置 · QQ Agent</title>
+  <link rel="stylesheet" href="../common.css"><link rel="stylesheet" href="../market-browser.css"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="icon-editor.css"><link rel="stylesheet" href="provider-presets.css"><link rel="stylesheet" href="../persona-market.css">
+<link rel="stylesheet" href="../visual-refinements.css"><link rel="stylesheet" href="qq-autostart.css"></head>
+<body data-panel="settings">
+<main>
+  <header class="head">
+    <div>
+      <div class="eyebrow">CONFIGURATION / QQ AGENT</div>
+      <h2>设置</h2>
+      <div id="status" class="muted" role="status">加载中</div>
+    </div>
+    <div class="actions"><button id="reload" type="button" title="刷新设置" aria-label="刷新设置"></button><button id="save" hidden type="button">保存改动</button><button id="open-data" type="button">打开数据目录</button><button id="reset" class="danger" type="button">重置全部数据</button></div>
+  </header>
+  <div class="settings-layout">
+    <aside class="settings-aside">
+      <div class="settings-filter">
+        <label class="settings-filter-field">
+          <input id="settings-filter" type="search" placeholder="搜索设置" autocomplete="off" aria-label="搜索设置">
+        </label>
+      </div>
+      <nav id="settings-sidebar" class="settings-sidebar" aria-label="设置分区导航"></nav>
+      <div id="settings-sidebar-empty" class="settings-filter-empty" hidden>没有匹配的分区</div>
+      <div id="settings-search-results" class="settings-search-results" hidden></div>
+    </aside>
+    <div class="settings-content">
+      <section id="qq-autostart-card" class="card qq-autostart" aria-label="QQ 开机自启">
+        <div class="module-head">
+          <div class="module-text">
+            <h3>QQ 开机自启</h3>
+            <p>只拉起 QQ，不代填密码；默认关。协议端仍由看门狗负责，互不替代。</p>
+          </div>
+          <div class="module-meta"><span id="qq-autostart-state" class="muted">读取中</span></div>
+        </div>
+        <div class="qq-autostart-row">
+          <label class="qq-autostart-switch"><input id="qq-autostart-enabled" type="checkbox"><span>启用</span></label>
+          <label class="qq-autostart-delay">登录后延迟 <input id="qq-autostart-delay" type="number" min="5" max="300" step="5" value="45"> 秒</label>
+          <button id="qq-autostart-save" type="button">保存</button>
+        </div>
+        <div id="qq-autostart-note" class="field-hint">只写一个 HKCU 登录启动项，不碰 DaFeiYuWatchdog 和 SnowLuma。</div>
+      </section>
+      <section id="fields" class="settings-sections"></section>
+    </div>
+  </div>
+  <section class="card settings-preview" aria-label="提示词预览">
+    <div class="module-head">
+      <div class="module-text">
+        <h3>当前提示词预览</h3>
+        <p>使用当前设置和未提交的普通字段。预览不保存配置，也不调用模型。</p>
+      </div>
+      <div class="module-meta"><button id="preview" type="button">生成预览</button></div>
+    </div>
+    <pre id="prompt" class="pre">尚未生成</pre>
+  </section>
+</main>
+<script type="module" src="panel.js"></script>
+<script type="module" src="qq-autostart.js"></script>
+</body>
+</html>

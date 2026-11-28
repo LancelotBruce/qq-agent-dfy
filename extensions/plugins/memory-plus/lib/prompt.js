@@ -57,7 +57,7 @@ function _overlap(a, b, n = 4) {
 /**
  * 把同一人的短期条目按"先到先得 + 近义合并"压一遍。
  * 保留的顺序不变（调用方已按 hits/新近度排好），返回被合并掉多少条。
- * 合并规则：与已保留的某条重合 ≥0.5 视为同一件事；保留哪条：
+ * 合并规则：与已保留的用条重合 ≥0.5 视为同一件事；保留哪条：
  *   ① 约定类优先（约会被换说法盖掉就等于丢了"说好的事"）；
  *   ② 否则留信息更全的那条（更长）。
  * @param {(s:object)=>boolean} [isAppt] 判断一条是不是约定
@@ -143,7 +143,7 @@ export function buildMemoryBlock({
     const uid = String(userId || '');
     if (seen.has(uid)) return null;
     seen.add(uid);
-    const person = { userId: uid, name: String(name || uid || '某人'), long: [], short: [], labels: [], hiddenShort: 0 };
+    const person = { userId: uid, name: String(name || uid || '用人'), long: [], short: [], labels: [], hiddenShort: 0 };
     people.push(person);
     return person;
   };
@@ -206,13 +206,13 @@ export function buildMemoryBlock({
   const labelOf = (p) => {
     const uid = String(p.userId || '').trim();
     const nm = String(p.name || '').trim();
-    if (!uid) return nm || '某人';
+    if (!uid) return nm || '用人';
     if (!nm || nm === uid) return `QQ:${uid}`;
     return `${uid}（${nm}）`;
   };
 
   // ── 长期记忆 ──
-  // 标签优先（用户要求）：某人**已经有标签**时，只给"标签 + 约定原文"，不再堆全文；
+  // 标签优先（用户要求）：用人**已经有标签**时，只给"标签 + 约定原文"，不再堆全文；
   // 正文随时可以用 recall_impression(mode=full) 展开 —— 所以提示词里给了两种模式的提示。
   // 约定类例外：约定被压成标签就等于把"说好的事"弄丢了，永远给原文。
   const labelFirst = cfg.enableLabelFirst !== false;

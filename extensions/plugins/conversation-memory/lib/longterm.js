@@ -79,13 +79,13 @@ export class LongTermStore {
 
 }
 
-/** 「日」块 id：day_group_2000000002_2026-09-10 */
+/** 「日」块 id：day_group_1098345913_2026-09-10 */
 export function dayChunkId(chatKey, dayKey) {
   const safe = String(chatKey).replace(/[^a-z0-9_]/gi, '_');
   return `day_${safe}_${dayKey}`;
 }
 
-/** 「小时」块 id：hour_group_2000000002_2026-09-10_14 */
+/** 「小时」块 id：hour_group_1098345913_2026-09-10_14 */
 export function hourChunkId(chatKey, hourKey) {
   const safe = String(chatKey).replace(/[^a-z0-9_]/gi, '_');
   return `hour_${safe}_${String(hourKey).replace(/[^0-9-]/g, '')}`;

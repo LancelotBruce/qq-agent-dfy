@@ -713,7 +713,7 @@ function registerTools(api) {
     id: 'rename_member',
     name: '改对某人的称呼',
     description: '主人明确指定称呼时用：把这个人档案里的名字换成新称呼（旧名自动进别名），画像里加一条「称呼：xx」，'
-      + '之后所有会话都按新称呼叫他。主人怎么说都行（"叫1000000004为蜥蜴哥哥""把某用户叫老木""他外号是阿明"），'
+      + '之后所有会话都按新称呼叫他。主人怎么说都行（"叫1000000005为蜥蜴哥哥""把某用户叫老木""他外号是阿明"），'
       + '你只负责填 who 和 name。群友自己说"叫我大哥"、互相起外号、玩梗、角色扮演，一律不调。',
     category: 'memory',
     icon: '✏️',
@@ -743,7 +743,7 @@ function registerTools(api) {
   api.registerTool({
     id: 'remember_fact',
     name: '记下主人交代的事实',
-    description: '主人明确交代要记住某人的某件事时用（"记住1000000004喜欢半夜打游戏""记一下某用户生日是5月1日"）：'
+    description: '主人明确交代要记住某人的某件事时用（"记住1000000005喜欢半夜打游戏""记一下某用户生日是5月1日"）：'
       + '直接写进长期结论层，置信度 95，提示词里排在所有普通结论前面，不吃时效、不会被自动降级。'
       + '猜测、听说、玩笑、群友自己说的，一律不用这个——那些走 note_impression 攒次数。',
     category: 'memory',
@@ -1527,7 +1527,7 @@ async function extractFromArchive(ctx, { scan = 120, days = 0, settings = {}, fo
           + `请挑出值得长期记住的**关于某个人的稳定信息**，最多 ${focus.length ? 5 : 3} 条：\n`
           + '- 适合记：稳定性格特点、说话习惯、明确偏好/雷点、身份关系、以及"约定/答应/待提醒"类的事。\n'
           + '- 每条都要写清对象：写「示例用户称某用户为姐姐、自称孤」，不要写「称对方为姐姐」；'
-          + '写「某用户答应下完影之刃叫机器人」，不要写「下完要叫他」。\n'
+          + '写「无￥答应下完影之刃叫机器人」，不要写「下完要叫他」。\n'
           + '- **每条都必须带主语**：写「张三喜欢打游戏」，不要写「喜欢打游戏」；'
           + '写「李四和王五是夫妻」，不要写「和王五是夫妻」；写「张三打游戏只玩战地6」，'
           + '不要写「打游戏只玩战地6」。主语用记录里出现的那个昵称或 QQ 号。\n'
@@ -1797,7 +1797,7 @@ async function crossCheck(chatKey, { settings = {}, longMembers = null, apply = 
           role: 'system',
           content: '你是记忆核对模块。下面是同一个群里多个人的记忆档案。只做核对，绝不发明新事实、不推测。'
             + '输出严格 JSON，不要解释、不要 markdown 代码块。输出越短越好，否则会被截断。格式：'
-            + '{"issues":[{"type":"conflict","userId":"1000000002","content":"其中一条原句","otherContent":"另一条互相排斥的原句","confidence":90},{"type":"attribution","userId":"1000000002","content":"主语不对的那条原句","confidence":90}]}'
+            + '{"issues":[{"type":"conflict","userId":"1000000001","content":"其中一条原句","otherContent":"另一条互相排斥的原句","confidence":90},{"type":"attribution","userId":"1000000001","content":"主语不对的那条原句","confidence":90}]}'
         },
         {
           role: 'user',
@@ -2929,9 +2929,9 @@ function refreshLongSnapshot(chatKey, force = false) {
   }
 }
 
-/** 核心数据根（<应用>/data），长期记忆正文在它下面的 memory/。
- *  ⚠️ 不能用 dataDir() 往上退：dataDir() 现在是用户指定的记忆文件夹，
- *  退一级会指到桌面这类位置，长期记忆就读不到了。 */
+/** 核心数据根（宿主数据目录），长期记忆正文在它下面的 memory/。
+ *  ⚠️ 不能用 dataDir() 往上退：dataDir() 是用户指定的记忆文件夹（可用 storeDir
+ *  改到任意磁盘），退一级会落到桌面之类的位置，长期记忆就读不到了。 */
 function dataDirRoot() {
   return path.dirname(coreMemoryRoot());
 }
